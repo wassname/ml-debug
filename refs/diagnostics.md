@@ -1,5 +1,7 @@
 # 6.2 Diagnostic code snippets
 
+Part of the [ML Debugging skill](../SKILL.md), section 6.2.
+
 Copy-paste these. Each tests one thing.
 
 **Data pipeline sanity check**

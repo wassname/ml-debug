@@ -1,5 +1,7 @@
 # 6.1 Static analysis: grep for silent bugs
 
+Part of the [ML Debugging skill](../SKILL.md), section 6.1.
+
 Run these searches on the codebase before anything else. Each catches a common bug that produces no error but wrong results.
 
 **Shape mismatches (silent broadcasting)**

@@ -162,6 +162,8 @@ Keep a structured work log for long debugging sessions:
 - Glorot & Bengio, "Understanding the difficulty of training deep feedforward neural networks" (2010)
 - Josh Tobin, FSDL Spring 2021 Lecture 7 "Troubleshooting Deep Neural Networks": https://fullstackdeeplearning.com/
 - Andrew Ng, CS229 Machine Learning Advice: Stanford CS229
+- McCandlish & Kaplan, "An Empirical Model of Large-Batch Training" (2018): https://arxiv.org/abs/1812.06162
+- Slav Ivanov, "37 Reasons why your Neural Network is not working" (2017): https://blog.slavv.com/37-reasons-why-your-neural-network-is-not-working-4020854bd607
 
 ### Tools
 - PyTorch memory profiling: https://github.com/Stonesjtu/pytorch_memlab
@@ -598,7 +600,7 @@ For RL specifically, add:
 
 ### 7.3 The debugging mindset
 
-Core attitudes are covered in Part 1 ("Assume you have a bug," "Pursue anomalies," "Loss curves are a red herring") and Part 2 ("Working from reference implementations"). Here are the additional mental habits not covered there:
+Core attitudes are covered in Part 1 ("Assume you have a bug," "Pursue anomalies," "Loss curves are a red herring") and [Part 2](rl/SKILL.md) ("Working from reference implementations"). Here are the additional mental habits not covered there:
 
 **"Think more, experiment less."** [Rahtz 2018]
 When runs take hours, spend 30-60 minutes mapping hypotheses before launching. Rank by likelihood given all evidence. Only run experiments that distinguish between your top hypotheses. Rahtz: "Switching from experimenting a lot and thinking a little to experimenting a little and thinking a lot was a key turnaround."
@@ -610,7 +612,7 @@ Before starting a run, ask: "If this run fails, what would the most likely cause
 Many normalization/regularization tricks do roughly the same thing. Adding more tricks adds complexity without proportional benefit. If you have three normalization schemes and the model still doesn't work, the problem isn't normalization.
 
 **Diff against reference implementations.** [Henderson 2018, Jones 2021]
-When stuck, diff your code line-by-line against a working reference. The bug is usually in something "trivial" -- episode resets, advantage normalization, dtype. Henderson et al. 2018: "implementation differences which are often not reflected in publications can have dramatic impacts on performance." See Part 2.9 for details.
+When stuck, diff your code line-by-line against a working reference. The bug is usually in something "trivial" -- episode resets, advantage normalization, dtype. Henderson et al. 2018: "implementation differences which are often not reflected in publications can have dramatic impacts on performance." See [rl/SKILL.md section 9](rl/SKILL.md) for details.
 
 ### 7.4 When to suspect the data
 
