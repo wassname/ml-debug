@@ -169,3 +169,16 @@ for name, p in model.named_parameters():
 # Bad signs: all zeros, huge values (>100), std ~0 (collapsed), NaN.
 # After training: weights diverging to +/-inf = exploding. All same value = dead.
 ```
+
+---
+
+## JAX diagnostic equivalents
+
+| Diagnostic | PyTorch | JAX |
+|------------|---------|-----|
+| NaN detection | `torch.autograd.detect_anomaly()` | `jax.config.update("jax_debug_nans", True)` |
+| Gradient check | `torch.autograd.gradcheck(fn, inputs)` | `jax.test_util.check_grads(fn, args, order=2)` |
+| Eager debug (no compile) | N/A (already eager) | `jax.config.update("jax_disable_jit", True)` |
+| Print inside compiled | N/A | `jax.debug.print("{x}", x=x)` |
+| Breakpoint inside compiled | `pdb.set_trace()` | `jax.debug.breakpoint()` |
+| Runtime assertions inside compiled | `assert` | `jax.experimental.checkify` |

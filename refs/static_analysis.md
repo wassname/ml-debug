@@ -114,3 +114,18 @@ weight=.*class                # existing balancing -- verify weights are correct
 # Diagnostic: count labels per class (see diagnostics.md "Class imbalance check").
 # 100:1 ratio with unweighted loss = model predicts majority class.
 ```
+
+---
+
+## JAX-specific patterns
+
+```
+# Grep patterns for JAX codebases:
+x\[.*\]\s*=\s*[^=]            # in-place mutation inside jit (use .at[].set())
+print\(                        # side effect at trace time only (use jax.debug.print)
+\bif\b.*traced                 # TracerBoolConversionError risk
+random\.\w+\(key\b             # key reuse without prior split (identical samples)
+jnp\.sum\(\[|jnp\.array\(     # list inside jit = compilation explosion
+\bnp\.                         # numpy ops escape the traced computation graph
+\.astype\(                     # backend-dependent cast behavior (clamped, not wrapped)
+```
