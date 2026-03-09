@@ -159,6 +159,28 @@ for conf, pred, true, idx in errors[:10]:
 # Inspect the actual inputs for these indices. Pattern = systematic bug.
 ```
 
+**Update-to-data ratio check** [Karpathy nn-zero-to-hero Lec 4]
+```python
+# Track during training: how large are updates relative to parameter magnitudes?
+# Target: ~1e-3 (log10 ~ -3). Much higher = LR too large. Much lower = LR too small.
+ud = []
+# Inside training loop (after optimizer.step()):
+with torch.no_grad():
+    ud.append({
+        name: ((lr * p.grad).std() / p.data.std()).log10().item()
+        for name, p in model.named_parameters()
+        if p.grad is not None and p.ndim >= 2
+    })
+# After training, plot per-layer ratios:
+import matplotlib.pyplot as plt
+for name in ud[0]:
+    plt.plot([d[name] for d in ud], label=name)
+plt.axhline(-3, color='k', linestyle='--')  # target ratio
+plt.legend(); plt.ylabel('log10(update/param ratio)'); plt.show()
+# If a layer's ratio is much above -3: reduce LR or add gradient clipping.
+# If much below -3: that layer is barely updating -- possible dead/frozen layer.
+```
+
 **Weight/bias distribution check** [Slavv, CS231n]
 ```python
 for name, p in model.named_parameters():

@@ -69,9 +69,9 @@ From NeuralPDE.jl tests/docs + Wang et al. 2021:
 - **Init**: Glorot uniform (Xavier), zero biases. Standard.
 
 **Modified MLP** (Wang et al. 2021, credence ~70%):
-> Wang et al. propose a modified MLP with multiplicative interactions: `σ(Wz + b) * U + (1 - σ(Wz + b)) * V` where U, V are linear projections of the input. Authors claim this reduces Hessian stiffness. "Greatly enhances predictive accuracy" for nonlinear PDEs.
+> Wang et al. propose a modified MLP with multiplicative interactions: `σ(Wz + b) * U + (1 - σ(Wz + b)) * V` where U, V are linear projections of the input. Authors claim this reduces Hessian stiffness.
 > Source: https://arxiv.org/abs/2001.04536, Section 2.6
-> Evidence: 49x improvement on Helmholtz, 64x on Klein-Gordon. But only tested by the proposing authors; no independent replication found.
+> Evidence: 49x improvement on Helmholtz, 64x on Klein-Gordon. Only tested by the proposing authors; no independent replication found.
 
 **Random Weight Factorization (RWF)** (arXiv 2210.01274, credence ~60%):
 > Factorize each neuron's weight vector as w = s * w_unit, where s is a trainable scalar and w_unit is the unit-normalized direction. This changes the optimization geometry so the loss surface has better-conditioned local minima. "Predictions obtained by RWF are in excellent agreement with ground truth, while other weight parameterizations result in poor or non-physical approximations."
@@ -79,7 +79,7 @@ From NeuralPDE.jl tests/docs + Wang et al. 2021:
 > Used in the PirateNet architecture alongside causal training, sequence-to-sequence, and Fourier features. Simple to implement as a custom parameterization on Linear layers.
 > Credence: plausible mechanism, but proposing-author result; check jaxpi repo for independent adoption.
 
-**PirateNet** (jaxpi library, credence ~55%): Bundles RWF + causal time-marching + seq2seq + Fourier features into one architecture. Good reference implementation when you want all the tricks.
+**PirateNet** (jaxpi library, credence ~55%): Bundles RWF + causal time-marching + seq2seq + Fourier features into one architecture. Reference implementation if you want all the tricks together.
 > Source: https://github.com/PredictiveIntelligenceLab/jaxpi
 
 **Symmetry-enforcing architectures** (Julia Ling et al., credence ~75%):
