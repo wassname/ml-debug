@@ -159,7 +159,7 @@ for conf, pred, true, idx in errors[:10]:
 # Inspect the actual inputs for these indices. Pattern = systematic bug.
 ```
 
-**Update-to-data ratio check** [Karpathy nn-zero-to-hero Lec 4]
+**Update-to-data ratio check** [Karpathy nn-zero-to-hero Lec 4; evidence: karpathy_nn_zero_to_hero_lec4_diagnostics.md]
 ```python
 # Track during training: how large are updates relative to parameter magnitudes?
 # Target: ~1e-3 (log10 ~ -3). Much higher = LR too large. Much lower = LR too small.
