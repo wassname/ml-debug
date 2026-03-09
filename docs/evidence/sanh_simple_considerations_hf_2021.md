@@ -57,5 +57,7 @@ Credence ~65-70% -- specific domain claim, lacks ablation study reference.
 
 ## External links from this post
 
-- "Checklist for debugging neural networks" -- Cecelia Shao (Towards Data Science)
-- "A recipe for Training Neural Networks" -- Karpathy
+- **Cecelia Shao, "Checklist for Debugging Neural Networks"** (2019, KDnuggets/Towards Data Science): 5-section checklist (start simple, confirm loss, check intermediate outputs, diagnose parameters, track work). Thin; largely overlaps with Karpathy recipe and Slavv. Not captured separately -- see those sources instead.
+- **Chase Roberts, "How to unit test machine learning code"** (2017, Medium, 4 min): Focuses on software unit testing practices applied to ML models -- testing gradient flow, output shapes, that outputs change when weights change. Spawned `mltest` library. Not a full debugging guide. Main insight: "The code never crashes, the loss still goes down, it just converges to poor results."
+- **Joel Grus, "Reproducibility in ML as engineering best practices"** (Google Slides): Experiment reproducibility / engineering hygiene. Not fetched.
+- **A recipe for Training Neural Networks** -- Karpathy (captured in full: karpathy_recipe_training_nn_2019.md)
