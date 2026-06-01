@@ -5,13 +5,9 @@ description: "Wassname's practical folklore for debugging ML systems: convergenc
 
 # ML Debugging Folklore
 
-Practitioner knowledge that's hard to find in papers. Distilled from Schulman's "Nuts and Bolts" talk, Andy Jones' debugging guide, r/reinforcementlearning threads, competition write-ups, and personal experience. Most multi-source claims are traced to sourced quotes in [docs/ml_debug_folklore.argdown](docs/ml_debug_folklore.argdown) (vargdown format); uncovered claims are listed in the [process log](docs/ml_debug_folklore_log.md).
+Practitioner knowledge that's hard to find in papers, distilled from Schulman's "Nuts and Bolts" talk, Andy Jones' debugging guide, r/reinforcementlearning threads, competition write-ups, and personal experience.
 
-**Caveat:** Most sources are from 2017-2021, predating RLHF, large-scale pretraining, and JAX/PyTorch 2.0 workflows. Core debugging principles (isolation testing, logging, seed variance) are architecture-agnostic and likely durable. Specific RL HP defaults and reward-scaling advice may need updating for modern settings.
-
-**LLM pretraining gap:** For modern transformer pretraining debugging, see [Karpathy's recipe](https://karpathy.github.io/2019/04/25/recipe/) (2019; general training workflow, activation/gradient health checks) and [nanochat deepwiki](https://deepwiki.com/karpathy/nanochat) (2026; documents 320+ empirical HP sweeps for training a GPT-2-scale model from scratch, covering MFU monitoring, precision management, BOS-aligned dataloaders, and cross-scale ablation discipline). Evidence files: [karpathy_recipe_training_nn_2019.md](docs/evidence/karpathy_recipe_training_nn_2019.md), [nanochat_deepwiki_llm_pretraining_2026.md](docs/evidence/nanochat_deepwiki_llm_pretraining_2026.md).
-
-The core problem in RL (and to a lesser extent supervised ML): errors aren't local [Jones 2021]. In RL, information flows in a loop (actor -> learner -> actor), so a numerical bug in one spot gets smeared through the whole system in seconds. From outside, everything goes weird at once -- loss explodes, KL collapses, rewards oscillate. You can tell something's wrong but not *what* or *where*.
+The core problem: errors aren't local [Jones 2021]. Especially in RL, information flows in a loop (actor -> learner -> actor), so a numerical bug in one spot gets smeared through the whole system in seconds. From outside everything goes weird at once -- loss explodes, KL collapses, rewards oscillate -- and you can tell something's wrong but not *what* or *where*. That's why the discipline below leads with calibration and clue-collection, not fixes.
 
 ## Before you debug: calibrate
 
@@ -30,7 +26,7 @@ Roughly in this order, but the point is the mindset, not ticking boxes:
 - *Subtle*: the sneaky one -- sample size, leakage, a confound, a metric artifact, or plain seed variance masquerading as signal.
 - *Null*: there's no real effect, or it comes from something else you also changed.
 
-Anchor priors on what's usually wrong (Part 7.2: data ~40%, loss ~20%, training ~15%, architecture ~10%, hyperparameters ~5%) -- but priors are a starting weight, not a verdict.
+Anchor priors on what's usually wrong (Part 7.2: data ~40%, loss ~20%, training ~15%, architecture ~10%, hyperparameters ~5%) -- but priors are a starting weight, not a verdict. A clue that points elsewhere overrides them outright: a traceback naming a line, a metric stuck while the loss is healthy (loss-metric misalignment, not data), or an init-loss that's exactly right all redirect you regardless of the ~40% data prior.
 
 **Run the cheapest observation that splits your top hypotheses.** Not the most thorough experiment -- the most *discriminating* one (Rahtz: think more, experiment less, Part 1). One log line or one toy run that tells hypothesis A from B beats a 4-hour sweep that only confirms what you already believed.
 
@@ -51,11 +47,17 @@ Read it for three things, explicitly:
 
 Reference implementations are domain-specific. For RL, see `rl/SKILL.md` section 9 (spinning-up, stable-baselines3, cleanrl, OpenSpiel). For everything, diff against the reference rather than trusting your from-scratch version (Part 7.3).
 
+## Scope and modern pointers
+
+Most sources here are 2017-2021, predating RLHF, large-scale pretraining, and JAX/PyTorch 2.0. The core principles (isolation testing, logging, seed variance, the loop above) are architecture-agnostic and durable; specific RL HP defaults and reward-scaling advice may need updating. For modern transformer pretraining specifically, go to [Karpathy's recipe](https://karpathy.github.io/2019/04/25/recipe/) (2019; activation/gradient health checks) and [nanochat deepwiki](https://deepwiki.com/karpathy/nanochat) (2026; 320+ empirical HP sweeps for a GPT-2-scale run, MFU monitoring, precision management, BOS-aligned dataloaders) -- evidence files [karpathy_recipe_training_nn_2019.md](docs/evidence/karpathy_recipe_training_nn_2019.md), [nanochat_deepwiki_llm_pretraining_2026.md](docs/evidence/nanochat_deepwiki_llm_pretraining_2026.md). Most multi-source claims below trace to quotes in [docs/ml_debug_folklore.argdown](docs/ml_debug_folklore.argdown) (vargdown); uncovered claims are in the [process log](docs/ml_debug_folklore_log.md).
+
 ---
 
 ## Part 1: General ML Debugging
 
-### The hierarchy (work in order, don't skip to hyperparameters)
+### What "collect clues" looks like
+
+This is the catalog the loop's clue-collection step pulls from -- the substantive checks, in rough dependency order (each assumes the one before). It's a menu to draw on, not a fresh end-to-end procedure that competes with the loop above.
 
 **Step 1: Verify components in isolation.** [Goodfellow Ch11, CS229]
 Most bugs are "doing the wrong calculation." Test each piece independently.
