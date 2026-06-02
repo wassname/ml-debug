@@ -46,19 +46,20 @@ Consult as reference, from inside this loop, never as a first move: triage tree 
 The same loop in pseudocode (for humans and agents to hold in one glance):
 
 ```py
+# ── ML debugging loop ────────────────────────
 def debug(symptom):
-    clues = collect(traceback, logs, static_analysis, cheap_diagnostics)  # look before theorizing
-    H     = generate(clues, lenses=5) | {likely, subtle, null}            # ≥3 genuinely different
-    prior = anchor(H)                  # base rates: data .40 loss .20 train .15 arch .10 hp .05
+    clues ← collect(traceback, logs, static_analysis, cheap_diagnostics)  # look before theorizing
+    H     ← generate(clues, lenses=5) | {likely, subtle, null}            # ≥3 genuinely different
+    prior ← anchor(H)              # base rates: data .40 loss .20 train .15 arch .10 hp .05
 
     while not localized:
-        # pick the test by evidence-per-cost, not by thoroughness
-        test  = argmax(divergence(predict(h, t) for h in H) / cost(t) for t in candidates)
-        obs   = run(test)              # one log line or toy run; record obs separately from inference
-        prior = update(prior, obs)     # a clue that points elsewhere overrides the prior outright
-        H     = bisect_path(H, obs)    # forward values + backward grads, halve the search each probe
+        # pick the test by evidence-per-cost, not thoroughness
+        t̂     ← argmax(divergence(predict(h, t) for h in H) / cost(t) for t in candidates)
+        obs   ← run(t̂)            # one log line or toy run; keep obs apart from inference
+        prior ← update(prior, obs)   # a clue elsewhere overrides the prior outright
+        H     ← bisect_path(H, obs)  # forward values + backward grads, halve the search each probe
         if cycles ≥ 2:
-            return read_working_code() # diff your math + graph against a trusted impl
+            return read_working_code()   # diff your math + graph vs a trusted impl
 
     fix(root_cause); assert reproduces(obs)   # no silent fallback; crash if it doesn't
 ```
