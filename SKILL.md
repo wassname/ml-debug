@@ -237,6 +237,16 @@ So: 3e-4 is a fine *starting* LR for Adam, not a law. The real folklore is "Adam
 | Loss spikes at start then recovers | Normal with large batch + warmup. No warmup? Add it |
 | Different results at different batch sizes (same total steps) | Missing LR scaling. Adjust LR proportionally |
 
+### Transformer instability: the fix lives in the code (lucidrains)
+
+The clearest living proof of "the trick is in the implementation, not the paper" is lucidrains' (Phil Wang's) x-transformers, a catalogue of training tricks each tied to the paper it came from. The one most worth knowing for debugging: when a transformer's loss spikes or diverges, a leading cause is attention logits growing unbounded, and the now-near-standard fix is to L2-normalize the queries and keys before their dot product (QK / cosine-sim normalization).
+
+> The normalization prevents the attention operation from overflowing, and removes any need for numerical stability measures prior to softmax. Both are perennial problems when training transformers.[^lucidrains]
+
+> We are nearing the point of wiping out a source of transformer training instability with one simple intervention, in my opinion.[^lucidrains]
+
+It has since been validated on 3B-22B parameter models. A related embedding-level stabilizer he notes: a LayerNorm right after the token+positional embeddings, which both BLOOM-175B and YaLM-100B used to stabilize training.[^lucidrains] The lesson is the read-a-working-implementation one again: scaled-up training recipes accumulate these one-line stability fixes in code long before they are written up, so a divergent run is often a cue to go read what the big runs actually did.
+
 ---
 
 ## For LLM agents
@@ -340,5 +350,6 @@ Folklore sources (the quotes above trace to these):
 [^cs229]: Andrew Ng, CS229 "Advice for Applying Machine Learning" — https://cs229.stanford.edu/ ([cache](docs/evidence/cs229_ml_advice.md))
 [^mccandlish]: McCandlish, Kaplan et al., "An Empirical Model of Large-Batch Training" (2018) — https://arxiv.org/abs/1812.06162 ([cache](docs/evidence/mccandlish_2018_large_batch.md))
 [^goyal]: Goyal et al., "Accurate, Large Minibatch SGD" (2017) — https://arxiv.org/abs/1706.02677
+[^lucidrains]: Phil Wang (lucidrains), x-transformers README — https://github.com/lucidrains/x-transformers ([cache](docs/evidence/lucidrains_x_transformers_readme.md): post-embedding LayerNorm / BLOOM+YaLM L366, attention-overflow / cosine-sim norm L1230, autoregressive validation L1234, "wiping out a source of instability" / QK RMSNorm L1292)
 
 For modern transformer pretraining specifically (the sources above predate it), see [Karpathy's recipe](https://karpathy.github.io/2019/04/25/recipe/) and the [nanochat deepwiki](https://deepwiki.com/karpathy/nanochat) (320+ empirical HP sweeps for a GPT-2-scale run). Most multi-source claims trace to quotes in [docs/ml_debug_folklore.argdown](docs/ml_debug_folklore.argdown) (vargdown); the full evidence set is in [docs/evidence/](docs/evidence/).
