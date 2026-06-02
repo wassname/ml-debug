@@ -186,7 +186,7 @@ Most ML training issues trace back to scale problems.
 
 ### Assume you have a bug [Jones 2021, Goodfellow Ch11]
 
-> When their RL implementation doesn't work, people are often keen to either (a) adjust their network architecture or (b) adjust their hyperparameters. On the other hand, they're reluctant to say they've got a bug. Most often, it turns out they've got a bug. (Andy Jones)
+> When their RL implementation doesn't work, people are often keen to either (a) adjust their network architecture or (b) adjust their hyperparameters. On the other hand, they're reluctant to say they've got a bug. Most often, it turns out they've got a bug. -- Andy Jones
 
 Bugs are faster to find and fix than validating that a new architecture is an improvement. Dramatically raise your threshold for "OK, I think this is correct." Neural net components can adapt to compensate for bugs, masking them [Goodfellow Ch11: "If one part is broken, the other parts can adapt and still achieve roughly acceptable performance."]
 
@@ -196,13 +196,13 @@ They give global information about performance but don't localize errors. Don't 
 
 ### Pursue anomalies [Jones 2021, Rahtz 2018]
 
-> If you ever see a plot or a behaviour that just *seems weird*, chase right after it. Do not just 'hope it goes away'. (Andy Jones)
+> If you ever see a plot or a behaviour that just *seems weird*, chase right after it. Do not just 'hope it goes away'. -- Andy Jones
 
 That cool new feature you were going to add today? It won't magically fix the anomaly. Give up on your plan and chase the anomaly instead. Rahtz independently calls this "noticing confusion": following confusion about a frame-differencing improvement led to finding a normalization bug that had hidden for months.
 
 ### With long feedback loops, think more, experiment less [Rahtz 2018]
 
-> Switching from experimenting a lot and thinking a little to experimenting a little and thinking a lot was a key turnaround in productivity. (Rahtz)
+> Switching from experimenting a lot and thinking a little to experimenting a little and thinking a lot was a key turnaround in productivity. -- Rahtz
 
 When runs take hours, pour time into hypothesis-forming *before* launching. Spend 30-60 minutes mapping out possibilities, ranking them by likelihood given all evidence so far. Reserve experiments for distinguishing between your top hypotheses.
 
