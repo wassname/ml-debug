@@ -161,6 +161,14 @@ Why is research code so reliably buggy? Kidger's blunt answer:
 
 His fix is a posture, "never accept the kludge": messed up your git repo? Find the commands to fix it, "don't just delete it and clone from the remote."[^kidger] The instinct that refuses kludges is the same one that refuses `.detach()`-to-silence-autograd and `except: pass`.
 
+### Broken code fails silently; measure everything (Spinning Up)
+
+Josh Achiam's warning is RL-framed but general:
+
+> broken RL code almost always fails silently, where the code appears to run fine except that the agent never learns how to solve the task.[^spinningup]
+
+So instrument heavily, because "you can't tell it's broken if you can't see that it's breaking,"[^spinningup] and don't trust one passing setup: "sometimes things will work in one environment even when you have a breaking bug, so make sure to test in more than one environment."[^spinningup]
+
 ### Loss curves are a red herring
 
 > When someone's RL implementation isn't working, they *luuuuuurv* to copy-paste a screenshot of their loss curve to you. They do this because they know they want a pretty, exponentially-decaying loss curve, and they know what they have *isn't that*. The problem with using the loss curve as an indicator of correctness is somewhat that it's not reliable, but mostly because it doesn't localise errors. The shape of your loss curve says very little about where in your code you've messed up, and so says very little about what you need to change to get things working.[^jones]
@@ -202,6 +210,12 @@ The canonical data-leakage parable:
 > A cautionary tale in artificial intelligence tells about researchers training an neural network (NN) to detect tanks in photographs, succeeding, only to realize the photographs had been collected under specific conditions for tanks/non-tanks and the NN had learned something useless like time of day.[^gwern]
 
 gwern traced versions back to 1992 and concluded it is "a classic 'urban legend'" with no solid source[^gwern]. The lesson holds twice over: a model will gladly learn a confound in how the data was collected instead of the task (dataset bias / leakage), and even your cautionary tales deserve a citation.
+
+### Read what you actually wrote, not what you meant (gwern)
+
+You can't see your own work clearly, which is why fresh eyes (or a fresh-eyes subagent) catch what you can't:
+
+> you can't find typos in your own writing without a great deal of effort because you know what it's *supposed* to say; so copyediting advice runs like 'read it out loud' or 'print it out and read it' or 'wait a week' [...] or even 'read it upside down'. That's the sort of thing it takes to force you to read what you actually wrote, and not what you thought you wrote.[^gwern-unseeing]
 
 ### Overfit one batch first
 
@@ -280,6 +294,30 @@ Karpathy's nanochat is one of the few public records of what scaling a transform
 > If any rank's gradient contains inf, all ranks must clip to avoid divergence.[^nanochat]
 
 The first is a fake-metric-improvement trap (a better number that isn't better learning); the second is a multi-GPU bug that single-GPU testing hides.
+
+---
+
+## Research taste (adjacent to debugging)
+
+Debugging taste and research taste are the same muscle: stay skeptical of your own results, and build a real model of your system instead of pattern-matching.
+
+### Default to disbelieving your own results (Neel Nanda)
+
+> The default state of the world is that your research is false, because doing research is hard.[^nanda]
+
+> Excitement is evidence of bullshit: Generally, most true results are not exciting, but a fair amount of false results are. So from a Bayesian perspective, if a result is exciting and cool, it's even more likely to be false than normal![^nanda]
+
+The cheapest antidote he gives: "Read your data ... Often, the quality of the data is a crucial driver of the results of your experiments. Often, it is quite bad."[^nanda]
+
+### Understand the system to shrink the search (Ulisse Mini)
+
+> When good programmers debug hard problems fast, it's usually because they understand the system well enough to *track the important internal state* in their head, letting them drastically *reduce the solution space they're searching over.*[^ulisse]
+
+### Gears beat black boxes (John Wentworth)
+
+> figuring out a system's gears takes extra work up-front, but yields dividends forever. [...] The black-box approach is cheaper for one-off tasks, but usually doesn't yield any insights which will generalize to new tasks using the same system[^wentworth]
+
+The pattern-matched fix is the black box; a mechanistic model of your system is the capital investment that pays off across many bugs.
 
 ---
 
@@ -390,6 +428,11 @@ Folklore sources (the quotes above trace to these):
 [^nanochat]: nanochat (Karpathy), documented via DeepWiki — https://deepwiki.com/karpathy/nanochat ([cache](docs/evidence/nanochat_deepwiki_llm_pretraining_2026.md): BOS fake-improvement L97, all-ranks-clip-on-inf L131)
 [^kidger]: Patrick Kidger, "Just Know Stuff" (2023) — https://kidger.site/thoughts/just-know-stuff/ ([cache](docs/evidence/kidger_just_know_stuff.md): kludge-definition L7, junior-developer L9, never-accept-the-kludge L11, don't-delete-and-clone L13)
 [^gwern]: Gwern Branwen, "The Neural Net Tank Legend" — https://gwern.net/tank ([cache](docs/evidence/gwern_tank.md): cautionary tale L7, urban-legend conclusion L9)
+[^spinningup]: Joshua Achiam, "Spinning Up as a Deep RL Researcher" (OpenAI, 2018) — https://spinningup.openai.com/en/latest/spinningup/spinningup.html ([cache](docs/evidence/spinningup_researcher.md): fails-silently L11, test-more-than-one-env L19, measure-everything L21)
+[^nanda]: Neel Nanda, "How to Become a Mechanistic Interpretability Researcher" — https://www.alignmentforum.org/posts/jP9KDyMkchuv6tHwm/how-to-become-a-mechanistic-interpretability-researcher ([cache](docs/evidence/nanda_how_to_mech_interp.md): research-is-false L7, excitement-is-bullshit L9, read-your-data L11)
+[^gwern-unseeing]: Gwern Branwen, "Unseeing" — https://gwern.net/unseeing ([cache](docs/evidence/gwern_unseeing.md): read-what-you-wrote L9, single-anomaly L13)
+[^ulisse]: Ulisse Mini, "How to get good at programming" — https://www.lesswrong.com/posts/LTypqBMTSmRrrhb2v/how-to-get-good-at-programming ([cache](docs/evidence/ulisse_how_to_get_good_at_programming.md): track-internal-state L7, brute-force-search L9, leaky-abstractions L11)
+[^wentworth]: John Wentworth, "Gears-Level Models are Capital Investments" — https://www.lesswrong.com/posts/nEBbw2Bc2CnN2RMxy/gears-level-models-are-capital-investments ([cache](docs/evidence/wentworth_gears_level_models.md): gears-dividends L7, valley-of-bad-theory L11)
 
 For modern transformer pretraining specifically (the sources above predate it), see [Karpathy's recipe](https://karpathy.github.io/2019/04/25/recipe/) and the [nanochat deepwiki](https://deepwiki.com/karpathy/nanochat) (320+ empirical HP sweeps for a GPT-2-scale run). Most multi-source claims trace to quotes in [docs/ml_debug_folklore.argdown](docs/ml_debug_folklore.argdown) (vargdown); the full evidence set is in [docs/evidence/](docs/evidence/).
 
