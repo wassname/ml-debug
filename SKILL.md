@@ -66,7 +66,7 @@ For RL, add reward scale/sign as a top-3 issue, and episode-boundary handling (d
 A catalog of small, well-worn checks, in rough dependency order (each assumes the one before). Pull from it; don't run it end-to-end as a ritual.
 
 **Step 1: Verify components in isolation.**[^goodfellow][^cs229] Most bugs are "doing the wrong calculation." Test each piece independently.
-- Forward pass: feed known inputs, check output shapes and ranges. `assert` shapes everywhere, since `(None,)` vs `(None, 1)` silently broadcasts into `(None, None)`.
+- Forward pass: feed known inputs, check output shapes and ranges. `assert` shapes everywhere, since `(None,)` vs `(None, 1)` silently broadcasts into `(None, None)`. (Or make the shapes runtime-checked contracts with jaxtyping[^jaxtyping] + beartype, which turns the #1 silent bug loud.)
 - Loss: hand-compute a few targets and compare to code output.
 - Data pipeline: sample a batch, print it, eyeball it. Are labels aligned with inputs? Transforms applied correctly?
 - Preprocessing: look at processed inputs as a human. Can *you* solve the task from them?
@@ -151,6 +151,16 @@ The hard-won lessons, in the words of the people who learned them. Sources and l
 
 A bug can also hide, because most ML models have multiple adaptive parts: "If one part is broken, the other parts can adapt and still achieve roughly acceptable performance"[^goodfellow], and it may not show in the output at all. So raise the bar for "correct."
 
+### Never accept the kludge (Patrick Kidger)
+
+Why is research code so reliably buggy? Kidger's blunt answer:
+
+> Academic software is almost always a poorly-maintained kludge of leaky abstractions, awful formatting, and bugs that don't cripple things only because some other bug stops them from doing so.[^kidger]
+
+> This is a systemic professional failing. [...] the overwhelming majority of your time will be spent in front of a screen, staring at code. And yet most of you (yes, you) would not pass muster as a junior developer.[^kidger]
+
+His fix is a posture, "never accept the kludge": messed up your git repo? Find the commands to fix it, "don't just delete it and clone from the remote."[^kidger] The instinct that refuses kludges is the same one that refuses `.detach()`-to-silence-autograd and `except: pass`.
+
 ### Loss curves are a red herring
 
 > When someone's RL implementation isn't working, they *luuuuuurv* to copy-paste a screenshot of their loss curve to you. They do this because they know they want a pretty, exponentially-decaying loss curve, and they know what they have *isn't that*. The problem with using the loss curve as an indicator of correctness is somewhat that it's not reliable, but mostly because it doesn't localise errors. The shape of your loss curve says very little about where in your code you've messed up, and so says very little about what you need to change to get things working.[^jones]
@@ -176,6 +186,22 @@ Corollary, MurphyJitsu pre-flight: before launching a run, ask "if this fails, w
 > The first step to training a neural net is to not touch any neural net code at all and instead begin by thoroughly inspecting your data. [...] The outliers especially almost always uncover some bugs in data quality or preprocessing.[^karpathy-recipe]
 
 Slavv's "37 reasons" list opens with the same anecdote (gradients flowing, loss falling, predictions all background) and puts "Verify that the input data is correct" and "Start with a really small dataset (2-20 samples). Overfit on it" at the top of its emergency checklist[^slavv]. FSDL names preprocessing and dataset construction as leading silent-failure categories[^fsdl].
+
+### Labels are often wrong (koaning)
+
+Even benchmark data is dirtier than you think. Vincent Warmerdam:
+
+> It turns out that bad labels are a *huge* problem in many popular benchmark datasets.[^koaning]
+
+His cheap way to find them: train a deliberately high-bias model, then sort by where it disagrees with the label while assigning the correct class low confidence (the confidence-sorted-errors trick). The takeaway: "maybe we should spend [...] less time tuning parameters and instead spend it trying to get a more meaningful dataset."[^koaning]
+
+### The tank story: your model learns the confound (gwern)
+
+The canonical data-leakage parable:
+
+> A cautionary tale in artificial intelligence tells about researchers training an neural network (NN) to detect tanks in photographs, succeeding, only to realize the photographs had been collected under specific conditions for tanks/non-tanks and the NN had learned something useless like time of day.[^gwern]
+
+gwern traced versions back to 1992 and concluded it is "a classic 'urban legend'" with no solid source[^gwern]. The lesson holds twice over: a model will gladly learn a confound in how the data was collected instead of the task (dataset bias / leakage), and even your cautionary tales deserve a citation.
 
 ### Overfit one batch first
 
@@ -237,15 +263,23 @@ So: 3e-4 is a fine *starting* LR for Adam, not a law. The real folklore is "Adam
 | Loss spikes at start then recovers | Normal with large batch + warmup. No warmup? Add it |
 | Different results at different batch sizes (same total steps) | Missing LR scaling. Adjust LR proportionally |
 
-### Transformer instability: the fix lives in the code (lucidrains)
+### Tricks hide in reference code (lucidrains)
 
-The clearest living proof of "the trick is in the implementation, not the paper" is lucidrains' (Phil Wang's) x-transformers, a catalogue of training tricks each tied to the paper it came from. The one most worth knowing for debugging: when a transformer's loss spikes or diverges, a leading cause is attention logits growing unbounded, and the now-near-standard fix is to L2-normalize the queries and keys before their dot product (QK / cosine-sim normalization).
+lucidrains' x-transformers is a catalogue of training tricks, each tied to its paper. The debugging-relevant one: when a transformer diverges, attention logits blowing up is a prime suspect, and the now-standard fix is QK normalization (L2-normalize queries and keys before the dot product).
 
-> The normalization prevents the attention operation from overflowing, and removes any need for numerical stability measures prior to softmax. Both are perennial problems when training transformers.[^lucidrains]
+> We are nearing the point of wiping out a source of transformer training instability with one simple intervention.[^lucidrains]
 
-> We are nearing the point of wiping out a source of transformer training instability with one simple intervention, in my opinion.[^lucidrains]
+Scaled-up recipes accumulate these one-line stability fixes in code long before they're written up, which is the whole case for reading a working implementation.
 
-It has since been validated on 3B-22B parameter models. A related embedding-level stabilizer he notes: a LayerNorm right after the token+positional embeddings, which both BLOOM-175B and YaLM-100B used to stabilize training.[^lucidrains] The lesson is the read-a-working-implementation one again: scaled-up training recipes accumulate these one-line stability fixes in code long before they are written up, so a divergent run is often a cue to go read what the big runs actually did.
+### Modern LLM-pretraining gotchas (nanochat)
+
+Karpathy's nanochat is one of the few public records of what scaling a transformer from scratch actually takes. Two gotchas worth stealing:
+
+> The 'lower validation loss' from BOS-alignment is misleading—it's just fewer noisy tokens, not better learning.[^nanochat]
+
+> If any rank's gradient contains inf, all ranks must clip to avoid divergence.[^nanochat]
+
+The first is a fake-metric-improvement trap (a better number that isn't better learning); the second is a multi-GPU bug that single-GPU testing hides.
 
 ---
 
@@ -351,5 +385,12 @@ Folklore sources (the quotes above trace to these):
 [^mccandlish]: McCandlish, Kaplan et al., "An Empirical Model of Large-Batch Training" (2018) — https://arxiv.org/abs/1812.06162 ([cache](docs/evidence/mccandlish_2018_large_batch.md))
 [^goyal]: Goyal et al., "Accurate, Large Minibatch SGD" (2017) — https://arxiv.org/abs/1706.02677
 [^lucidrains]: Phil Wang (lucidrains), x-transformers README — https://github.com/lucidrains/x-transformers ([cache](docs/evidence/lucidrains_x_transformers_readme.md): post-embedding LayerNorm / BLOOM+YaLM L366, attention-overflow / cosine-sim norm L1230, autoregressive validation L1234, "wiping out a source of instability" / QK RMSNorm L1292)
+[^koaning]: Vincent D. Warmerdam (koaning), "Bad Labels" (2021) — https://koaning.io/posts/labels/ ([cache](docs/evidence/koaning_bad_labels.md): bad-labels-huge-problem L13, confidence-sort trick L21, spend-less-time-tuning L33)
+[^jaxtyping]: Patrick Kidger, jaxtyping (runtime shape/dtype checking) — https://github.com/patrick-kidger/jaxtyping
+[^nanochat]: nanochat (Karpathy), documented via DeepWiki — https://deepwiki.com/karpathy/nanochat ([cache](docs/evidence/nanochat_deepwiki_llm_pretraining_2026.md): BOS fake-improvement L97, all-ranks-clip-on-inf L131)
+[^kidger]: Patrick Kidger, "Just Know Stuff" (2023) — https://kidger.site/thoughts/just-know-stuff/ ([cache](docs/evidence/kidger_just_know_stuff.md): kludge-definition L7, junior-developer L9, never-accept-the-kludge L11, don't-delete-and-clone L13)
+[^gwern]: Gwern Branwen, "The Neural Net Tank Legend" — https://gwern.net/tank ([cache](docs/evidence/gwern_tank.md): cautionary tale L7, urban-legend conclusion L9)
 
 For modern transformer pretraining specifically (the sources above predate it), see [Karpathy's recipe](https://karpathy.github.io/2019/04/25/recipe/) and the [nanochat deepwiki](https://deepwiki.com/karpathy/nanochat) (320+ empirical HP sweeps for a GPT-2-scale run). Most multi-source claims trace to quotes in [docs/ml_debug_folklore.argdown](docs/ml_debug_folklore.argdown) (vargdown); the full evidence set is in [docs/evidence/](docs/evidence/).
+
+Curated by [wassname](https://github.com/wassname). Companion gist: https://gist.github.com/wassname/e45e41f75c0b50e72ec1f4cff811a277

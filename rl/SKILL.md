@@ -108,6 +108,8 @@ The allure of writing from scratch is real but the self-correction mechanisms in
 2. Use reference impl as source of reliable components, work to the same API
 3. Have one eye on reference while you write your own -- copy hyperparameters, discounting code, termination handling
 
+The canonical demonstration is "The 37 Implementation Details of PPO" [Huang et al. 2022]: reproducing PPO meant matching 37 separate details (13 core, 9 Atari, 9 continuous-control, 5 LSTM, 1 MultiDiscrete), each linked to its exact line of code, "which is not done in academic papers." If your PPO underperforms a reference, you are probably missing some of these, not lacking a better idea.
+
 References: spinning-up (OpenAI), stable-baselines3, cleanrl (single-file per algo), OpenSpiel (multi-agent).
 
 **10. Don't over-interpret noise.** [Schulman 2017, Henderson 2018, Irpan 2018]
@@ -149,6 +151,7 @@ Sometimes (rarely) you don't. Schulman:
 - Alex Irpan, "Deep Reinforcement Learning Doesn't Work Yet" (2018): https://www.alexirpan.com/2018/02/14/rl-hard.html
 - McCandlish & Kaplan, "An Empirical Model of Large-Batch Training" (2018): https://arxiv.org/abs/1812.06162
 - Slav Ivanov, "37 Reasons why your Neural Network is not working" (2017): https://blog.slavv.com/37-reasons-why-your-neural-network-is-not-working-4020854bd607
+- Huang et al., "The 37 Implementation Details of PPO" (ICLR Blog Track 2022): https://iclr-blog-track.github.io/2022/03/25/ppo-implementation-details/ ([cache](../docs/evidence/cleanrl_37_ppo_details.md))
 
 ### Reference implementations
 - OpenAI Spinning Up: https://github.com/openai/spinningup
