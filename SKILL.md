@@ -7,13 +7,13 @@ description: "Wassname's practical folklore for debugging ML systems: convergenc
 
 Practitioner knowledge that's hard to find in papers, distilled from Schulman's "Nuts and Bolts" talk, Andy Jones' debugging guide, r/reinforcementlearning threads, competition write-ups, and personal experience.
 
-The core problem: errors aren't local [Jones 2021]. Especially in RL, information flows in a loop (actor -> learner -> actor), so a numerical bug in one spot gets smeared through the whole system in seconds. From outside everything goes weird at once -- loss explodes, KL collapses, rewards oscillate -- and you can tell something's wrong but not *what* or *where*. That's why the discipline below leads with calibration and clue-collection, not fixes.
+The core problem: errors aren't local [Jones 2021]. Especially in RL, information flows in a loop (actor -> learner -> actor), so a numerical bug in one spot gets smeared through the whole system in seconds. From outside everything goes weird at once (loss explodes, KL collapses, rewards oscillate) and you can tell something's wrong but not *what* or *where*. That's why the discipline below leads with calibration and clue-collection, not fixes.
 
 ## Before you debug: calibrate
 
-If you're an LLM agent reading this, the most useful thing it can tell you is about *you*, not the bug. ML research code is often outside your training distribution -- novel losses, custom architectures, methods that don't have a canonical "right answer" you've seen a thousand times. Your trained reflex there is to be confident and fast: pattern-match a symptom to a fix ("loss stuck -> drop the LR") and apply it. That reflex is the enemy. It commits to one hypothesis before you've looked, and a wrong fix on possibly-buggy code wastes a run *and* corrupts your evidence about what's actually happening.
+If you're an LLM agent reading this, the most useful thing it can tell you is about *you*, not the bug. ML research code is often outside your training distribution: novel losses, custom architectures, methods that don't have a canonical "right answer" you've seen a thousand times. Your trained reflex there is to be confident and fast: pattern-match a symptom to a fix ("loss stuck -> drop the LR") and apply it. That reflex is the enemy. It commits to one hypothesis before you've looked, and a wrong fix on possibly-buggy code wastes a run *and* corrupts your evidence about what's actually happening.
 
-So slow down and widen out. The discipline below isn't a recipe that outputs a fix; it's a set of habits for staying calibrated and keeping your hypothesis space open until the evidence -- not your prior -- closes it. The habits transfer across timeseries, GANs, OCR, RL, PINNs, puzzles; the specific fixes in the tables below do not, so treat those tables as a menu of hypotheses to widen your search, never as a lookup-and-apply.
+So slow down and widen out. The discipline below isn't a recipe that outputs a fix; it's a set of habits for staying calibrated and keeping your hypothesis space open until the evidence, not your prior, closes it. The habits transfer across timeseries, GANs, OCR, RL, PINNs, puzzles; the specific fixes in the tables below do not, so treat those tables as a menu of hypotheses to widen your search, never as a lookup-and-apply.
 
 ## The debugging loop (judgment, not a checklist)
 
@@ -21,25 +21,25 @@ Roughly in this order, but the point is the mindset, not ticking boxes:
 
 **Collect clues before theorizing.** Read the traceback and logs. Run static analysis (Part 6.1) and the cheap diagnostics (Part 6.2: data sanity check, init-loss check, overfit-one-batch). You are a detective at a scene, not a fortune teller. If you catch yourself proposing a fix before you've looked at anything, stop.
 
-**Hold several hypotheses at once; resist converging early.** Unless the cause is already obvious (a traceback usually points right at it), generate a few genuinely different explanations before ranking any of them, so you don't marry the first one that comes to mind. Part 7.1 has five lenses for generating them -- information flow, ablation, oracle substitution, learning curves, structural ceiling. Then sanity-check yourself with the failure-mode triplet:
+**Hold several hypotheses at once; resist converging early.** Unless the cause is already obvious (a traceback usually points right at it), generate a few genuinely different explanations before ranking any of them, so you don't marry the first one that comes to mind. Part 7.1 has five lenses for generating them: information flow, ablation, oracle substitution, learning curves, structural ceiling. Then sanity-check yourself with the failure-mode triplet:
 - *Likely*: your strongest competitor explanation, with a rough credence.
-- *Subtle*: the sneaky one -- sample size, leakage, a confound, a metric artifact, or plain seed variance masquerading as signal.
+- *Subtle*: the sneaky one, like sample size, leakage, a confound, a metric artifact, or plain seed variance masquerading as signal.
 - *Null*: there's no real effect, or it comes from something else you also changed.
 
-Give each a one-line prior (rough credence) and its cheapest falsifier -- a `Check: ...` line naming the observation that would kill it. Those falsifiers are the menu the next step draws from.
+Give each a one-line prior (rough credence) and its cheapest falsifier, a `Check: ...` line naming the observation that would kill it. Those falsifiers are the menu the next step draws from.
 
-Anchor priors on what's usually wrong (Part 7.2: data ~40%, loss ~20%, training ~15%, architecture ~10%, hyperparameters ~5%) -- but priors are a starting weight, not a verdict. A clue that points elsewhere overrides them outright: a traceback naming a line, a metric stuck while the loss is healthy (loss-metric misalignment, not data), or an init-loss that's exactly right all redirect you regardless of the ~40% data prior.
+Anchor priors on what's usually wrong (Part 7.2: data ~40%, loss ~20%, training ~15%, architecture ~10%, hyperparameters ~5%), but priors are a starting weight, not a verdict. A clue that points elsewhere overrides them outright: a traceback naming a line, a metric stuck while the loss is healthy (loss-metric misalignment, not data), or an init-loss that's exactly right all redirect you regardless of the ~40% data prior.
 
 Make sure to separate observations (to be faithfully reproduced in an auditable manner) and inferences. That way you can go back and rethink things without degrading the evidence.
 
 
-**Run the cheapest observation that splits your top hypotheses.** Not the most thorough experiment -- the most *discriminating* one (Rahtz: think more, experiment less, Part 1). To find it, forward-predict each hypothesis ("what would I see if this were the cause?"): a test is strong evidence only where the predictions diverge, and worthless where every hypothesis predicts the same outcome. Prefer the check whose result you'd bet on differently under each explanation -- a grad-norm line reading ~0 under "dead layer" but healthy under "LR too low" beats a 4-hour sweep that only confirms what you already believed. 
+**Run the cheapest observation that splits your top hypotheses.** Not the most thorough experiment, the most *discriminating* one (Rahtz: think more, experiment less, Part 1). To find it, forward-predict each hypothesis ("what would I see if this were the cause?"): a test is strong evidence only where the predictions diverge, and worthless where every hypothesis predicts the same outcome. Prefer the check whose result you'd bet on differently under each explanation. A grad-norm line reading ~0 under "dead layer" but healthy under "LR too low" beats a 4-hour sweep that only confirms what you already believed. 
 
 But before you run a 10 minute test, remember it's much faster to step back, and have good priors before you start running experiments. It's also good to rank multiple possible diagnostics and think about how much you learn, vs how much they cost in code complexity and gpu time. You want to pick ones where the learning is worth the cost.
 
-**Bisect the path to localize where it breaks.** Splitting hypotheses tells you which cause; bisecting tells you where. Data flows forward and gradients flow backward in a chain (input -> preprocess -> layers -> loss -> grads), so probe the midpoint instead of reading every step: is the value or gradient already wrong halfway through? Each probe halves the search space. The NaN-hunt (find the first module to produce a non-finite value, Part 6.2) is this move applied to NaNs; the same bisection localizes finite-but-wrong values, exploded grad norms, and dead activations.
+**Bisect the path to localize where it breaks.** Once you have a hypothesis about the cause, you still need to find where in the pipeline it goes wrong. Data flows forward and gradients flow backward in a chain (input -> preprocess -> layers -> loss -> grads), so probe the midpoint instead of reading every step: is the value or gradient already wrong halfway through? Each probe halves the search space. Finding the first module to produce a non-finite value (the NaN search in Part 6.2) is one case of this; the same bisection works for finite-but-wrong values, exploded grad norms, dead activations, and so on.
 
-**Then act, and only on what the observation pointed to.** If a cycle or two hasn't localized it, stop tuning and go read working code (next section) -- that's better than another guess.
+**Then act, and only on what the observation pointed to.** If a cycle or two hasn't localized it, stop tuning and go read working code (next section), which is usually better than another guess.
 
 Consult as reference, from inside this loop, never as a first move: triage tree (Part 6.3), hypothesis-generating lenses (Part 7.1), the metric-stuck decision tree (Part 5), RL specifics (`rl/SKILL.md`).
 
@@ -65,12 +65,12 @@ def debug(symptom):
 
 ## When stuck, read a working implementation
 
-After 1-2 diagnostic cycles that don't localize the bug -- or whenever you're building something you haven't built before -- stop guessing and go read code that already works. Agents tend to skip this in favour of another round of from-scratch guessing, which is usually the worse bet.
+After 1-2 diagnostic cycles that don't localize the bug, or whenever you're building something you haven't built before, stop guessing and go read code that already works. Agents tend to skip this in favour of another round of from-scratch guessing, which is usually the worse bet.
 
 Use the `gh` skill to find an implementation. Rank candidates by trust signal (per CLAUDE.md): community adoption > papers citing it > open source code that runs > author reputation > self-reports. A repo other researchers use as a baseline is worth more than a flashy README.
 
 Read it for three things, explicitly:
-1. **The algorithm done right.** Diff your math and your computation graph against theirs. The bug is usually something "trivial" -- a sign, a reset, an off-by-one in indexing, an advantage normalization you skipped.
+1. **The algorithm done right.** Diff your math and your computation graph against theirs. The bug is usually something "trivial", like a sign, a reset, an off-by-one in indexing, or an advantage normalization you skipped.
 2. **The engineering tricks they don't mention in the paper.** Did they normalize the input? tanh instead of ReLU? mean-pool instead of last-token? only 6 layers? clip to stop gradient saturation? warm-start? an easier dataset than yours? These are the difference between "works" and "doesn't," and they live in the code, not the abstract.
 3. **Proven hyperparameters, schedule, and optimizer.** Copy the values that are known to work before you tune your own. Their LR, warmup, batch size, weight decay, and optimizer choice are a working starting point you get for free.
 
@@ -78,7 +78,7 @@ Reference implementations are domain-specific. For RL, see `rl/SKILL.md` section
 
 ## Scope and modern pointers
 
-Most sources here are 2017-2021, predating RLHF, large-scale pretraining, and JAX/PyTorch 2.0. The core principles (isolation testing, logging, seed variance, the loop above) are architecture-agnostic and durable; specific RL HP defaults and reward-scaling advice may need updating. For modern transformer pretraining specifically, go to [Karpathy's recipe](https://karpathy.github.io/2019/04/25/recipe/) (2019; activation/gradient health checks) and [nanochat deepwiki](https://deepwiki.com/karpathy/nanochat) (2026; 320+ empirical HP sweeps for a GPT-2-scale run, MFU monitoring, precision management, BOS-aligned dataloaders) -- evidence files [karpathy_recipe_training_nn_2019.md](docs/evidence/karpathy_recipe_training_nn_2019.md), [nanochat_deepwiki_llm_pretraining_2026.md](docs/evidence/nanochat_deepwiki_llm_pretraining_2026.md). Most multi-source claims below trace to quotes in [docs/ml_debug_folklore.argdown](docs/ml_debug_folklore.argdown) (vargdown); uncovered claims are in the [process log](docs/ml_debug_folklore_log.md).
+Most sources here are 2017-2021, predating RLHF, large-scale pretraining, and JAX/PyTorch 2.0. The core principles (isolation testing, logging, seed variance, the loop above) are architecture-agnostic and durable; specific RL HP defaults and reward-scaling advice may need updating. For modern transformer pretraining specifically, go to [Karpathy's recipe](https://karpathy.github.io/2019/04/25/recipe/) (2019; activation/gradient health checks) and [nanochat deepwiki](https://deepwiki.com/karpathy/nanochat) (2026; 320+ empirical HP sweeps for a GPT-2-scale run, MFU monitoring, precision management, BOS-aligned dataloaders). Evidence files: [karpathy_recipe_training_nn_2019.md](docs/evidence/karpathy_recipe_training_nn_2019.md), [nanochat_deepwiki_llm_pretraining_2026.md](docs/evidence/nanochat_deepwiki_llm_pretraining_2026.md). Most multi-source claims below trace to quotes in [docs/ml_debug_folklore.argdown](docs/ml_debug_folklore.argdown) (vargdown); uncovered claims are in the [process log](docs/ml_debug_folklore_log.md).
 
 ---
 
@@ -86,12 +86,12 @@ Most sources here are 2017-2021, predating RLHF, large-scale pretraining, and JA
 
 ### What "collect clues" looks like
 
-This is the catalog the loop's clue-collection step pulls from -- the substantive checks, in rough dependency order (each assumes the one before). It's a menu to draw on, not a fresh end-to-end procedure that competes with the loop above.
+This is the catalog the loop's clue-collection step pulls from: the substantive checks, in rough dependency order (each assumes the one before). It's a menu to draw on, not a fresh end-to-end procedure that competes with the loop above.
 
 **Step 1: Verify components in isolation.** [Goodfellow Ch11, CS229]
 Most bugs are "doing the wrong calculation." Test each piece independently.
 
-- Network forward pass: feed known inputs, check output shapes and ranges. `assert` shapes everywhere -- `(None,)` vs `(None, 1)` silently broadcasts into `(None, None)`.
+- Network forward pass: feed known inputs, check output shapes and ranges. `assert` shapes everywhere, since `(None,)` vs `(None, 1)` silently broadcasts into `(None, None)`.
 - Loss computation: hand-compute a few targets and compare to code output.
 - Data pipeline: sample a batch, print it, eyeball it. Are labels aligned with inputs? Are transforms applied correctly?
 - Preprocessing: look at your processed inputs as a human. Can *you* solve the task from them? If you downsampled images, can you still tell what's going on?
@@ -103,7 +103,7 @@ Before your real task, solve something trivial with the same codebase. This esta
 
 Also try to overfit to train. If you can't do that, you likely won't be able to generalise. [CS231n: "Unless you pass this sanity check with a small dataset it is not worth proceeding to the full dataset."] Start with a lightweight implementation (<200 lines of new code), no complicated data pipelines [FSDL]. Build those later once the core works.
 
-**Baseline ladder** (for physics/simulation models -- make each step beat the previous one):
+**Baseline ladder** (for physics/simulation models, make each step beat the previous one):
 1. Persistence: y(t) = y(t-1). Bar for "does the model capture any dynamics at all?"
 2. Exponential decay to steady state (first-order response fit).
 3. Linear state-space / OLS on finite differences.
@@ -121,7 +121,7 @@ What to log:
 - Gradient norms (per module if possible)
 - Learning rates
 - Parameter norms / update magnitudes
-- Update-to-data ratio per layer: `((lr * p.grad).std() / p.data.std()).log10()` -- target ~-3 [Karpathy nn-zero-to-hero Lec 4]
+- Update-to-data ratio per layer: `((lr * p.grad).std() / p.data.std()).log10()`, target ~-3 [Karpathy nn-zero-to-hero Lec 4]
 - Activation statistics (mean, std, fraction of dead ReLUs, saturation % for tanh)
 - Data statistics (input distributions, label distributions)
 
@@ -138,7 +138,7 @@ What to log:
 | Gradients explode | No gradient clipping, learning rate too high, recurrent networks without gradient clipping |
 | Different results per seed | Normal if small variance; suspicious if large. Check init sensitivity, batch ordering, floating point nondeterminism |
 | Model outputs constant | Dead neurons, vanishing gradients, mode collapse, all-zero init |
-| Physics loss low but BCs violated | Gradient imbalance -- PDE residual dominates BC gradient; use adaptive loss weighting or hard BCs |
+| Physics loss low but BCs violated | Gradient imbalance: PDE residual dominates BC gradient; use adaptive loss weighting or hard BCs |
 | PINN worse than pure-data MLP | Wrong equations, bad scaling (forgot to nondimensionalize), or physics constraint fighting the data |
 | PINN fails on hard PDE regime, works on easy | Curriculum regularization: start with easy parameters, warm-start and increase to target |
 | Scalar parameter (U, alpha) stuck at 0 or bound | Degenerate solution; bound and initialize it, or estimate separately before joint training |
@@ -163,7 +163,7 @@ assert torch.isfinite(loss), f"Loss is {loss}"
 torch.autograd.gradcheck(my_custom_fn, inputs.double().requires_grad_(True))
 ```
 
-Gradient clipping *masks* problems -- always log the pre-clip norm to see if it's constantly being triggered. [CS231n: "the ratio of the update magnitudes to the value magnitudes... should be somewhere around 1e-3."]
+Gradient clipping *masks* problems, so always log the pre-clip norm to see if it's constantly being triggered. [CS231n: "the ratio of the update magnitudes to the value magnitudes... should be somewhere around 1e-3."]
 
 **Gradient check thresholds** [CS231n]: use relative error, not absolute. Compare analytic vs numerical gradient using centered difference formula. Relative error > 1e-2 = probably wrong. 1e-4 = uncomfortable. 1e-7 = happy. Before checking: (a) turn off regularization and check data loss alone first (regularization can mask data loss bugs), (b) disable dropout and augmentation, (c) use float64 not float32.
 
@@ -174,7 +174,7 @@ Most ML training issues trace back to scale problems.
 - Schulman: "plot histograms of all observations and rewards and make sure each component has the right mean and standard deviation and doesn't have crazy outliers."
 - Layer normalization helps stability.
 - For targets/labels: think about whether the scale is reasonable for your loss function.
-- **For physics/PDE models (PINNs)**: nondimensionalize *before* training. Raw SI units (Kelvin, Joules, meters) create loss terms with wildly different magnitudes -- this is the multi-scale problem that adaptive weighting tries to fix downstream. Nondimensionalizing fixes it at the source by making all PDE coefficients O(1). Recipe: pick characteristic scales (T_ref, L_ref, etc.), define dimensionless variables (T* = T/T_ref, z* = z/L), substitute into the PDE. The resulting groups (NTU, Biot, etc.) are all O(1).
+- **For physics/PDE models (PINNs)**: nondimensionalize *before* training. Raw SI units (Kelvin, Joules, meters) create loss terms with wildly different magnitudes. This is the multi-scale problem that adaptive weighting tries to fix downstream. Nondimensionalizing fixes it at the source by making all PDE coefficients O(1). Recipe: pick characteristic scales (T_ref, L_ref, etc.), define dimensionless variables (T* = T/T_ref, z* = z/L), substitute into the PDE. The resulting groups (NTU, Biot, etc.) are all O(1).
 - **Train/test split**: use temporal split (not random) for time-series or plant data. Random splitting leaks temporal correlation and gives optimistic test RMSE. Conventional: first 75% train, last 25% test.
 
 **Step 6: Check your assumptions about the optimizer.**
@@ -185,7 +185,7 @@ Most ML training issues trace back to scale problems.
 
 ### Assume you have a bug [Jones 2021, Goodfellow Ch11]
 
-> When their RL implementation doesn't work, people are often keen to either (a) adjust their network architecture or (b) adjust their hyperparameters. On the other hand, they're reluctant to say they've got a bug. Most often, it turns out they've got a bug. -- Andy Jones
+> When their RL implementation doesn't work, people are often keen to either (a) adjust their network architecture or (b) adjust their hyperparameters. On the other hand, they're reluctant to say they've got a bug. Most often, it turns out they've got a bug. (Andy Jones)
 
 Bugs are faster to find and fix than validating that a new architecture is an improvement. Dramatically raise your threshold for "OK, I think this is correct." Neural net components can adapt to compensate for bugs, masking them [Goodfellow Ch11: "If one part is broken, the other parts can adapt and still achieve roughly acceptable performance."]
 
@@ -195,19 +195,19 @@ They give global information about performance but don't localize errors. Don't 
 
 ### Pursue anomalies [Jones 2021, Rahtz 2018]
 
-> If you ever see a plot or a behaviour that just *seems weird*, chase right after it. Do not just 'hope it goes away'. -- Andy Jones
+> If you ever see a plot or a behaviour that just *seems weird*, chase right after it. Do not just 'hope it goes away'. (Andy Jones)
 
-That cool new feature you were going to add today? It won't magically fix the anomaly. Give up on your plan and chase the anomaly instead. Rahtz independently calls this "noticing confusion" -- following confusion about a frame-differencing improvement led to finding a normalization bug that had hidden for months.
+That cool new feature you were going to add today? It won't magically fix the anomaly. Give up on your plan and chase the anomaly instead. Rahtz independently calls this "noticing confusion": following confusion about a frame-differencing improvement led to finding a normalization bug that had hidden for months.
 
 ### With long feedback loops, think more, experiment less [Rahtz 2018]
 
-> Switching from experimenting a lot and thinking a little to experimenting a little and thinking a lot was a key turnaround in productivity. -- Rahtz
+> Switching from experimenting a lot and thinking a little to experimenting a little and thinking a lot was a key turnaround in productivity. (Rahtz)
 
 When runs take hours, pour time into hypothesis-forming *before* launching. Spend 30-60 minutes mapping out possibilities, ranking them by likelihood given all evidence so far. Reserve experiments for distinguishing between your top hypotheses.
 
 Keep a structured work log for long debugging sessions:
 1. What specific output am I working on right now?
-2. Thinking out loud -- hypotheses about the current problem
+2. Thinking out loud: hypotheses about the current problem
 3. Record of currently running experiments with what each one is supposed to answer
 4. Results of runs (graphs, observations), separated by type
 
@@ -241,7 +241,7 @@ Keep a structured work log for long debugging sessions:
 
 ## Part 3: Loss Surface & Gradient Analysis (No Model Required)
 
-When a loss isn't behaving as expected, don't guess -- visualize the loss surface and check gradient flow directly. This technique uses *synthetic tensors* fed into loss sub-components. No model, no forward pass, no GPU. Pure math.
+When a loss isn't behaving as expected, don't guess. Visualize the loss surface and check gradient flow directly. This technique feeds *synthetic tensors* into loss sub-components, with no model, forward pass, or GPU needed, just the math.
 
 ### The method
 
@@ -292,8 +292,8 @@ def analyze_component(loss_fn, x_range, y_range, n=80):
 | Pattern | Meaning | Action |
 |---------|---------|--------|
 | Gradient arrows point toward desired region | Loss is well-shaped | Ship it |
-| Large flat region (zero gradient) | Dead zone -- optimizer stuck if it lands here | Add curvature, change init, or use different parameterization |
-| Gradient magnitude 1000x in one axis vs another | Imbalanced -- one axis dominates | Rescale, use log-space, or normalize |
+| Large flat region (zero gradient) | Dead zone: optimizer stuck if it lands here | Add curvature, change init, or use different parameterization |
+| Gradient magnitude 1000x in one axis vs another | Imbalanced: one axis dominates | Rescale, use log-space, or normalize |
 | Saddle point at origin | Common with product-form losses (A*B) | Switch to additive (log A + log B) for independent gradients |
 | Arrows point away from desired region | Loss is wrong or has unexpected local min | Rethink the formula |
 | Non-finite values in a region | Numerical issue (log(0), 0/0) | Add eps, clamp, or use log1p |
@@ -303,8 +303,8 @@ def analyze_component(loss_fn, x_range, y_range, n=80):
 When your loss involves a product of factors A*B and one factor can be near zero:
 
 ```
-# BAD: symlog(A * B) -- when B~0, chain rule gives 0 grad to A too
-# GOOD: sign * (log|A| + log|B|) -- independent gradients
+# BAD: symlog(A * B), when B~0 the chain rule gives 0 grad to A too
+# GOOD: sign * (log|A| + log|B|) gives independent gradients
 #   d/dA = 1/A  regardless of B
 #   d/dB = 1/B  regardless of A
 ```
@@ -441,7 +441,7 @@ for group in groups:
 - **n_seeds=1**: t_stat is NaN. You have one data point. Replicate before concluding.
 - **Too many params varied**: if a sweep varies 3 params simultaneously, effects are confounded. Split into separate sweeps.
 - **Interpreting NaN SI**: usually means eval crashed or the model diverged. Investigate the run log, don't just skip it.
-- **"Fill" sweeps**: if a sweep is 13/16 runs done (missing a seed), run the missing seed in a separate group with a clear name (e.g. `sweep-coh-tau-fill`). The analysis script treats it as a separate group -- you merge mentally.
+- **"Fill" sweeps**: if a sweep is 13/16 runs done (missing a seed), run the missing seed in a separate group with a clear name (e.g. `sweep-coh-tau-fill`). The analysis script treats it as a separate group, so you merge mentally.
 
 ### The full workflow
 
@@ -483,7 +483,7 @@ print(f"d(loss)/d(metric) = {metric_val.grad}")
 Trace the chain rule: `loss -> metric -> ... -> parameter`. The metric is a function of intermediate quantities, which are functions of learned parameters. Check `d(metric)/d(parameter)`:
 
 - Analytically: is there a structural reason this derivative is ~0? (e.g., a rotation of V can't change span(U))
-- Empirically: disable the loss term entirely (set coefficient to 0). Does the metric reach the same value? If yes, it's structural -- the optimization never moved it in the first place.
+- Empirically: disable the loss term entirely (set coefficient to 0). Does the metric reach the same value? If yes, it's structural, and the optimization never moved it in the first place.
 
 ### Step 3: Is something else fighting it?
 
@@ -501,7 +501,7 @@ If gradient is nonzero and the parameter CAN change the metric:
 | large | large | no | Competing losses or optimizer inertia. Isolate. |
 | large | large | yes | The term helps but converges to same basin. Coincidence or weak effect. |
 
-Note this is just a guide and in no way authorititive, it might not apply to your project.
+Note this is just a guide and in no way authoritative; it might not apply to your project.
 
 ---
 
@@ -519,83 +519,50 @@ Concrete procedures for an LLM agent debugging ML code. Work top-to-bottom: stat
 
 ### 6.3 Triage decision tree
 
-Follow top-to-bottom. Stop at the first match.
+Walk the list top-to-bottom and stop at the first question you answer "yes".
 
-TODO (human) just make itindented bullets
-```
-START
-  |
-  v
-[Exception / traceback?] --yes--> Read the traceback. Fix the error. Done.
-  |no
-  v
-[Loss is NaN/Inf?] --yes--> Attach NaN hooks (6.2). Find first module producing NaN.
-  |                          Common: log(0), 0/0, exp(large). Add clamp/eps.
-  |no
-  v
-[Init loss wrong?] --yes--> Check data pipeline (6.2). Check loss function.
-  |  (see expected            Check for double softmax (6.1).
-  |   values in 6.2)         Check labels match model output format.
-  |                          Run random input test (6.2): same loss? -> data destroyed.
-  |                          Init loss << expected? -> data leakage (Part 7.4).
-  |no
-  v
-[Can't overfit 1 batch?] --yes--> Run gradient flow check (6.2).
-  |                                Any None grads? -> disconnected layer
-  |                                All-zero grads? -> dead layer / detach
-  |                                Check for autograd breakers (6.1)
-  |                                Check optimizer step ordering (6.1)
-  |no
-  v
-[Loss stuck from step 0 (but CAN overfit 1 batch)?] --yes--> LR too low? Try 10x.
-  |                                 Frozen params? Check requires_grad (6.1).
-  |                                 Wrong loss function?
-  |no
-  v
-[Loss decreases then explodes?] --yes--> LR too high? Try 0.1x.
-  |                                       Gradient clipping? Log pre-clip norm.
-  |                                       Numerical instability? (log, exp, div)
-  |no
-  v
-[Train loss good, val loss bad?] --yes--> Overfitting. Not a bug.
-  |                                        More data, regularization, smaller model.
-  |no
-  v
-[Train loss okay but metric bad?] --yes--> Loss-metric misalignment.
-  |                                         Is minimizing the loss equivalent to
-  |                                         improving the metric? (Part 5)
-  |no
-  v
-[Model outputs constant?] --yes--> Mode collapse. Check:
-  |                                 - Class imbalance? Run label count (6.2).
-  |                                 - All-zero init? Run weight check (6.2).
-  |                                 - Dead ReLUs (try LeakyReLU)?
-  |                                 - Confidence-sorted errors (6.2) reveal pattern?
-  |no
-  v
-[Training is slow but not stuck?] --yes--> Not a bug. Consider:
-  |                                          - Batch size (Part 1 Step 6)
-  |                                          - Architecture depth/width
-  |                                          - Data quality
-  |no
-  v
-[None of the above?]
-  Read Part 1 (general) or Part 2 (RL-specific) for deeper diagnostics.
-  Log everything (Part 1 Step 3) and pursue anomalies.
-```
+1. Exception or traceback? Read it, fix the error, done.
+2. Loss is NaN/Inf? Attach NaN hooks (6.2), find the first module producing NaN. Common causes: log(0), 0/0, exp(large); add clamp/eps.
+3. Init loss wrong? (expected values in 6.2)
+   - Check the data pipeline (6.2) and the loss function.
+   - Check for double softmax (6.1).
+   - Check labels match the model output format.
+   - Random input test (6.2): same loss? -> data destroyed.
+   - Init loss << expected? -> data leakage (Part 7.4).
+4. Can't overfit 1 batch? Run the gradient flow check (6.2).
+   - Any None grads? -> disconnected layer.
+   - All-zero grads? -> dead layer / detach.
+   - Check for autograd breakers (6.1) and optimizer step ordering (6.1).
+5. Loss stuck from step 0 (but CAN overfit 1 batch)?
+   - LR too low? Try 10x.
+   - Frozen params? Check requires_grad (6.1).
+   - Wrong loss function?
+6. Loss decreases then explodes?
+   - LR too high? Try 0.1x.
+   - Gradient clipping? Log the pre-clip norm.
+   - Numerical instability? (log, exp, div)
+7. Train loss good, val loss bad? Overfitting, not a bug. More data, regularization, smaller model.
+8. Train loss okay but metric bad? Loss-metric misalignment. Is minimizing the loss equivalent to improving the metric? (Part 5)
+9. Model outputs constant? Mode collapse. Check:
+   - Class imbalance? Run the label count (6.2).
+   - All-zero init? Run the weight check (6.2).
+   - Dead ReLUs? (try LeakyReLU)
+   - Confidence-sorted errors (6.2) reveal a pattern?
+10. Training slow but not stuck? Not a bug. Consider batch size (Part 1 Step 6), architecture depth/width, data quality, and so on.
+11. None of the above? Read Part 1 (general) or Part 2 (RL-specific) for deeper diagnostics. Log everything (Part 1 Step 3) and pursue anomalies.
 
-Again this is just a guide and in no way authorititive, it might not apply to your project.
+Again this is just a guide and in no way authoritative; it might not apply to your project.
 
 ### 6.4 LLM anti-patterns
 
-These are the overconfident reflexes the "calibrate" section warns about, made concrete. Every one of them changes behaviour before localizing the bug, so each is a guess wearing a fix's clothes. Some people say "this is sklean slop", or "the LLM is acting like it's tweaking hyperparameters in a hackathon, not understanding the problem"
+These are the overconfident reflexes the "calibrate" section warns about, made concrete. Every one of them changes behaviour before localizing the bug, so each is a guess wearing a fix's clothes. Some people say "this is sklearn slop", or "the LLM is acting like it's tweaking hyperparameters in a hackathon, not understanding the problem".
 
 - Hyperparameter changes before verifying correctness. "Try reducing the learning rate" is the #1 wrong response to any training problem. Verify the code is correct first (Parts 1-2); HP tuning on buggy code wastes time.
 - try/except around training code. Training should crash loudly. A caught exception hides the bug and produces silently wrong results. The one exception is checkpoint saving on KeyboardInterrupt.
-- "Try a different optimizer." If Adam doesn't converge, the cause is almost never the optimizer choice -- it's the loss, the data, the architecture, or a bug.
+- "Try a different optimizer." If Adam doesn't converge, the cause is almost never the optimizer choice. It's usually the loss, the data, the architecture, or a bug.
 - `.detach()` or `.item()` to "fix" gradient errors. If autograd complains, the computation graph is wrong. Detaching silences the error by cutting gradient flow, so the model just stops learning from that path. Understand why autograd is complaining first.
 - lr_scheduler as a cure for non-convergence. Schedulers refine convergence, they don't cause it. If the model won't learn at constant LR, a schedule won't save it.
-- More layers or a bigger model. If it can't overfit one batch, more parameters won't help -- the problem is gradient flow, loss, or data.
+- More layers or a bigger model. If it can't overfit one batch, more parameters won't help. The problem is gradient flow, loss, or data.
 - "Normalize your data" without checking whether it already is. Run the data sanity check (6.2) first; if it's already mean~0, std~1, normalization isn't your problem.
 - `float()` or `.to(dtype)` to suppress type warnings. Type mismatches are signals. A float32/float64 mismatch might mean you're mixing model weights with double-precision data. Fix the root cause.
 
@@ -637,11 +604,11 @@ Plot train error and val error as a function of dataset size (or training steps)
 - Val error flat even with 10x more data: not a data problem. Fix the model.
 
 **5. Structural ceiling: can the parameterization express what you want?** (Part 5 expands this)
-Sometimes the metric is stuck not because the optimizer fails but because the architecture/parameterization literally cannot represent the desired function. Check: disable the loss term entirely. Does the metric reach the same value? If yes, the loss never moved it -- the model can't express higher values.
+Sometimes the metric is stuck not because the optimizer fails but because the architecture/parameterization literally cannot represent the desired function. Check: disable the loss term entirely. Does the metric reach the same value? If yes, the loss never moved it, and the model can't express higher values.
 
 ### 7.2 Practitioner priors: what's usually wrong
 
-When you have no other information, investigate in this order. Rough estimates synthesized from [Goodfellow, FSDL, Slavv, Jones, CS231n] -- not measured frequencies, just practitioner consensus on what's usually wrong:
+When you have no other information, investigate in this order. Rough estimates synthesized from [Goodfellow, FSDL, Slavv, Jones, CS231n], not measured frequencies, just practitioner consensus on what's usually wrong:
 
 1. **Data pipeline** (~40% of bugs). Wrong preprocessing, labels misaligned with inputs, normalization missing or wrong, train/test leakage, data loader returning stale/wrong batches. "It's almost always the data." [FSDL, Slavv]
 2. **Loss function** (~20%). Wrong loss for the task, wrong sign, double softmax, loss not connected to metric, competing losses canceling gradients.
@@ -659,7 +626,7 @@ For RL specifically, add:
 
 Core attitudes live in the top-of-skill debugging loop (calibrate, hold several hypotheses, read a working implementation when stuck) and in Part 1 ("Assume you have a bug," "Pursue anomalies," "Loss curves are a red herring"). Here are the additional mental habits not covered there:
 
-MurphyJitsu pre-flight [Rahtz 2018]: before starting a run, ask "if this run fails, what's the most likely cause?" If you can name it, test for it first. It's the rationalist habit of "pre-hindsight" -- imagining the failure and working backward. This is the same move as naming the *likely* and *subtle* entries of the protocol's failure-mode triplet, applied before launch instead of after a crash.
+MurphyJitsu pre-flight [Rahtz 2018]: before starting a run, ask "if this run fails, what's the most likely cause?" If you can name it, test for it first. It's the rationalist habit of "pre-hindsight": imagining the failure and working backward. This is the same move as naming the *likely* and *subtle* entries of the protocol's failure-mode triplet, applied before launch instead of after a crash.
 
 "Tricks substitute for each other" [Schulman 2017]: many normalization and regularization tricks do roughly the same thing, so stacking them adds complexity without proportional benefit. If you have three normalization schemes and the model still doesn't work, the problem isn't normalization.
 
@@ -706,4 +673,30 @@ Large batch training with high LR diverges at the start. Warm up LR linearly ove
 | Different results at different batch sizes (same total steps) | Missing LR scaling. Adjust LR proportionally. |
 
 
-TODO add list of docs/evidence for further reading, or turn the above into proper links
+---
+
+## Further reading
+
+Local evidence files (verbatim quotes behind the claims above) live in [docs/evidence/](docs/evidence/). The most useful starting points:
+
+General neural-net debugging:
+- [Karpathy, "A Recipe for Training Neural Networks" (2019)](docs/evidence/karpathy_recipe_training_nn_2019.md)
+- [CS231n, Neural Networks Part 3](docs/evidence/cs231n_neural_networks_3.md)
+- [Goodfellow Ch11, Practical Methodology](docs/evidence/goodfellow_ch11_practical_methodology.md)
+- [FSDL Spring 2021, Troubleshooting DNNs](docs/evidence/fsdl_spring2021_lecture7.md)
+- [Slav Ivanov, "37 Reasons your NN is not working"](docs/evidence/slavv_37_reasons_nn.md)
+- [CS229 ML advice](docs/evidence/cs229_ml_advice.md)
+
+Modern LLM / large-batch training:
+- [nanochat deepwiki, LLM pretraining (2026)](docs/evidence/nanochat_deepwiki_llm_pretraining_2026.md)
+- [Karpathy nn-zero-to-hero Lec 4, diagnostics](docs/evidence/karpathy_nn_zero_to_hero_lec4_diagnostics.md)
+- [McCandlish & Kaplan, large-batch training (2018)](docs/evidence/mccandlish_2018_large_batch.md)
+
+RL-specific:
+- [Schulman, "Nuts and Bolts of Deep RL"](docs/evidence/schulman_nuts_bolts_deeprl_bootcamp_2017_subtitles.md)
+- [Andy Jones, RL debugging](docs/evidence/andyljones_rl_debugging.md)
+- [Amid Fish, "Lessons from reproducing deep RL"](docs/evidence/amid_fish_reproducing_deep_rl.md)
+- [Alex Irpan, "Deep RL Doesn't Work Yet"](docs/evidence/alexirpan_rl_hard.md)
+- [Henderson et al., "Deep RL that Matters" (2018)](docs/evidence/henderson_2018_deep_rl_matters.md)
+
+Plus several practitioner reddit threads and a few more author notes in the same directory.
