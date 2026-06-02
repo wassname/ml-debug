@@ -21,24 +21,47 @@ Roughly in this order, but the point is the mindset, not ticking boxes:
 
 **Collect clues before theorizing.** Read the traceback and logs. Run static analysis (Part 6.1) and the cheap diagnostics (Part 6.2: data sanity check, init-loss check, overfit-one-batch). You are a detective at a scene, not a fortune teller. If you catch yourself proposing a fix before you've looked at anything, stop.
 
-<!-- FIXME research-journal skill is not public remove or add -->
-**Hold several hypotheses at once; resist converging early.** Unless the cause is already obvious (a traceback usually points right at it), generate a few genuinely different explanations before ranking any of them, so you don't marry the first one that comes to mind. Part 7.1 has five lenses for generating them -- information flow, ablation, oracle substitution, learning curves, structural ceiling. Then sanity-check yourself with the failure-mode triplet (same idiom as the `research-journal` skill):
+**Hold several hypotheses at once; resist converging early.** Unless the cause is already obvious (a traceback usually points right at it), generate a few genuinely different explanations before ranking any of them, so you don't marry the first one that comes to mind. Part 7.1 has five lenses for generating them -- information flow, ablation, oracle substitution, learning curves, structural ceiling. Then sanity-check yourself with the failure-mode triplet:
 - *Likely*: your strongest competitor explanation, with a rough credence.
 - *Subtle*: the sneaky one -- sample size, leakage, a confound, a metric artifact, or plain seed variance masquerading as signal.
 - *Null*: there's no real effect, or it comes from something else you also changed.
+
+Give each a one-line prior (rough credence) and its cheapest falsifier -- a `Check: ...` line naming the observation that would kill it. Those falsifiers are the menu the next step draws from.
 
 Anchor priors on what's usually wrong (Part 7.2: data ~40%, loss ~20%, training ~15%, architecture ~10%, hyperparameters ~5%) -- but priors are a starting weight, not a verdict. A clue that points elsewhere overrides them outright: a traceback naming a line, a metric stuck while the loss is healthy (loss-metric misalignment, not data), or an init-loss that's exactly right all redirect you regardless of the ~40% data prior.
 
 Make sure to seperate observations (to be faithfully reprocuded in an audtiable manner) and inferences. That way you can go back and rethink things without degrading the evidence.
 
 
-**Run the cheapest observation that splits your top hypotheses.** Not the most thorough experiment -- the most *discriminating* one (Rahtz: think more, experiment less, Part 1). One log line or one toy run that tells hypothesis A from B beats a 4-hour sweep that only confirms what you already believed. 
+**Run the cheapest observation that splits your top hypotheses.** Not the most thorough experiment -- the most *discriminating* one (Rahtz: think more, experiment less, Part 1). To find it, forward-predict each hypothesis ("what would I see if this were the cause?"): a test is strong evidence only where the predictions diverge, and worthless where every hypothesis predicts the same outcome. Prefer the check whose result you'd bet on differently under each explanation -- a grad-norm line reading ~0 under "dead layer" but healthy under "LR too low" beats a 4-hour sweep that only confirms what you already believed. 
 
 But before you run a 10 minute test, remember it's much faster to step back, and have good priors before you start running experiments. It's also good to rank multiple possible diagnostics and think about how much you learn, vs how much they cost in code complexity and gpu time. You want to pick ones where the learning is worth the cost.
+
+**Bisect the path to localize where it breaks.** Splitting hypotheses tells you which cause; bisecting tells you where. Data flows forward and gradients flow backward in a chain (input -> preprocess -> layers -> loss -> grads), so probe the midpoint instead of reading every step: is the value or gradient already wrong halfway through? Each probe halves the search space. The NaN-hunt (find the first module to produce a non-finite value, Part 6.2) is this move applied to NaNs; the same bisection localizes finite-but-wrong values, exploded grad norms, and dead activations.
 
 **Then act, and only on what the observation pointed to.** If a cycle or two hasn't localized it, stop tuning and go read working code (next section) -- that's a better than another guess.
 
 Consult as reference, from inside this loop, never as a first move: triage tree (Part 6.3), hypothesis-generating lenses (Part 7.1), the metric-stuck decision tree (Part 5), RL specifics (`rl/SKILL.md`).
+
+The same loop in pseudocode (for humans and agents to hold in one glance):
+
+```py
+def debug(symptom):
+    clues = collect(traceback, logs, static_analysis, cheap_diagnostics)  # look before theorizing
+    H     = generate(clues, lenses=5) | {likely, subtle, null}            # ≥3 genuinely different
+    prior = anchor(H)                  # base rates: data .40 loss .20 train .15 arch .10 hp .05
+
+    while not localized:
+        # pick the test by evidence-per-cost, not by thoroughness
+        test  = argmax(divergence(predict(h, t) for h in H) / cost(t) for t in candidates)
+        obs   = run(test)              # one log line or toy run; record obs separately from inference
+        prior = update(prior, obs)     # a clue that points elsewhere overrides the prior outright
+        H     = bisect_path(H, obs)    # forward values + backward grads, halve the search each probe
+        if cycles ≥ 2:
+            return read_working_code() # diff your math + graph against a trusted impl
+
+    fix(root_cause); assert reproduces(obs)   # no silent fallback; crash if it doesn't
+```
 
 ## When stuck, read a working implementation
 
