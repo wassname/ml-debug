@@ -1,6 +1,6 @@
 # wassname's ML Debugging Folklore
 
-In an attempt to upskill the ML debugging on AI coding assistants (and humans), I've collected high quality sources on ML debugging and the mindset and the "taste". When I started ML I went searching for discussions on best practices, and started a few discussions of my own and they helped me a lot, I hope they can help others. This intro is human written, and the below is AI written with human guidance.
+In an attempt to upskill the machine learning debugging on AI coding assistants (and humans), I've collected high quality sources on how to debug machine learning projects, focusing on the mindset and the "taste". When I started ML I went searching for discussions on best practices, and started a few discussions of my own and they helped me a lot, over the years I've collected good ones. I hope they can help others, as well as help in auto research setups. This intro is human written, and the below is AI written with human guidance.
 
 ## Use as a Claude skill
 
