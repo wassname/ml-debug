@@ -10,6 +10,7 @@ Foreword: In an attempt to upskill the ML debugging on AI coding assistants (and
 ## How to read this
 
 If you're an LLM agent, calibrate yourself first. ML research code is often outside your training distribution: novel losses, custom architectures, methods with no canonical right answer you've seen a thousand times. The trained reflex there is to be confident and fast, to pattern-match a symptom to a fix ("loss stuck -> drop the LR") and apply it, and on possibly-buggy research code that reflex wastes a run and corrupts the evidence you need to find the real cause. The quotes below are the counter-evidence, in the words of people who paid for these lessons in months of wasted runs. If you notice yourself converging on the first plausible hypothesis, read [Rahtz](#think-more-experiment-less); if you're reaching for hyperparameters, read [Jones](#assume-you-have-a-bug); if the code looks like it's working, read [Achiam](#broken-code-fails-silently-measure-everything-spinning-up); if you're about to declare the fix done, read [Nanda](#default-to-disbelieving-your-own-results-neel-nanda).
+<!-- TODO say what they suggest not just to read thenm -->
 
 These are common failure modes worth ruling out, not a complete diagnosis of your situation; you know your system and I don't. Checklists, diagnostics, and symptom catalogs are one hop away under [Reference](#reference-one-hop-away).
 
@@ -281,12 +282,14 @@ Open the relevant one when the task calls for it. These are synthesized checklis
 - [refs/metric_stuck.md](refs/metric_stuck.md) — "why won't this metric move?" plus the structural-ceiling check.
 - [refs/sweeps.md](refs/sweeps.md) — same-seed paired comparison and cross-seed t-stat reliability, for before you claim method A beats method B.
 - [refs/llm_judges.md](refs/llm_judges.md) — LLM-as-a-judge biases (position, verbosity, self-preference) and the mitigation checklist, for when an LLM-judged eval looks too good.
+- TODO add one for transformers and move things there, include things like warmup, best learner, importance of logging full traces (incl. special tokens, sys prompt, completion). Emperical evidence of what models are too small for what (e.g. eval awareness has only been document in models 25B+ afaik and mostly 100B+, conceptual steering hardly works in models <2B which are mostly just confused)
 - [rl/SKILL.md](rl/SKILL.md) — RL-specific: probe environments, reward engineering, HP defaults, reference implementations.
 - [pinn/SKILL.md](pinn/SKILL.md) — physics-informed networks: nondimensionalization, gradient pathologies, curriculum.
 
 ## Links and further reading
 
 Folklore sources (the quotes above trace to these):
+<!-- might be worth highlighing once that can serve as reference material for particular things, or have a lot more depth on a topic. e.g. "How to avoid machine learning pitfalls", is reccomedned for begginner and checklists but it gets lost in the bibliography. also we should extract that into an actualy cehcklist appendix -->
 
 [^jones]: Andy Jones, "Debugging RL, Without the Agonizing Pain" — https://andyljones.com/posts/rl-debugging.html ([cache](docs/evidence/andyljones_rl_debugging.md): anomalies L103-109, write-from-scratch L155, assume-bug L176-180, raise-threshold L182, loss-curve L186-188)
 [^rahtz]: Matthew Rahtz (Amid Fish), "Lessons Learned Reproducing a Deep RL Paper" — http://amid.fish/reproducing-deep-rl ([cache](docs/evidence/amid_fish_reproducing_deep_rl.md): frame-diff confusion L85-87, investigate-confusion L100-102, think-more L145-153, don't-implement-RL-yourself L497-501)
