@@ -112,6 +112,61 @@ with torch.no_grad():
 # If very different: model sees real signal. Problem is elsewhere.
 ```
 
+**NaN poisoning (leakage tracer)** [wassname; forward-pass dual of Karpathy's gradient check below]
+```python
+# Leakage can hide anywhere: normalization fit on the full dataset, target
+# leaking into features, window functions peeking ahead, bad splits. Instead
+# of auditing each spot, inject NaN where information must NOT come from
+# (the future, the test set, the label) and run the real pipeline. NaN is
+# absorbing under +,-,*,/ so it spreads like dye: if any "past"/train output
+# is NaN, you have a leak, and you can bisect the pipeline to find the stage
+# where it crossed.
+import numpy as np
+X = np.random.randn(1000, n_features)
+y = np.random.randn(1000)
+X[cutoff:] = np.nan          # poison the future / test rows
+y[cutoff:] = np.nan
+
+Xt, yt = pipeline(X, y)       # the REAL pipeline: features, scaling, splits, windowing
+assert np.isfinite(Xt[:cutoff]).all(), "leak: future reached past features"
+assert np.isfinite(yt[:cutoff]).all(), "leak: future reached past targets"
+# To localize: assert finiteness after each pipeline stage; first failing
+# stage is where the leak crosses.
+
+# CAVEAT false negatives (dye silently filtered -- false assurance):
+#   pandas mean/std/sum default to skipna=True; np.nanmean; dropna/fillna;
+#   imputers; df.rolling(...).mean() skips NaN too.
+#   Fallback: poison with a huge sentinel (1e12) instead -- survives nanmean
+#   and shows up as an absurd value in anything it touches.
+# CAVEAT false positives (dye spreads along a legitimate axis):
+#   softmax over an axis containing NaN goes all-NaN even with a CORRECT
+#   additive -inf causal mask (NaN + -inf = NaN). So this cannot validate
+#   causal masking inside a transformer -- use the gradient check below.
+#   But NaN crossing via batch statistics is often a TRUE positive: a scaler
+#   fit on train+test lets test rows poison train features. That's the leak.
+```
+
+**Backprop-to-input dependency check** [Karpathy 2019]
+```python
+# The gradient-based dual of NaN poisoning: works INSIDE models where NaN
+# gives false positives (attention softmax, batch/layer stats).
+# Karpathy: "set the loss to be something trivial like the sum of all outputs
+# of example i... ensure that you get a non-zero gradient only on the i-th input."
+# Catches view-instead-of-transpose bugs that mix info across the batch dim.
+
+# Batch independence: output i must depend only on input i
+x = torch.randn(8, seq, dim, requires_grad=True)
+model(x)[3].sum().backward()
+assert (x.grad[[0,1,2,4,5,6,7]] == 0).all(), "leak across batch dim"
+
+# Causal masking: output at t must not depend on inputs > t
+x = torch.randn(1, seq, dim, requires_grad=True)
+t = seq // 2
+model(x)[0, t].sum().backward()
+assert (x.grad[0, t+1:] == 0).all(), "leak: position t sees the future"
+# Run in eval mode; dropout and exotic attn kernels can add noise.
+```
+
 **Prime dimension trick** [Slavv]
 ```python
 # Use prime/weird numbers for each dimension to catch silent broadcasting.

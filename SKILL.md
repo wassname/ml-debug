@@ -47,7 +47,7 @@ For RL, add reward scale/sign as a top-3 issue, and episode-boundary handling (d
 
 | Signal | Likely meaning | Check |
 |--------|----------------|-------|
-| Init loss << expected (e.g. 0.01 vs 2.3) | Leakage or a shortcut: the model "knows" the answer at init | Are labels in the input? Is test data in train? A trivial feature? |
+| Init loss << expected (e.g. 0.01 vs 2.3) | Leakage or a shortcut: the model "knows" the answer at init | Are labels in the input? Is test data in train? A trivial feature? Localize with the NaN-poisoning tracer or backprop-to-input check ([refs/diagnostics.md](refs/diagnostics.md)) |
 | Random input gives the same loss as real input | Pipeline is destroying information (over-aggressive preprocessing, wrong transforms, all-zero input) | Print raw data at each stage; visualize |
 | Predicts the same class for everything | Class imbalance (100:1 -> "always predict majority") | Label-count check; weighted loss or resample |
 | Val much worse than train from the start | Distribution shift between splits | Same preprocessing? Same time period? Same source? |
@@ -396,7 +396,7 @@ Look these up when the symptom calls for them; they're kept out of the main flow
 - [refs/metric_stuck.md](refs/metric_stuck.md) — "why won't this metric move?" plus the structural-ceiling check (is the optimizer failing, or can the parameterization not express it?).
 - [refs/sweeps.md](refs/sweeps.md) — same-seed paired comparison and cross-seed t-stat reliability, so a result is "reliably better" not "a lucky seed."
 - [refs/static_analysis.md](refs/static_analysis.md) — grep patterns for silent bugs (shape mismatches, autograd breakers, double softmax, step ordering, leakage).
-- [refs/diagnostics.md](refs/diagnostics.md) — copy-paste diagnostic snippets (init-loss check, overfit-one-batch, gradient-flow check, NaN hooks, class-imbalance check).
+- [refs/diagnostics.md](refs/diagnostics.md) — copy-paste diagnostic snippets (init-loss check, overfit-one-batch, gradient-flow check, NaN hooks, NaN-poisoning leakage tracer, backprop-to-input dependency check, class-imbalance check).
 - [rl/SKILL.md](rl/SKILL.md) — RL-specific debugging: probe environments, reward engineering, HP defaults, reference implementations.
 - [pinn/SKILL.md](pinn/SKILL.md) — physics-informed-network debugging: nondimensionalization, gradient pathologies, curriculum.
 
