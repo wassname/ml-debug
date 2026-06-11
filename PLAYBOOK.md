@@ -200,6 +200,7 @@ Look these up when the symptom calls for them; they're kept out of the main flow
 - [refs/loss_surface.md](refs/loss_surface.md) — visualize a loss surface and its gradient field with synthetic tensors, no model or GPU. For when a custom loss misbehaves.
 - [refs/metric_stuck.md](refs/metric_stuck.md) — "why won't this metric move?" plus the structural-ceiling check (is the optimizer failing, or can the parameterization not express it?).
 - [refs/sweeps.md](refs/sweeps.md) — same-seed paired comparison and cross-seed t-stat reliability, so a result is "reliably better" not "a lucky seed."
+- [refs/llm_judges.md](refs/llm_judges.md) — LLM-as-a-judge biases (position, verbosity, self-preference) and the mitigation checklist.
 - [refs/static_analysis.md](refs/static_analysis.md) — grep patterns for silent bugs (shape mismatches, autograd breakers, double softmax, step ordering, leakage).
 - [refs/diagnostics.md](refs/diagnostics.md) — copy-paste diagnostic snippets (init-loss check, overfit-one-batch, gradient-flow check, NaN hooks, NaN-poisoning leakage tracer, backprop-to-input dependency check, class-imbalance check).
 - [rl/SKILL.md](rl/SKILL.md) — RL-specific debugging: probe environments, reward engineering, HP defaults, reference implementations.

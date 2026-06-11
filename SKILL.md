@@ -96,6 +96,10 @@ His fix is a posture, "never accept the kludge": messed up your git repo? Find t
 
 Slavv's "37 reasons" list opens with the same anecdote (gradients flowing, loss falling, predictions all background) and puts "Verify that the input data is correct" and "Start with a really small dataset (2-20 samples). Overfit on it" at the top of its emergency checklist[^slavv].
 
+Andrew Ng's error-analysis procedure is the same move applied after your first trained model: before investing a month in any fix, gather ~100 misclassified dev examples and count the failure categories in a spreadsheet.
+
+> Manually examining 100 examples does not take long. Even if you take one minute per image, you'd be done in under two hours. These two hours could save you a month of wasted effort.[^ng-mly]
+
 ### Labels are often wrong (koaning)
 
 Even benchmark data is dirtier than you think. Vincent Warmerdam:
@@ -111,6 +115,16 @@ The canonical data-leakage parable:
 > A cautionary tale in artificial intelligence tells about researchers training an neural network (NN) to detect tanks in photographs, succeeding, only to realize the photographs had been collected under specific conditions for tanks/non-tanks and the NN had learned something useless like time of day.[^gwern]
 
 gwern traced versions back to 1992 and concluded it is "a classic 'urban legend'" with no solid source[^gwern]. The lesson holds twice over: a model will gladly learn a confound in how the data was collected instead of the task, and even your cautionary tales deserve a citation.
+
+### Test-set contamination is insidious (Domingos)
+
+Domingos' 2012 CACM paper set out to write down ML "folk knowledge" (the same project as this file):
+
+> Doing well on the training set is easy (just memorize the examples). The most common mistake among machine learning beginners is to test on the training data and have the illusion of success.[^domingos]
+
+> Contamination of your classifier by test data can occur in insidious ways, for example, if you use test data to tune parameters and do a lot of tuning. (Machine learning algorithms have lots of knobs, and success often comes from twiddling them a lot, so this is a real concern.)[^domingos]
+
+Lones catalogs the concrete leak routes: scaling statistics computed on the full dataset before splitting, augmentation before splitting, look-ahead bias when cross-validating time series[^lones].
 
 ### Overfit one batch first
 
@@ -168,6 +182,16 @@ Why ablation and one-change-at-a-time work, from Google's production-ML technica
 
 This is also why "I changed the method and a hyperparameter and it got better" tells you nothing about the method.
 
+### Exploration over exploitation (Google tuning playbook)
+
+The Google Research tuning playbook opens by admitting there is "an astonishing amount of toil and guesswork" in getting deep nets to work; their counter is experiment-design discipline:
+
+> Although one might think we would spend most of our time trying to maximize performance on the validation set, in practice we spend the majority of our time trying to gain insight into the problem, and comparatively little time greedily focused on the validation error. In other words, we spend most of our time on "exploration" and only a small amount on "exploitation".[^tuning-playbook]
+
+Their experiment-design vocabulary is the reusable part: each round has *scientific* hyperparameters (the thing you're measuring), *nuisance* hyperparameters (must be re-tuned for the comparison to be fair), and *fixed* ones (caveats on your conclusions).
+
+> The learning rate is a nuisance hyperparameter because we can only fairly compare models with different numbers of hidden layers if the learning rate is tuned separately for each number of layers (the optimal learning rate generally depends on the model architecture).[^tuning-playbook]
+
 ### Adam at 3e-4 for baselines (Karpathy)
 
 > In the early stages of setting baselines I like to use Adam with a learning rate of 3e-4. In my experience Adam is much more forgiving to hyperparameters, including a bad learning rate.[^karpathy-recipe]
@@ -203,6 +227,20 @@ Bekman wrote the `DebugUnderflowOverflow` tool during BLOOM-era large-model trai
 > As you can see it's the previous frames that we need to look into when the numbers start going into very large for fp16 numbers.[^bekman]
 
 Corollary from the same docstring: validate your debugging instrumentation on a few cheap batches before betting an hours-long run on it.
+
+### Loss spikes usually mean a bad data pocket (Stas Bekman)
+
+Bekman's ML Engineering book has a gallery of real loss-curve pathologies from BLOOM and IDEFICS training, with the honest caveat that "very often we don't really understand why certain types of spikes happen" and pattern recognition is the realistic goal:
+
+> In general there are 3 types of loss spikes: 1. Fast recovering spikes 2. Slow recovering spikes 3. Not fully recovering spikes
+>
+> The spikes usually happen because of a bad data pocket, either due to badly shuffled data or because it hasn't been cleaned from some garbage scraped from the websites.[^bekman-book]
+
+And the post-mortem of the 104B model that diverged for months before BLOOM-176B succeeded:
+
+> We think the 2 main obstacles were using fp16 and data that had a lot of garbage in it. For BLOOM-176B we switched to bf16, used much cleaner data and also added an embedding layer-norm and that made all the difference.[^bekman-book]
+
+His recommended way to build this intuition: "The best learning is to read Publicly available training LLM/VLM logbooks because there you can see exactly what happened and how the problem has been overcome."[^bekman-book]
 
 ### Walk the pipeline in data order (HF course)
 
@@ -242,6 +280,7 @@ Open the relevant one when the task calls for it. These are synthesized checklis
 - [refs/loss_surface.md](refs/loss_surface.md) — visualize a loss surface and its gradient field with synthetic tensors, no model or GPU, for when a custom loss misbehaves.
 - [refs/metric_stuck.md](refs/metric_stuck.md) — "why won't this metric move?" plus the structural-ceiling check.
 - [refs/sweeps.md](refs/sweeps.md) — same-seed paired comparison and cross-seed t-stat reliability, for before you claim method A beats method B.
+- [refs/llm_judges.md](refs/llm_judges.md) — LLM-as-a-judge biases (position, verbosity, self-preference) and the mitigation checklist, for when an LLM-judged eval looks too good.
 - [rl/SKILL.md](rl/SKILL.md) — RL-specific: probe environments, reward engineering, HP defaults, reference implementations.
 - [pinn/SKILL.md](pinn/SKILL.md) — physics-informed networks: nondimensionalization, gradient pathologies, curriculum.
 
@@ -277,7 +316,12 @@ Folklore sources (the quotes above trace to these):
 [^unsloth]: Unsloth (Daniel & Michael Han-Chen), "Troubleshooting & FAQs" — https://docs.unsloth.ai/basics/troubleshooting-and-faqs ([cache](docs/evidence/unsloth_troubleshooting_faqs.md): template-mismatch + BOS L38-39, shuffle-eval L100, all-labels–100-loss-0 L227-229)
 [^axolotl]: Axolotl, "Debugging" (general tips: Hamel Husain) — https://docs.axolotl.ai/docs/debugging.html ([cache](docs/evidence/axolotl_debugging.md): simplify L31, one-process L37, small-model + fast-iteration L48-49, caches L54-58)
 [^axolotl-stability]: Axolotl, "Training Stability" — https://docs.axolotl.ai/docs/training_stability.html ([cache](docs/evidence/axolotl_training_stability.md): metrics-from-the-start L27, inspect-tokenized-masking L67, reward-fn-standalone L99)
+[^ng-mly]: Andrew Ng, *Machine Learning Yearning* (2018 draft), ch. 13-19 on error analysis — https://github.com/ajaymache/machine-learning-yearning ([cache](docs/evidence/ng_ml_yearning_error_analysis.md): build-first-system L10, 100-examples procedure L14-20, Eyeball/Blackbox dev sets L32)
+[^tuning-playbook]: Godbole, Dahl, Gilmer, Shallue, Nado, "Deep Learning Tuning Playbook" (Google Research, 2023) — https://github.com/google-research/tuning_playbook ([cache](docs/evidence/google_tuning_playbook.md): exploration-over-exploitation L24, scientific/nuisance/fixed L34-38, incremental-tuning L14-18)
+[^domingos]: Pedro Domingos, "A Few Useful Things to Know About Machine Learning" (CACM, Oct 2012) — https://homes.cs.washington.edu/~pedrod/papers/cacm12.pdf ([cache](docs/evidence/domingos_2012_few_useful_things.md): test-on-train illusion L20, insidious-contamination L22, overfitting-bugbear L26, features-are-key L32)
+[^bekman-book]: Stas Bekman, *Machine Learning Engineering Open Book*, "Understanding Training Loss Patterns" + "Instabilities" — https://github.com/stas00/ml-engineering ([cache](docs/evidence/bekman_ml_engineering_instabilities.md): heartbeat L10, 104B post-mortem L18, spike types + bad-data-pocket L22-24, init-std L28-32, PaLM batch-skipping L36, logbooks L40)
+[^lones]: Michael A. Lones, "How to avoid machine learning pitfalls" (2021, updated annually) — https://arxiv.org/abs/2108.02497 ([cache](docs/evidence/lones_2021_ml_pitfalls.md): full do/don't TOC L18-22, leakage L26, look-ahead bias L30). Aimed at beginners but the most exhaustive checklist here: 36 do/don'ts across data prep, training, evaluation, comparison, and reporting.
 
-For modern transformer pretraining specifically (most sources above predate it), see [Karpathy's recipe](https://karpathy.github.io/2019/04/25/recipe/) and the [nanochat deepwiki](https://deepwiki.com/karpathy/nanochat) (320+ empirical HP sweeps for a GPT-2-scale run). Most multi-source claims trace to quotes in [docs/ml_debug_folklore.argdown](docs/ml_debug_folklore.argdown) (vargdown); the full evidence set is in [docs/evidence/](docs/evidence/).
+For modern transformer pretraining specifically (most sources above predate it), see [Karpathy's recipe](https://karpathy.github.io/2019/04/25/recipe/) and the [nanochat deepwiki](https://deepwiki.com/karpathy/nanochat) (320+ empirical HP sweeps for a GPT-2-scale run). For LLM-as-judge eval debugging workflow more broadly, Hamel Husain's ["Your AI Product Needs Evals"](https://hamel.dev/blog/posts/evals/) covers the error-analysis-first approach for LLM products. Most multi-source claims trace to quotes in [docs/ml_debug_folklore.argdown](docs/ml_debug_folklore.argdown) (vargdown); the full evidence set is in [docs/evidence/](docs/evidence/).
 
 Curated by [wassname](https://github.com/wassname). Companion gist: https://gist.github.com/wassname/e45e41f75c0b50e72ec1f4cff811a277
