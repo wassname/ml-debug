@@ -120,6 +120,18 @@ gwern traced versions back to 1992 and concluded it is "a classic 'urban legend'
 
 And remove a variable while you're at it: "Always use a fixed random seed [...]. This removes a factor of variation and will help keep you sane."[^karpathy-recipe]
 
+### The most common neural net mistakes (Karpathy)
+
+The 2018 tweet thread that seeded the recipe post. Every item is a silent failure except 5:
+
+> most common neural net mistakes: 1) you didn't try to overfit a single batch first. 2) you forgot to toggle train/eval mode for the net. 3) you forgot to .zero_grad() (in pytorch) before .backward(). 4) you passed softmaxed outputs to a loss that expects raw logits. ; others? :)[^karpathy-mistakes]
+
+> oh: 5) you didn't use bias=False for your Linear/Conv2d layer when using BatchNorm, or conversely forget to include it for the output layer .This one won't make you silently fail, but they are spurious parameters[^karpathy-mistakes]
+
+> 6) thinking view() and permute() are the same thing (& incorrectly using view)[^karpathy-mistakes]
+
+Number 6 is the bug the backprop-to-input dependency check catches mechanically ([refs/diagnostics.md](refs/diagnostics.md)).
+
 ### Seed variance: you can't tell a bug from bad luck
 
 > Look, there's variance in supervised learning too, but it's rarely this bad. If my supervised learning code failed to beat random chance 30% of the time, I'd have super high confidence there was a bug in data loading or training. If my reinforcement learning code does no better than random, I have no idea if it's a bug, if my hyperparameters are bad, or if I simply got unlucky.[^irpan]
@@ -147,6 +159,14 @@ On the slides[^schulman]:
 > - Especially whitening
 
 Many normalization/regularization tricks do roughly the same job (they improve conditioning), so stacking them adds complexity without proportional benefit.
+
+### Changing anything changes everything (Sculley et al.)
+
+Why ablation and one-change-at-a-time work, from Google's production-ML technical-debt paper:
+
+> **Entanglement.** Machine learning systems mix signals together, entangling them and making isolation of improvements impossible. For instance, consider a system that uses features x1, ...xn in a model. If we change the input distribution of values in x1, the importance, weights, or use of the remaining n − 1 features may all change. [...] No inputs are ever really independent. We refer to this here as the CACE principle: Changing Anything Changes Everything. CACE applies not only to input signals, but also to hyper-parameters, learning settings, sampling methods, convergence thresholds, data selection, and essentially every other possible tweak.[^sculley]
+
+This is also why "I changed the method and a hyperparameter and it got better" tells you nothing about the method.
 
 ### Adam at 3e-4 for baselines (Karpathy)
 
@@ -232,6 +252,8 @@ Folklore sources (the quotes above trace to these):
 [^jones]: Andy Jones, "Debugging RL, Without the Agonizing Pain" — https://andyljones.com/posts/rl-debugging.html ([cache](docs/evidence/andyljones_rl_debugging.md): anomalies L103-109, write-from-scratch L155, assume-bug L176-180, raise-threshold L182, loss-curve L186-188)
 [^rahtz]: Matthew Rahtz (Amid Fish), "Lessons Learned Reproducing a Deep RL Paper" — http://amid.fish/reproducing-deep-rl ([cache](docs/evidence/amid_fish_reproducing_deep_rl.md): frame-diff confusion L85-87, investigate-confusion L100-102, think-more L145-153, don't-implement-RL-yourself L497-501)
 [^karpathy-recipe]: Andrej Karpathy, "A Recipe for Training Neural Networks" (2019) — https://karpathy.github.io/2019/04/25/recipe/ ([cache](docs/evidence/karpathy_recipe_training_nn_2019.md): inspect-data L26+L32, fixed-seed L39, overfit-one-batch L51, Adam-3e-4 L73; note: this is an abridged note with its own "..." elisions)
+[^karpathy-mistakes]: Andrej Karpathy, "most common neural net mistakes" tweet thread, 1 Jul 2018 — https://x.com/karpathy/status/1013244313327681536 ([cache](docs/evidence/karpathy_common_mistakes_tweet_2018.md): tweets 1-3 verbatim, cross-checked against threadreaderapp; x.com itself blocks fetching)
+[^sculley]: Sculley et al., "Hidden Technical Debt in Machine Learning Systems" (NIPS 2015) — https://papers.nips.cc/paper_files/paper/2015/file/86df7dcfd896fcaf2674f757a2463eba-Paper.pdf ([cache](docs/evidence/sculley_2015_hidden_technical_debt.md): abstract, CACE/entanglement, ensemble caveat)
 [^schulman]: John Schulman, "Nuts and Bolts of Deep RL Research" slides — http://joschu.net/docs/nuts-and-bolts.pdf ([cache](docs/evidence/joschu_nuts_and_bolts.md): Always-Be-Ablating L98-101, standardize-observations L118-125; rendered as bullets because the PDF source is slide fragments)
 [^henderson]: Henderson et al., "Deep Reinforcement Learning that Matters" (AAAI 2018) — https://arxiv.org/abs/1709.06560 ([cache](docs/evidence/henderson_2018_deep_rl_matters.md): seeds-create-different-distributions L235, implementation-differences L251)
 [^irpan]: Alex Irpan, "Deep Reinforcement Learning Doesn't Work Yet" (2018) — https://www.alexirpan.com/2018/02/14/rl-hard.html ([cache](docs/evidence/alexirpan_rl_hard.md): variance-bug-or-unlucky L674-678, seed-canary L705-707)
