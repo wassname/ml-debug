@@ -2,7 +2,7 @@
 
 Part of the [ML Debugging skill](../SKILL.md), section 6.2.
 
-Copy-paste these. Each tests one thing.
+Here are various idea's on how to cheaply diagnose parts of your ML pipeline.
 
 **Data pipeline sanity check**
 ```python
