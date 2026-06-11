@@ -93,7 +93,8 @@ Make complexity pay rent: every added component (physics, dimensions, losses) sh
 **Step 4: Numerical hygiene.**[^cs231n]
 
 ```python
-log_prob  = prob.clamp(min=1e-8).log()                 # clamp log inputs
+log_prob  = torch.log_softmax(logits, dim=-1)                   # preferred: avoid softmax underflow
+log_prob  = prob.clamp_min(torch.finfo(prob.dtype).tiny).log()  # fallback if only probabilities exist
 ratio     = x / (std + 1e-5)                            # never divide by zero
 grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=20.0)
 logger.log("grad_norm", grad_norm)                      # clip, but LOG the pre-clip norm
@@ -101,7 +102,7 @@ assert torch.isfinite(loss), f"Loss is {loss}"          # catch NaNs early
 torch.autograd.gradcheck(my_fn, inputs.double().requires_grad_(True))  # float64! 1e-2 -> 1e-8
 ```
 
-Gradient clipping *masks* problems, so always log the pre-clip norm to see if it fires every step. For a custom gradient, use relative error (centered difference): `>1e-2` probably wrong, `1e-4` uncomfortable, `1e-7` happy; turn off regularization/dropout and use float64 first.
+Gradient clipping *masks* problems, so always log the pre-clip norm to see if it fires every step. The clip threshold (20 here) is a starting prior, not a rule — it depends on model scale, architecture, and LR. Log pre-clip norms to find your own system's healthy range. For a custom gradient, use relative error (centered difference): `>1e-2` probably wrong, `1e-4` uncomfortable, `1e-7` happy; turn off regularization/dropout and use float64 first.
 
 **Step 5: Normalization and scale.**[^schulman][^cs231n][^fsdl][^slavv] Most training issues trace back to scale. Normalize inputs to mean 0, std 1 per feature (see Schulman's quote in [SKILL.md](SKILL.md)). For physics/PDE models, nondimensionalize *before* training: raw SI units (Kelvin, Joules, meters) create loss terms with wildly different magnitudes; pick characteristic scales, substitute, and the resulting groups (NTU, Biot) come out O(1). For time-series, use a temporal train/test split, not random, or you leak correlation.
 
@@ -186,7 +187,7 @@ These are the overconfident reflexes the "calibrate" section warns about, made c
 - `try/except` around training code. Training should crash loudly. A caught exception hides the bug and produces silently wrong results. The one exception is checkpoint-on-KeyboardInterrupt.
 - "Try a different optimizer." If Adam doesn't converge, it's almost never the optimizer; it's the loss, the data, the architecture, or a bug.
 - `.detach()` / `.item()` to "fix" gradient errors. If autograd complains, the graph is wrong. Detaching silences it by cutting gradient flow, so the model just stops learning from that path.
-- `lr_scheduler` as a *cure for non-convergence*. Schedules matter (transformers need warmup, cyclic/cosine is often best-in-class, AdamW is the standard pairing), but they refine or enable convergence in an otherwise-healthy setup; they don't rescue a model that can't learn at constant LR because of a bug. Add the schedule once the basics work, not as a debugging band-aid.
+- `lr_scheduler` as a *cure for non-convergence*. Schedules matter (transformers need warmup; OneCycle/cosine can work well; AdamW is a common pairing), but they refine or enable convergence in an otherwise-healthy setup; they don't rescue a model that can't learn at constant LR because of a bug. Add the schedule once the basics work, not as a debugging band-aid. An LR range test is a separate short run that increases LR until loss stops improving or diverges; use it to choose a candidate `max_lr` before a OneCycle run.
 - More layers / a bigger model. If it can't overfit one batch, more parameters won't help. The problem is gradient flow, loss, or data.
 - "Normalize your data" without checking whether it already is. Run the data sanity check first.
 - `float()` / `.to(dtype)` to suppress type warnings. Type mismatches are signals; a float32/float64 mismatch might mean you're mixing model weights with double-precision data. Fix the root cause.
