@@ -11,8 +11,25 @@ Foreword: In an attempt to upskill the ML debugging on AI coding assistants (and
 
 If you're an LLM agent, calibrate yourself first to be less overconfident and to consider a wide range of hypothesis, then you can use your judgment to try and understand and narrow down a problem. ML research code is often outside your training distribution, and you might have a trained reflex to pattern-match a symptom to a fix ("loss stuck -> drop the LR"), this wastes a run and confuses future agents which take it as authorititive. The folklore below is meant to ground you, widen the hypothesis space, and rule out the obvious. As always take these as suggestions or ideas, they may or may not be relevent to your problem, so use you calibrated and grounded judgement. Checklists, diagnostics, and symptom catalogs are linked under [Reference](#reference).
 
-Here's a way of thinking that I've found useful for coding assistance in debugging while keeping an open mind, please do this an show the user: 
-> before acting, write competing hypotheses: consider at least the most likely failure, a subtle failure, a perverse failure, a possible bug, and an unknown. Put a rough credence on each and show the user. Think about what you expect to see differently for each possiblity and the cheapest evidence that would likely narrow them down - wassname
+## Folklore
+
+
+### Think more, experiment less
+
+> before acting plan by writing multiple competing hypotheses: consider the most likely failure but also some of: a subtle failure, a perverse failure, a possible bug, and an unknown. Put a rough credence on each. Finally write down what you expect to see differently for success vs each possiblity and brainstorm the cheapest tests that may narrow them down. - wassname
+
+> Switching from experimenting a lot and thinking a little to experimenting a little and thinking a lot was a key turnaround in productivity. When debugging with long iteration times, you really need to *pour* time into the hypothesis-forming step - thinking about what all the possibilities are, how likely they seem on their own, and how likely they seem in light of everything you've seen so far. Spend as much time as you need, even if it takes 30 minutes, or an hour. Reserve experiments for once you've fleshed out the hypothesis space as thoroughly as possible and know which pieces of evidence would allow you to best distinguish between the different possibilities.[^rahtz]
+
+
+### Don't write from scratch; start or compare to a working a reference
+
+> If you are stuck, find a working reference implementation and compare it to yours. Relvent as the hyperparameters, model, data but especially subtle things like algorithm tweaks, and engineering tricks. If nothing jumps out, the fastest way might be to try a bisection search. Here you adapt their code wholesale and try the quickest test you can. If their code works then try again with half their features and so on. Eventuall you narrow down the features that are nessesary - wassname
+
+> If you're doing anything that involves an RL algorithm as a component in a larger system, don't try and implement the RL algorithm yourself. [...] RL is unstable enough at the moment that you'll never be sure whether your system doesn't work because of a bug in your RL implementation or because of a bug in your larger system.[^rahtz]
+
+> We find that implementation differences which are often not reflected in publications can have dramatic impacts on performance.[^henderson]
+
+When you're stuck after a diagnostic cycle or two, the generalization of this advice is to find a working implementation (rank candidates by community adoption > papers citing it > code that runs > author reputation) and diff your math, computation graph, and hyperparameters against it. For RL see [rl/SKILL.md](rl/SKILL.md).
 
 ### Assume you have a bug
 
@@ -20,21 +37,10 @@ Here's a way of thinking that I've found useful for coding assistance in debuggi
 
 > What I'm advocating for here is not a blind faith in the buginess of your code, but for dramatically raising the threshold at which you start thinking 'OK, I think this is correct.'[^jones]
 
-A bug can also hide, because most ML models have multiple adaptive parts: "If one part is broken, the other parts can adapt and still achieve roughly acceptable performance"[^goodfellow], and it may not show in the output at all.
+A bug can also hide, because most ML models have multiple adaptive parts: 
 
-### Think more, experiment less
-
-> Switching from experimenting a lot and thinking a little to experimenting a little and thinking a lot was a key turnaround in productivity. When debugging with long iteration times, you really need to *pour* time into the hypothesis-forming step - thinking about what all the possibilities are, how likely they seem on their own, and how likely they seem in light of everything you've seen so far. Spend as much time as you need, even if it takes 30 minutes, or an hour. Reserve experiments for once you've fleshed out the hypothesis space as thoroughly as possible and know which pieces of evidence would allow you to best distinguish between the different possibilities.[^rahtz]
-
-## Folklore
-
-### Don't write RL from scratch; diff against a reference
-
-> If you're doing anything that involves an RL algorithm as a component in a larger system, don't try and implement the RL algorithm yourself. [...] RL is unstable enough at the moment that you'll never be sure whether your system doesn't work because of a bug in your RL implementation or because of a bug in your larger system.[^rahtz]
-
-> We find that implementation differences which are often not reflected in publications can have dramatic impacts on performance.[^henderson]
-
-When you're stuck after a diagnostic cycle or two, the generalization of this advice is to find a working implementation (rank candidates by community adoption > papers citing it > code that runs > author reputation) and diff your math, computation graph, and hyperparameters against it. For RL see [rl/SKILL.md](rl/SKILL.md).
+> "If one part is broken, the other parts can adapt and still achieve roughly acceptable performance" [^goodfellow],
+and it may not show in the output at all.
 
 ### Default to disbelieving your own results (Neel Nanda)
 
