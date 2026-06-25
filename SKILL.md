@@ -287,6 +287,7 @@ Open the relevant one when the task calls for it. These are synthesized checklis
 - [refs/metric_stuck.md](refs/metric_stuck.md) — "why won't this metric move?" plus the structural-ceiling check.
 - [refs/sweeps.md](refs/sweeps.md) — same-seed paired comparison and cross-seed t-stat reliability, for before you claim method A beats method B.
 - [refs/llm_judges.md](refs/llm_judges.md) — LLM-as-a-judge biases (position, verbosity, self-preference) and the mitigation checklist, for when an LLM-judged eval looks too good.
+- [refs/research_taste.md](refs/research_taste.md) — quote-first research taste appendix: Nanda/Olah/Steinhardt/Spinning Up on patience, choosing what to try, information gain, de-risking, and distillation.
 - [refs/transformers.md](refs/transformers.md) — transformer-specific folklore: full traces, warmup/LR, optimizer evidence, train-deploy parity, scale priors, steering, and disclosed-training reports.
 - [rl/SKILL.md](rl/SKILL.md) — RL-specific: probe environments, reward engineering, HP defaults, reference implementations.
 - [pinn/SKILL.md](pinn/SKILL.md) — physics-informed networks: nondimensionalization, gradient pathologies, curriculum.
