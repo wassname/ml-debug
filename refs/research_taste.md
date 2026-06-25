@@ -60,6 +60,10 @@ Nanda's prioritisation advice is close to the GSD/UAT habit: write the goal, che
 
 > Fail fast. One of the largest time sinks possible is investing weeks to months of effort into a failed research direction. Thus, a key question to ask yourself is: if this direction is doomed, how could I discover this as fast as humanly possible? I often try to think through what kind of confident predictions a hypothesis I care about makes in the understanding stage, or what fundamental assumptions make me think my domain is interesting at all in the exploration stage, and then think of the quickest and dirtiest experiments I can to test these. It's often much better to have several quick and dirty experiments to attack different angles where you could fail fast than to put a lot of effort into one.[^nanda-draft]
 
+Irpan's "signs of life" is the positive read on the same cheap experiment - the early signal that tells you the direction is worth more time:
+
+> Not all hyperparameters perform well, but with all the empirical tricks discovered over the years, many hyperparams will show signs of life during training. These signs of life are super important, because they tell you that you’re on the right track, you’re doing something reasonable, and it’s worth investing more time.[^irpan]
+
 > Ultimately, you just need to accept on an emotional level that you don’t get to know the “right” answer for what to do next - in practice, there’s no such thing as the right answer. The ideal is to strive to carefully evaluate the extremely noisy evidence, make a best guess for what to do next, and act on it, while also being self-aware enough to notice if it no longer seems the best action. This is a hard balance to achieve, but super useful if you can do it. Especially when you’re starting out, this can be very low stakes: the value of anything you do is dominated by the learning value![^nanda-draft]
 
 ## Ideation
@@ -142,8 +146,12 @@ Schulman and Henderson are the harder-edged RL versions:
 > Always Be Ablating
 > - Different tricks may substitute
 > - Especially whitening
-> - “Regularize” to favor simplicity in algorithm design space
+> - "Regularize" to favor simplicity in algorithm design space
 > - As usual, simplicity → generalization[^schulman]
+
+Irpan gives the reason seeds matter at all: variance from pure randomness lower-bounds how much a real code difference could swing your result. This is the observation that motivates the Henderson study below (which Irpan cites).
+
+> Instability to random seed is like a canary in a coal mine. If pure randomness is enough to lead to this much variance between runs, imagine how much an actual difference in the code could make.[^irpan]
 
 > Without significance metrics and tighter standardization of experimental reporting, it is difficult to determine whether improvements over the prior state-of-the-art are meaningful. In this paper, we investigate challenges posed by reproducibility, proper experimental techniques, and reporting procedures. We illustrate the variability in reported metrics and results when comparing against common baselines and suggest guidelines to make future results in deep RL more reproducible.[^henderson]
 
