@@ -163,7 +163,7 @@ Henderson confirmed it quantitatively: splitting 10 same-config runs (differing 
 
 ### Normalize and scale everything
 
-From the slides[^schulman] (bullet points, de-artifacted from the PDF):
+From the slides[^schulman]:
 > - If observations have unknown range, standardize
 > - Compute running estimate of mean and standard deviation
 > - x' = clip((x - mu)/sigma, -10, 10)
@@ -308,7 +308,7 @@ Folklore sources (the quotes above trace to these):
 [^karpathy-recipe]: Andrej Karpathy, "A Recipe for Training Neural Networks" (2019) — https://karpathy.github.io/2019/04/25/recipe/ ([cache](docs/evidence/karpathy_recipe_training_nn_2019.md): inspect-data L26+L32, fixed-seed L39, overfit-one-batch L51, Adam-3e-4 L73; note: this is an abridged note with its own "..." elisions)
 [^karpathy-mistakes]: Andrej Karpathy, "most common neural net mistakes" tweet thread, 1 Jul 2018 — https://x.com/karpathy/status/1013244313327681536 ([cache](docs/evidence/karpathy_common_mistakes_tweet_2018.md): tweets 1-3 verbatim, cross-checked against threadreaderapp; x.com itself blocks fetching)
 [^sculley]: Sculley et al., "Hidden Technical Debt in Machine Learning Systems" (NIPS 2015) — https://papers.nips.cc/paper_files/paper/2015/file/86df7dcfd896fcaf2674f757a2463eba-Paper.pdf ([cache](docs/evidence/sculley_2015_hidden_technical_debt.md): abstract, CACE/entanglement, ensemble caveat)
-[^schulman]: John Schulman, "Nuts and Bolts of Deep RL Research" slides — http://joschu.net/docs/nuts-and-bolts.pdf ([cache](docs/evidence/joschu_nuts_and_bolts.md): Always-Be-Ablating L98-101, standardize-observations L118-125; rendered as bullets because the PDF source is slide fragments)
+[^schulman]: John Schulman, "Nuts and Bolts of Deep RL Research" slides — http://joschu.net/docs/nuts-and-bolts.pdf ([cache](docs/evidence/joschu_nuts_and_bolts.md): Always-Be-Ablating L71-75, standardize-observations L84-88; clean slide transcript)
 [^henderson]: Henderson et al., "Deep Reinforcement Learning that Matters" (AAAI 2018) — https://arxiv.org/abs/1709.06560 ([cache](docs/evidence/henderson_2018_deep_rl_matters.md): seeds-create-different-distributions L235, implementation-differences L251)
 [^irpan]: Alex Irpan, "Deep Reinforcement Learning Doesn't Work Yet" (2018) — https://www.alexirpan.com/2018/02/14/rl-hard.html ([cache](docs/evidence/alexirpan_rl_hard.md): variance-bug-or-unlucky L674-678, seed-canary L705-707)
 [^cs231n]: Stanford CS231n, "Neural Networks Part 3" — https://cs231n.github.io/neural-networks-3/ ([cache](docs/evidence/cs231n_neural_networks_3.md): overfit-tiny-subset L89)
