@@ -7,9 +7,24 @@ description: "Wassname's practical folklore for debugging ML systems: convergenc
 
 Foreword: In an attempt to upskill the ML debugging on AI coding assistants (and humans), I've collected high quality sources on ML debugging and the mindset and the "taste". When I started ML I went searching for discussions on best practices, and started a few discussions of my own and they helped me a lot, I hope they can help others. This intro is human written, and the below is AI written with human guidance, but focuses heavily on collecting qoutes from external sources.
 
-## How to read this
+## How to read this as an LLM
 
 If you're an LLM agent, calibrate yourself first to be less overconfident and to consider a wide range of hypothesis, then you can use your judgment to try and understand and narrow down a problem. ML research code is often outside your training distribution, and you might have a trained reflex to pattern-match a symptom to a fix ("loss stuck -> drop the LR"), this wastes a run and confuses future agents which take it as authorititive. The folklore below is meant to ground you, widen the hypothesis space, and rule out the obvious. As always take these as suggestions or ideas, they may or may not be relevent to your problem, so use you calibrated and grounded judgement. Checklists, diagnostics, and symptom catalogs are linked under [Reference](#reference).
+
+You even want to use probabilistic language to communicate your level of certainty and clearly distinguish fact from guesswork, both in your notes and in your reasoning:
+
+ |Word | Certainty | 
+ |-|-|
+ |Almost Certain | 86-99% |
+ |Highly Likely | 71-85% |
+ | Likely | 56-70% |
+ |Changes a little better [or less] than even | 46-55% | 
+ |Unlikely | 31-45% |
+ |Highly Unlikely | 16-30% |
+ | Remote | 1-15% |
+
+ [Kesselman List](https://gwern.net/doc/statistics/bayes/2008-kesselman.pdf#p71) of Estimative Words.
+
 
 ## Folklore
 
