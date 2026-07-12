@@ -11,7 +11,7 @@ Out: end-to-end case-study prose, new debugging domains, compatibility shims, an
 - R1: Advice must separate observations from diagnoses. Done means the random-input, train/validation, NaN, failure-prior, and update-ratio passages no longer claim more than their checks establish. VERIFY: targeted searches plus human review of the changed paragraphs.
 - R2: PINN optimizer guidance must present ConFIG and UPGrad as plausible methods, without unsupported numeric credence or declaring one generally superior. VERIFY: the section contains both methods and no `credence ~70%` or `consistent wins` claim.
 - R3: `just audit` must fail on broken authored links, malformed Markdown fences, missing footnote definitions, invalid skill frontmatter, and out-of-range local evidence line anchors. VERIFY: it passes on the repository and fails when each defect is injected into a temporary copy.
-- R4: The benchmark must contain 8-12 seeded ML failures and compare fresh agent diagnoses with and without `ml-debug`. Done means a machine-readable results table reports root-cause accuracy, localization-before-fix, discriminating-test choice, unsupported behavior changes, and silent fallbacks for both conditions. VERIFY: rerun the scorer from raw outputs and reproduce the summary.
+- R4: The benchmark must contain 8-12 seeded ML failures and compare fresh agent diagnoses with and without `ml-debug`. Done means a machine-readable results table reports root-cause accuracy, localization-before-fix, discriminating-test choice, unsupported behavior changes, and fallback logic proposed for both conditions. VERIFY: rerun the scorer from raw outputs and reproduce the summary.
 - R5: Benchmark construction and execution must happen in a separate git worktree. VERIFY: `git worktree list` and the benchmark commit path show an isolated worktree branch.
 
 ## Tasks
@@ -35,8 +35,8 @@ Out: end-to-end case-study prose, new debugging domains, compatibility shims, an
   - likely_fail: humanizer catches repeated AI patterns or external review finds an overclaim; revise and rerun
   - sneaky_fail: checks pass but user-facing meaning regresses; fresh-eyes review compares the changed passages to R1-R2
   - UAT: "the committed diff is small, readable, and its audit output is linked in this spec"
-- [ ] T4 (R4-R5): Build the seeded-failure benchmark in a separate worktree.
-  - steps: create 8-12 compact cases with hidden answer keys; run fresh agent sessions in control and skill conditions; retain raw outputs; score only explicit evidence in outputs
+- [/] T4 (R4-R5): Build the seeded-failure benchmark in a separate worktree.
+  - steps: create 8-12 compact cases with neutral IDs and hidden answer keys; run fresh agent sessions in control and skill conditions; retain raw outputs; record blinded, quote-anchored ratings
   - verify: benchmark validation command checks case count, unique IDs, hidden keys, raw output completeness, and score reproducibility
   - success: both conditions have the same cases and model settings, with no answer-key leakage
   - likely_fail: agent runner or model access is unavailable; record the exact failure and keep a runnable harness
@@ -54,6 +54,8 @@ Out: end-to-end case-study prose, new debugging domains, compatibility shims, an
 - Frozen `docs/evidence/` files contain scraped links that are not expected to resolve locally. Authored files should resolve all local links.
 - The user rejected adding worked case studies because they may make agents hyper-focus on the examples.
 - The benchmark is last and must use a worktree.
+- Benchmark worktree: `/tmp/ml-debug-benchmark`, branch `benchmark/skill-ab`, created from `9774c4b`.
+- The local harness validates ten paired cases with matching hidden answer IDs. Model execution requires explicit approval to send `SKILL.md` and synthetic case prompts to the authenticated OpenAI Codex service.
 
 ## Log
 - Precise failure percentages in `PLAYBOOK.md` are qualitative practitioner ordering presented with unsupported numeric precision.
@@ -82,3 +84,5 @@ Fresh-eyes adversarial review rejected broken images, missing fragments, malform
 | T3 | DeepSeek returned only a promise to inspect files; GLM produced no output in about 15 minutes. | Rejected both as failed reviews and dispatched a fresh-eyes repository review instead. |
 | T3 | Humanizer lint reports pre-existing file-wide bold-label and punctuation debt. | Kept this change scoped; the edited passages add none of the flagged patterns. |
 | T2 | Fresh-eyes review found broken image links, fragments, quoted YAML, `L0`, reversed ranges, and invalid fence info could pass silently. | Added each case to the parser and mutation suite. The reviewer reran all adversarial fixtures and changed R3 from FAIL to PASS. |
+| T4 | The environment rejected the 20-session run because it exports the skill and cases to an external OpenAI model without explicit approval. | Stopped without sending benchmark content; request explicit approval before running. |
+| T4 | Fresh-eyes review found descriptive case IDs leaked answers, regex scoring matched negations and fixes, disclosed fallbacks were mislabeled silent, and partial runs could score. | Replaced IDs with `case_01`-`case_10`, removed regex grading, required quote-anchored ratings, renamed the fallback metric, snapshotted fixtures, and required a hashed completion manifest. |

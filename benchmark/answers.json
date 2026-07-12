@@ -1,0 +1,52 @@
+{
+  "case_01": {
+    "root_cause": "CrossEntropy receives softmax probabilities, causing a second softmax and compressed gradients.",
+    "discriminating_test": "Compare CrossEntropy on raw logits with CrossEntropy on softmax probabilities, or inspect the tensor entering the loss.",
+    "requires_localization": true
+  },
+  "case_02": {
+    "root_cause": "All supervised labels are masked to -100, likely by an inverted masking condition.",
+    "discriminating_test": "Print labels and count trainable labels versus -100 labels in the real collated batch.",
+    "requires_localization": true
+  },
+  "case_03": {
+    "root_cause": "Target leakage or split contamination makes labels available before training.",
+    "discriminating_test": "Trace split construction and features, fit preprocessing on train only, or poison information that must not cross the split.",
+    "requires_localization": true
+  },
+  "case_04": {
+    "root_cause": "A reshape/view replaced a transpose and mixed batch with sequence positions.",
+    "discriminating_test": "Use a backprop-to-input batch-independence check or perturb unrelated batch rows.",
+    "requires_localization": false
+  },
+  "case_05": {
+    "root_cause": "The dashboard logs learning_rate * gradient, which is not the AdamW parameter update.",
+    "discriminating_test": "Snapshot parameters immediately before optimizer.step and measure the actual parameter delta afterward.",
+    "requires_localization": false
+  },
+  "case_06": {
+    "root_cause": "Batch standardization divides the constant feature by zero standard deviation.",
+    "discriminating_test": "Insert finite assertions after successive preprocessing stages to find the first non-finite tensor.",
+    "requires_localization": true
+  },
+  "case_07": {
+    "root_cause": "Validation runs in training mode, leaving dropout and batch-normalization behavior active.",
+    "discriminating_test": "Record model.training, call eval for a controlled repeat, and compare repeated predictions on the same batch.",
+    "requires_localization": true
+  },
+  "case_08": {
+    "root_cause": "Cached tokenization is being reused after the chat-template change.",
+    "discriminating_test": "Inspect the cache fingerprint or rerun tokenization with cache disabled and print the first resulting tokens.",
+    "requires_localization": true
+  },
+  "case_09": {
+    "root_cause": "Terminal masking is wrong, so returns bootstrap across a true terminal reset.",
+    "discriminating_test": "Hand-compute the two-step probe return and inspect the stored terminal mask at the final transition.",
+    "requires_localization": true
+  },
+  "case_10": {
+    "root_cause": "Dimensional scale mismatch creates severe per-loss gradient imbalance; the problem needs nondimensionalization before choosing aggregation.",
+    "discriminating_test": "Nondimensionalize variables or compare per-loss gradients in consistent units before testing an aggregation method.",
+    "requires_localization": true
+  }
+}

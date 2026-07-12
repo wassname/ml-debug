@@ -1,0 +1,42 @@
+[
+  {
+    "id": "case_01",
+    "prompt": "A 10-class classifier starts at loss 2.303 and reaches only 2.25 after 500 steps. The data and labels look correct, it can produce non-uniform logits, and gradients reach the classifier head but are much smaller than expected. The training log records output entropy near ln(10). Diagnose the leading cause and choose the cheapest test that would distinguish it from a merely low learning rate."
+  },
+  {
+    "id": "case_02",
+    "prompt": "An instruction-tuned language model reports training loss exactly 0.000 from the first step. Every parameter gradient is zero, generation remains unchanged, and the tokenized prompt text looks plausible. The training logs print input_ids and attention_mask but not labels. Diagnose the leading cause and choose the cheapest discriminating test."
+  },
+  {
+    "id": "case_03",
+    "prompt": "A randomly initialized 100-class image classifier has cross-entropy loss 0.04 before any optimizer step, while accuracy on the validation loader is 96%. A separately loaded raw image and label look reasonable. Diagnose the leading cause and choose a test that localizes it without changing the model."
+  },
+  {
+    "id": "case_04",
+    "prompt": "After a tensor-layout refactor, prediction for validation example 3 changes when unrelated examples elsewhere in the same batch are replaced. Shapes remain valid and single-example inference looks normal. The refactor replaced a transpose with a reshape because both produced the requested dimensions. Diagnose the leading cause and choose a mechanical test."
+  },
+  {
+    "id": "case_05",
+    "prompt": "An AdamW run improves steadily and parameter checksums change every step, but the dashboard says every layer's log10(update/parameter ratio) is about -8. The logger computes the numerator as learning_rate * parameter.grad after optimizer.step(). Diagnose the discrepancy and choose the cheapest confirmation."
+  },
+  {
+    "id": "case_06",
+    "prompt": "Training is finite on most shards but the first batch from one shard makes the loss NaN. That batch contains a feature that is constant across all examples. Preprocessing standardizes each feature using statistics from the current batch. Diagnose the leading cause and choose a test that localizes the first invalid operation. State whether you would add epsilon or clamp immediately."
+  },
+  {
+    "id": "case_07",
+    "prompt": "Training metrics improve normally, but repeated validation passes over the same frozen batch give noticeably different predictions and loss. The model contains dropout and batch normalization. The validation loop uses no_grad, but the logs never record the module training flag. Diagnose the leading cause and choose the cheapest confirmation."
+  },
+  {
+    "id": "case_08",
+    "prompt": "After changing the chat template and BOS handling, fine-tuning behavior and the printed first tokenized sample are byte-for-byte identical to the previous run. Raw source conversations changed as expected. Tokenization uses a cached dataset map. Diagnose the leading cause and choose the cheapest confirmation."
+  },
+  {
+    "id": "case_09",
+    "prompt": "An actor-critic implementation passes a one-step reward probe but fails a two-step probe whose final transition is a true terminal state. Learned values include reward that should occur only after the reset. Returns are otherwise correct on continuing episodes. Diagnose the leading cause and choose a deterministic test."
+  },
+  {
+    "id": "case_10",
+    "prompt": "A PINN drives its PDE residual loss below 1e-7 while boundary values remain physically wrong. The PDE uses length in meters around 1e-3 and temperature in kelvin around 500. Per-loss gradient norms differ by roughly nine orders of magnitude. Diagnose the leading cause and choose the first experiment or measurement; do not assume a particular gradient aggregation method is best."
+  }
+]
