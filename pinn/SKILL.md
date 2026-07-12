@@ -166,12 +166,14 @@ The PINN loss has multiple terms (PDE residual, BCs, ICs, data) with different g
 > Source: https://arxiv.org/abs/2001.04536, Algorithm 1
 > NeuralPDE.jl implements this as `GradientScaleAdaptiveLoss`.
 
-**3. Conflict-free gradient methods** (ConFIG, credence ~70%):
+**3. Gradient aggregation methods** (ConFIG or UPGrad):
 > Instead of summing loss gradients (which can cancel), project them into a conflict-free direction.
 > ConFIG: unit-normalize per-loss gradients, solve least-squares for combined direction, rescale by projection lengths.
 > Source: https://tum-pbs.github.io/ConFIG/
 > Key: must compute per-loss gradients separately (zero_grad + backward for each). Summing raw losses defeats the purpose.
 > M-ConFIG: momentum variant, updates only one loss's gradient per step. Use with SGD, not Adam (momentum conflict).
+
+ConFIG and UPGrad are both reasonable candidates when the losses cannot be replaced by hard constraints. Keep plain summation as a baseline. The current evidence does not establish one aggregation method as generally best.
 
 **4. Don't use multiple losses if you can avoid it.** A single well-posed loss is always better than a weighted sum. Can you reformulate BCs as hard constraints (e.g., multiply network output by a function that satisfies BCs)? Can you use a penalty method that naturally balances?
 
@@ -260,7 +262,7 @@ These apply to PINNs too:
 2. Get signs of life on a toy problem (1D, known solution, constant Cp)
 3. Overfit to training data first. If you can't overfit, you can't generalize.
 4. Log everything: losses per component, gradient norms per module, parameter norms, activation stats
-5. Numerical hygiene: `assert torch.isfinite(loss)`, `log(x.clamp(min=1e-8))`, `x / (std + 1e-5)`
+5. Numerical localization: insert `assert torch.isfinite(x).all()` after successive stages. Once you find the first invalid operation, use a stable formula that matches the intended mathematical domain.
 
 **Symptom table** (adapted for PINNs):
 
@@ -290,11 +292,13 @@ This takes 5 minutes and saves hours.
 
 ---
 
-## 8. Multi-Loss Training Details (ConFIG)
+## 8. Multi-Loss Training Details
 
 If you must use multiple loss terms (and in PINNs you usually must):
 
-### ConFIG (recommended over naive summation, credence ~70%)
+### ConFIG and UPGrad
+
+Both methods require separate per-loss gradients. The example below shows the ConFIG interface; TorchJD provides UPGrad and other aggregation methods.
 
 ```python
 # Per-loss gradient capture (ConFIG requires this)
@@ -323,10 +327,11 @@ optimizer.step()
 | Naive sum | Simple | Gradient conflict, dominant terms drown others |
 | GradientScaleAdaptiveLoss | Built into NeuralPDE.jl | Heuristic, EMA lag |
 | ReLoBRaLo | Effective on benchmarks | More complex |
-| ConFIG | Theoretically grounded, consistent wins | Per-loss backward required (2-3x cost) |
+| ConFIG | Conflict-free aggregate with a PINN-specific reference implementation | Per-loss backward required (2-3x cost) |
+| UPGrad | General gradient aggregation available in TorchJD | Per-loss backward required; limited PINN-specific comparative evidence |
 | Hard constraints | Eliminates BC loss entirely | Not always possible |
 
-> ConFIG authors claim superiority over PCGrad and Adam baseline on Burgers, Schrodinger, Kovasznay, Beltrami. UPGrad mentions ConFIG but ConFIG does not cite UPGrad.
+> ConFIG authors report improvements over PCGrad and an Adam baseline on Burgers, Schrodinger, Kovasznay, and Beltrami. This is author-reported evidence, not a general comparison with UPGrad.
 > Source: https://tum-pbs.github.io/ConFIG/
 
 ---

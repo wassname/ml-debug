@@ -94,10 +94,8 @@ for name, module in model.named_modules():
 # Run one forward pass. First module to raise = source of the NaN.
 ```
 
-**Random input test** [Slavv]
+**Input ablation test** [Slavv]
 ```python
-# Pass random noise instead of real data. If loss/error behaves the same,
-# the data pipeline is destroying information before the model sees it.
 model.eval()
 real_batch = next(iter(train_loader))
 fake_input = torch.randn_like(real_batch['input'])
@@ -106,13 +104,15 @@ with torch.no_grad():
     fake_out = model(fake_input)
     real_loss = loss_fn(real_out, real_batch['target']).item()
     fake_loss = loss_fn(fake_out, real_batch['target']).item()
+    output_change = (real_out - fake_out).float().square().mean().sqrt().item()
     print(f"Real input loss: {real_loss:.4f}")
     print(f"Random input loss: {fake_loss:.4f}")
-# If similar: model isn't using the input. Check preprocessing, data loading, feature selection.
-# If very different: model sees real signal. Problem is elsewhere.
+    print(f"Output RMS change: {output_change:.4f}")
 ```
 
-**NaN poisoning (leakage tracer)** [Wassname
+Run this after training. If replacing real inputs with shuffled or random inputs barely changes predictions or the metric, the model may not use the intended input signal. This does not identify the cause. Inspect preprocessing, model wiring, label leakage, and task bias. Similar loss values alone are weak evidence, especially near initialization.
+
+**NaN poisoning (leakage tracer)** [Wassname]
 ```python
 # Leakage can hide anywhere: normalization fit on the full dataset, target
 # leaking into features, window functions peeking ahead, bad splits. Instead
@@ -214,27 +214,28 @@ for conf, pred, true, idx in errors[:10]:
 # Inspect the actual inputs for these indices. Pattern = systematic bug.
 ```
 
-**Update-to-data ratio check** [Karpathy nn-zero-to-hero Lec 4; evidence: karpathy_nn_zero_to_hero_lec4_diagnostics.md]
+**Parameter-update ratio check** [adapted from Karpathy nn-zero-to-hero Lec 4; evidence: karpathy_nn_zero_to_hero_lec4_diagnostics.md]
 ```python
-# Track during training: how large are updates relative to parameter magnitudes?
-# Target: ~1e-3 (log10 ~ -3). Much higher = LR too large. Much lower = LR too small.
 ud = []
-# Inside training loop (after optimizer.step()):
+parameters_before = {
+    name: parameter.detach().clone()
+    for name, parameter in model.named_parameters()
+    if parameter.ndim >= 2
+}
+optimizer.step()
 with torch.no_grad():
     ud.append({
-        name: ((lr * p.grad).std() / p.data.std()).log10().item()
-        for name, p in model.named_parameters()
-        if p.grad is not None and p.ndim >= 2
+        name: ((parameter - parameters_before[name]).std() / parameters_before[name].std()).log10().item()
+        for name, parameter in model.named_parameters()
+        if parameter.ndim >= 2
     })
-# After training, plot per-layer ratios:
 import matplotlib.pyplot as plt
 for name in ud[0]:
     plt.plot([d[name] for d in ud], label=name)
-plt.axhline(-3, color='k', linestyle='--')  # target ratio
 plt.legend(); plt.ylabel('log10(update/param ratio)'); plt.show()
-# If a layer's ratio is much above -3: reduce LR or add gradient clipping.
-# If much below -3: that layer is barely updating -- possible dead/frozen layer.
 ```
+
+This measures the update actually applied by SGD, Adam, or AdamW, including optimizer state and weight decay. Compare layers and trends over time. Karpathy's rough $10^{-3}$ target came from a particular SGD setup, so it is a diagnostic reference rather than a universal threshold.
 
 **Weight/bias distribution check** [Slavv, CS231n]
 ```python

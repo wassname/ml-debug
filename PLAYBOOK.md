@@ -18,17 +18,17 @@ How to *think* when generating hypotheses or deciding what to investigate next. 
 
 **5. Structural ceiling: can the parameterization even express what you want?** Sometimes a metric is stuck not because the optimizer fails but because the architecture literally cannot represent the target. Quick check: disable the loss term entirely; if the metric reaches the same value, the loss never moved it. Worked example in [refs/metric_stuck.md](refs/metric_stuck.md).
 
-### Practitioner priors: what's usually wrong
+### Where to look first
 
-With no other information, investigate in this order. Rough consensus from the folklore sources, not measured frequencies, and only a starting weight (a clue that points elsewhere overrides them outright):
+With no other information, this is a reasonable starting order from the folklore sources. It is not a measured distribution of failure causes. Follow direct evidence when it points elsewhere.
 
-1. **Data pipeline** (~40%). Wrong preprocessing, labels misaligned with inputs, missing/wrong normalization, train/test leakage, a loader returning stale batches. It really is usually the data.[^slavv][^fsdl]
-2. **Loss function** (~20%). Wrong loss for the task, wrong sign, double softmax, loss disconnected from the metric, competing losses canceling.
-3. **Training procedure** (~15%). Wrong optimizer step order, missing `zero_grad`, frozen params, in-place ops breaking autograd.
-4. **Architecture** (~10%). Too small to express it, too deep without skips, wrong activation.
-5. **Hyperparameters** (~5%). LR, batch size, weight decay. Almost never the real problem if the code is buggy.
-6. **Numerical** (~5%). NaN, overflow, underflow, usually a symptom of one of the above.
-7. **Environment** (~5%). Library version, GPU memory, nondeterminism, stale cache.
+1. **Data pipeline.** Wrong preprocessing, labels misaligned with inputs, missing/wrong normalization, train/test leakage, or a loader returning stale batches.[^slavv][^fsdl]
+2. **Loss function.** Wrong loss for the task, wrong sign, double softmax, loss disconnected from the metric, or competing losses canceling.
+3. **Training procedure.** Wrong optimizer step order, missing `zero_grad`, frozen parameters, or in-place operations breaking autograd.
+4. **Architecture.** Too small to express the target, too deep without skips, or the wrong activation.
+5. **Hyperparameters.** Learning rate, batch size, or weight decay.
+6. **Numerical behavior.** NaN, overflow, or underflow, often caused by one of the earlier problems.
+7. **Environment.** Library version, GPU memory, nondeterminism, or a stale cache.
 
 For RL, add reward scale/sign as a top-3 issue, and episode-boundary handling (done signals, discounting across resets).
 
@@ -37,7 +37,7 @@ For RL, add reward scale/sign as a top-3 issue, and episode-boundary handling (d
 | Signal | Likely meaning | Check |
 |--------|----------------|-------|
 | Init loss << expected (e.g. 0.01 vs 2.3) | Leakage or a shortcut: the model "knows" the answer at init | Are labels in the input? Is test data in train? A trivial feature? Localize with Wassname's NaN-poisoning tracer or backprop-to-input check ([refs/diagnostics.md](refs/diagnostics.md)) |
-| Random input gives the same loss as real input | Pipeline is destroying information (over-aggressive preprocessing, wrong transforms, all-zero input) | Print raw data at each stage; visualize |
+| After training, replacing real inputs with shuffled or random inputs barely changes predictions or the metric | The model may not use the intended input signal; this does not identify the cause | Inspect preprocessing, model wiring, label leakage, and task bias |
 | Predicts the same class for everything | Class imbalance (100:1 -> "always predict majority") | Label-count check; weighted loss or resample |
 | Val much worse than train from the start | Distribution shift between splits | Same preprocessing? Same time period? Same source? |
 | Learning curve flat even with 10x data | NOT data: high bias | Add capacity, fix features, check for capacity-reducing bugs |
@@ -71,7 +71,7 @@ A catalog of small, well-worn checks, in rough dependency order (each assumes th
 
 Make complexity pay rent: every added component (physics, dimensions, losses) should improve a metric you care about, or come out.
 
-**Step 3: Log everything, then look for specific pathologies.**[^goodfellow][^rahtz][^cs231n] Log train+val loss (per-component if multi-objective), gradient norms per module, learning rate, parameter-update magnitudes, the update-to-data ratio per layer (`((lr * p.grad).std() / p.data.std()).log10()`, target ~-3), activation stats (mean, std, dead-ReLU fraction, tanh saturation), and input/label distributions.
+**Step 3: Log everything, then look for specific pathologies.**[^goodfellow][^rahtz][^cs231n] Log train+val loss (per-component if multi-objective), gradient norms per module, learning rate, actual parameter-update magnitudes, activation stats (mean, std, dead-ReLU fraction, tanh saturation), and input/label distributions. For Adam and AdamW, measure the parameter change across `optimizer.step()`; `lr * grad` is not the applied update.
 
 **Sanity-check the loss at init**[^cs231n]: verify chance-level loss before training. For 10-class softmax the initial loss should be `-ln(0.1) = 2.302` with small random weights. Wrong init loss means a bad initialization or a broken loss. Then check that increasing regularization increases the loss.
 
@@ -79,8 +79,8 @@ Make complexity pay rent: every added component (physics, dimensions, losses) sh
 |---|---|
 | Loss stuck from the start | LR too low, bad init, data pipeline broken, wrong loss function |
 | Loss decreases then explodes | LR too high, numerical instability (log(0), div by 0), gradient-accumulation bug |
-| Loss NaN | log(0), 0/0, overflow. Use `log(x.clamp(min=1e-8))`, `1/(std + 1e-5)` |
-| Train loss good, val loss bad | Overfitting. More data, regularization, smaller model |
+| Loss NaN | Insert `assert torch.isfinite(x).all()` after successive pipeline stages; the first failure localizes the invalid operation. Add a clamp or epsilon only when the intended math requires that boundary behavior |
+| Train loss good, val loss bad | Check split construction, preprocessing parity, and eval mode. If those pass, overfitting is likely |
 | Loss oscillates wildly | LR too high, batch too small, data shuffling broken |
 | Gradients vanish | Too-deep net without skips, saturating activations, bad init |
 | Gradients explode | No gradient clipping, LR too high, RNN without clipping |
@@ -172,12 +172,12 @@ def debug(symptom):
 Rough order to consider, not authoritative; it may not fit your project. Stop when a question fits.
 
 1. Exception/traceback? Read it, fix it, done.
-2. Loss NaN/Inf? Attach NaN hooks ([refs/diagnostics.md](refs/diagnostics.md)), find the first module producing NaN. Usual causes: log(0), 0/0, exp(large); add clamp/eps.
-3. Init loss wrong? Check the data pipeline and loss; check for double softmax; check labels match output format. Same loss on random input -> data destroyed. Init loss << expected -> leakage.
+2. Loss NaN/Inf? Attach NaN hooks ([refs/diagnostics.md](refs/diagnostics.md)) or insert `assert torch.isfinite(x).all()` after successive stages. Find the first invalid value before changing the math. Common causes include log(0), 0/0, and exp(large).
+3. Init loss wrong? Check the data pipeline and loss; check for double softmax; check labels match the output format. A low init loss makes leakage or a shortcut plausible; localize it before changing the model.
 4. Can't overfit one batch? Gradient-flow check: None grads -> disconnected layer; all-zero grads -> dead layer / detach. Check autograd breakers and optimizer step order.
 5. Loss stuck from step 0 but you *can* overfit one batch? LR too low (try 10x), frozen params (check `requires_grad`), wrong loss.
 6. Loss decreases then explodes? LR too high (try 0.1x), log the pre-clip grad norm, hunt numerical instability.
-7. Train good, val bad? Overfitting, not a bug. More data, regularization, smaller model.
+7. Training performance good but validation performance poor? First check for a train/validation mismatch or an evaluation bug. If those checks pass, overfitting is likely.
 8. Train loss fine but the metric is bad? Loss-metric misalignment ([refs/metric_stuck.md](refs/metric_stuck.md)).
 9. Outputs constant? Mode collapse: class imbalance, all-zero init, dead ReLUs, look at confidence-sorted errors.
 10. Slow but not stuck? Not a bug. Consider batch size, depth/width, data quality.
