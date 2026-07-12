@@ -29,7 +29,7 @@ Out: end-to-end case-study prose, new debugging domains, compatibility shims, an
   - likely_fail: the known deleted RL process-log link or malformed heading fails the first run; fix the source
   - sneaky_fail: the audit always exits zero; mutation tests inject one defect per check and require nonzero exit
   - UAT: "when an authored link, fence, footnote, frontmatter, or evidence anchor breaks, `just audit` names the file and exits nonzero"
-- [/] T3 (R1-R3): Review, humanize, verify, commit, and push the documentation/audit chunk.
+- [x] T3 (R1-R3): Review, humanize, verify, commit, and push the documentation/audit chunk.
   - verify: `python3 /home/wassname/.agents/skills/humanizer/lint.py --help`, the selected lint command, `just audit`, `git diff --check`, and external review
   - success: checks pass and review findings are resolved or recorded
   - likely_fail: humanizer catches repeated AI patterns or external review finds an overclaim; revise and rerun
@@ -59,6 +59,18 @@ Out: end-to-end case-study prose, new debugging domains, compatibility shims, an
 - Precise failure percentages in `PLAYBOOK.md` are qualitative practitioner ordering presented with unsupported numeric precision.
 - For Adam/AdamW, `lr * grad` is not the applied parameter update because moments, normalization, and decoupled weight decay alter the update.
 - `just audit` passes 19 authored Markdown files and three skills; its self-test rejects 11 injected defect types.
+
+## Results
+
+Documentation and audit chunk:
+
+```text
+$ just audit
+audit self-test: PASS (11 injected defects rejected)
+audit: PASS (19 authored Markdown files, 3 skills)
+```
+
+Fresh-eyes adversarial review rejected broken images, missing fragments, malformed quoted frontmatter, `L0`, reversed evidence ranges, and invalid fence info. Commits `fa534cf` and `0be4323` are pushed to `origin/main`.
 
 ## TODO
 
