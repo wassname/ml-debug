@@ -1,0 +1,53 @@
+{
+  "run_id": "gpt56-medium",
+  "model": "gpt-5.6-sol",
+  "workers": 4,
+  "reasoning_effort": "medium",
+  "case_ids": [
+    "case_01",
+    "case_02",
+    "case_03",
+    "case_04",
+    "case_05",
+    "case_06",
+    "case_07",
+    "case_08",
+    "case_09",
+    "case_10"
+  ],
+  "conditions": [
+    "control",
+    "treatment"
+  ],
+  "skill_sha256": "adbdd538b81357ed43d58f0027386d45b272ffb31ba09a4eab5552ee12030948",
+  "base_instruction_sha256": "06378fe7d972e6d6f8be0780597132dd9f990ff75a2acac74d59ce6b986233f2",
+  "fixture_sha256": {
+    "cases.json": "9c3972377f1ebf635afb522634c0d64c182f6abd53bbb859ea834fca66181307",
+    "answers.json": "5c27df932406d571c9e06a823b30695d5debd07fd25ed3e51c7ac0143b84fab0",
+    "response.schema.json": "19bfe551ae38efd4829bc25f53b9b59e956620392fe1f67d737be1a4900db4e6"
+  },
+  "codex_version": "codex-cli 0.144.1",
+  "git_commit": "a0fcfa291e41316924424ba3f2def33eb37b7338",
+  "job_order": [
+    "treatment/case_10",
+    "control/case_03",
+    "treatment/case_06",
+    "control/case_01",
+    "treatment/case_07",
+    "control/case_09",
+    "treatment/case_09",
+    "control/case_02",
+    "control/case_05",
+    "treatment/case_02",
+    "treatment/case_01",
+    "control/case_10",
+    "control/case_07",
+    "treatment/case_04",
+    "treatment/case_08",
+    "control/case_08",
+    "control/case_06",
+    "treatment/case_05",
+    "control/case_04",
+    "treatment/case_03"
+  ]
+}

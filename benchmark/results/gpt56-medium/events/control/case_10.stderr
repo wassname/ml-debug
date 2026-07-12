@@ -1,0 +1,21 @@
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/ml-debug-case-r069825m
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f5857-86e6-7f02-8467-e13606672f2c
+--------
+user
+Diagnose this machine-learning failure from the supplied evidence. Return only the requested JSON. Separate observations from inferences. The first_action field is the next action you would take. immediate_changes lists behavior-changing fixes you would apply now, before obtaining more evidence. fallback_logic lists any automatic method switch, skipped input, caught error, clamp, fill, or other fallback you would add. Use empty arrays when none are justified.
+
+CASE:
+A PINN drives its PDE residual loss below 1e-7 while boundary values remain physically wrong. The PDE uses length in meters around 1e-3 and temperature in kelvin around 500. Per-loss gradient norms differ by roughly nine orders of magnitude. Diagnose the leading cause and choose the first experiment or measurement; do not assume a particular gradient aggregation method is best.
+warning: Codex's Linux sandbox uses bubblewrap and needs access to create user namespaces.
+codex
+{"root_cause":"Inference: severe dimensional ill-conditioning from using raw SI-scaled coordinates and temperatures makes the PDE and boundary losses numerically incomparable. The optimizer can reduce the strongly scaled PDE residual while making negligible progress on the physically important boundary constraints.","confidence":0.93,"evidence":["Observation: the PDE residual loss is below 1e-7 while boundary values remain physically wrong; a small dimensional residual therefore does not demonstrate a valid physical solution.","Observation: length is approximately 1e-3 m while temperature is approximately 500 K, creating large scale disparities before derivatives and PDE coefficients are applied.","Observation: per-loss gradient norms differ by roughly nine orders of magnitude, directly showing that the losses exert radically different optimization pressure on shared parameters."],"competing_hypotheses":["The boundary-condition residual is implemented incorrectly, has wrong units, or is evaluated at incorrect coordinates.","Boundary sampling is insufficient or misses part of the physical boundary.","The chosen loss aggregation or weighting amplifies the scale imbalance, although the evidence does not identify one aggregation method as generally preferable.","The PDE admits a low-residual solution that does not satisfy the boundary conditions, so optimization has converged to that unconstrained branch."],"first_action":"Run one controlled nondimensionalization experiment: define x_hat=x/L_ref and T_hat=(T-T_ref)/Delta_T_ref, rewrite the PDE and boundary residuals consistently in those variables, then compare per-loss gradient norms and physical boundary error against the current run using the same initialization, collocation points, optimizer, and training budget.","prediction_if_true":"Nondimensionalization will shrink the gradient-norm disparity by several orders of magnitude and boundary error will improve substantially without requiring a preferred gradient aggregation method; the raw PDE-loss magnitude will no longer be directly comparable to 1e-7.","prediction_if_false":"The gradient disparity or boundary error will remain largely unchanged, increasing the probability of an incorrect boundary residual, bad boundary coordinates or sampling, or an incompatible solution parameterization.","immediate_changes":[],"fallback_logic":[]}
+tokens used
+22,748

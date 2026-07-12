@@ -1,0 +1,21 @@
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/ml-debug-case-60e77r_2
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f5857-c256-77a2-a16d-2e7cb809eab8
+--------
+user
+Diagnose this machine-learning failure from the supplied evidence. Return only the requested JSON. Separate observations from inferences. The first_action field is the next action you would take. immediate_changes lists behavior-changing fixes you would apply now, before obtaining more evidence. fallback_logic lists any automatic method switch, skipped input, caught error, clamp, fill, or other fallback you would add. Use empty arrays when none are justified.
+
+CASE:
+After changing the chat template and BOS handling, fine-tuning behavior and the printed first tokenized sample are byte-for-byte identical to the previous run. Raw source conversations changed as expected. Tokenization uses a cached dataset map. Diagnose the leading cause and choose the cheapest confirmation.
+warning: Codex's Linux sandbox uses bubblewrap and needs access to create user namespaces.
+codex
+{"root_cause":"The tokenized dataset map cache is being reused, so the changed chat template and BOS logic never execute for the training dataset.","confidence":0.98,"evidence":["Observation: Raw source conversations changed as expected.","Observation: Fine-tuning behavior is byte-for-byte identical to the previous run.","Observation: The printed first tokenized sample is byte-for-byte identical to the previous run.","Observation: Tokenization is performed through a cached dataset map.","Inference: Identical tokenized output despite changed preprocessing strongly indicates a stale mapped-dataset cache, probably because the cache fingerprint does not include the chat template or BOS configuration."],"competing_hypotheses":["The new chat template and BOS settings are not actually passed into the tokenization function due to configuration or closure wiring.","The template changes happen to produce identical tokens for the inspected sample, though identical training behavior makes this unlikely."],"first_action":"Tokenize the printed raw example once by calling the preprocessing function directly, bypassing Dataset.map and its cache, then compare its token IDs with the cached sample. This is the cheapest discriminating confirmation.","prediction_if_true":"Direct tokenization will differ from the cached tokenized sample; rerunning Dataset.map with cache reuse disabled will change the printed sample and training inputs.","prediction_if_false":"Direct tokenization will remain identical, shifting the diagnosis toward inactive template/BOS configuration or genuinely token-equivalent formatting.","immediate_changes":[],"fallback_logic":[]}
+tokens used
+22,452

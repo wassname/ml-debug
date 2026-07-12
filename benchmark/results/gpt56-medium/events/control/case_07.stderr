@@ -1,0 +1,21 @@
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/ml-debug-case-w9m8h7wk
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f5857-9a36-7d80-9600-b82698519fd1
+--------
+user
+Diagnose this machine-learning failure from the supplied evidence. Return only the requested JSON. Separate observations from inferences. The first_action field is the next action you would take. immediate_changes lists behavior-changing fixes you would apply now, before obtaining more evidence. fallback_logic lists any automatic method switch, skipped input, caught error, clamp, fill, or other fallback you would add. Use empty arrays when none are justified.
+
+CASE:
+Training metrics improve normally, but repeated validation passes over the same frozen batch give noticeably different predictions and loss. The model contains dropout and batch normalization. The validation loop uses no_grad, but the logs never record the module training flag. Diagnose the leading cause and choose the cheapest confirmation.
+warning: Codex's Linux sandbox uses bubblewrap and needs access to create user namespaces.
+codex
+{"root_cause":"Inference: the validation pass is probably running with the model still in training mode. no_grad() disables gradient recording but does not disable dropout or stop batch-normalization training behavior, so repeated passes can differ.","confidence":0.94,"evidence":["Observation: repeated validation passes over the same frozen batch produce noticeably different predictions and loss.","Observation: the model contains dropout and batch normalization, both of which behave differently in training and evaluation modes.","Observation: the validation loop uses no_grad().","Observation: the logs do not record the module training flag.","Inference: stochastic dropout and/or batch-normalization batch-statistics in training mode explain the nondeterministic validation outputs."],"competing_hypotheses":["Uncontrolled randomness elsewhere in preprocessing, augmentation, sampling, or the model.","The supposedly frozen validation batch is being mutated or regenerated.","Nondeterministic accelerator kernels, though noticeable variation is less likely than an incorrect module mode."],"first_action":"Log model.training immediately before validation and repeat the same frozen batch twice after explicitly calling model.eval(); this is the cheapest discriminating confirmation.","prediction_if_true":"Before the fix, model.training will be true; with model.eval(), repeated predictions and losses on the frozen batch will become equal or differ only by negligible numerical noise.","prediction_if_false":"model.training will already be false, or repeated outputs will still differ noticeably under model.eval(), shifting attention to randomized inputs/model operations or nondeterministic kernels.","immediate_changes":[],"fallback_logic":[]}
+tokens used
+22,382

@@ -1,0 +1,21 @@
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/ml-debug-case-zjunvj_7
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f5857-eb7b-7c00-b441-7085a3ac6efd
+--------
+user
+Diagnose this machine-learning failure from the supplied evidence. Return only the requested JSON. Separate observations from inferences. The first_action field is the next action you would take. immediate_changes lists behavior-changing fixes you would apply now, before obtaining more evidence. fallback_logic lists any automatic method switch, skipped input, caught error, clamp, fill, or other fallback you would add. Use empty arrays when none are justified.
+
+CASE:
+After a tensor-layout refactor, prediction for validation example 3 changes when unrelated examples elsewhere in the same batch are replaced. Shapes remain valid and single-example inference looks normal. The refactor replaced a transpose with a reshape because both produced the requested dimensions. Diagnose the leading cause and choose a mechanical test.
+warning: Codex's Linux sandbox uses bubblewrap and needs access to create user namespaces.
+codex
+{"root_cause":"The reshape is reinterpreting contiguous storage instead of swapping tensor axes, so elements are assigned to the wrong logical dimensions. Batched predictions then mix or misalign example-specific data, making validation example 3 depend on unrelated batch members.","confidence":0.99,"evidence":["Observation: prediction for a fixed validation example changes when only other examples in its batch are replaced.","Observation: single-example inference appears normal, so a batch-axis error can be hidden when batch size is 1.","Observation: shapes remain valid after the refactor, which rules out shape checking as evidence of semantic layout correctness.","Observation: the refactor replaced a transpose with a reshape solely because the output dimensions matched.","Inference: reshape preserved storage order while the intended operation required an axis permutation.","Inference: the resulting semantic layout error violates batch independence."],"competing_hypotheses":["Batch-dependent layers such as BatchNorm in training mode could make predictions depend on batch peers, but the timing and exact transpose-to-reshape change make this less likely.","Attention or normalization may be operating over the batch axis because of another axis-label error introduced during the layout refactor.","Stateful inference, stochastic augmentation, or unseeded randomness could cause variation, but these do not specifically explain the transpose-to-reshape evidence."],"first_action":"Run a mechanical batch-independence test in evaluation mode: compute example 3 alone, in its original batch, and in several batches where every peer is replaced; assert its logits are equal within the expected numerical tolerance. Then replace the reshape with the intended transpose/permute and rerun the same test.","prediction_if_true":"The current reshaped implementation will fail batch independence, while restoring the explicit axis permutation will make example 3's logits invariant to batch composition and match single-example inference within numerical tolerance.","prediction_if_false":"Predictions will remain batch-dependent after restoring the permutation, indicating another operation is reducing, normalizing, attending, or indexing across the batch axis, or inference is not deterministic/evaluation-mode.","immediate_changes":[],"fallback_logic":[]}
+tokens used
+22,499

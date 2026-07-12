@@ -1,0 +1,145 @@
+{
+  "jobs": [
+    {
+      "condition": "treatment",
+      "case_id": "case_10",
+      "response_sha256": "06edd85d26653fda0b3768abd529e768c1cc866ca2a9c10504ea53b176dbfc3c",
+      "event_sha256": "df53e8f5b88de27cd310e4960c8e1d189e59e1b2e13d5376756a16af6fadbf30",
+      "stderr_sha256": "0fc98dd7c3b4d8c8ec4b0f192be5993ac6c68a01c9d91e61ed44db3465281d00"
+    },
+    {
+      "condition": "control",
+      "case_id": "case_03",
+      "response_sha256": "65909eda0caa66f6b44f785b47ddd59d6f71930f1f606a05cb0727afc8735910",
+      "event_sha256": "0b7232bc941eab4f8dee9047adef8038e2f3d1ceaa0746ba481c85b4d9275ced",
+      "stderr_sha256": "bebaccf176076ec754fe3680a6f8909e8526eae9c5c4fab2da6f1e8c601d5ac4"
+    },
+    {
+      "condition": "treatment",
+      "case_id": "case_06",
+      "response_sha256": "57b5c033fbf5818e1dee7f7f5ee1ecd2208e7a38da9faf91dead962406ef31f3",
+      "event_sha256": "17f1b26a9cb6ea94d8099b29b39e9f00b455183d35e3273cdce1e633a716674d",
+      "stderr_sha256": "ab5c0d7ad4040a679e129a11e201be8862e698680e8ade209f1f247d7d0dd183"
+    },
+    {
+      "condition": "control",
+      "case_id": "case_01",
+      "response_sha256": "561e6c9abee869b1bf2e823e1ade47ea811b9917fd8c508ffb6cf0336a16b07a",
+      "event_sha256": "48e1d8ce1b6177b1acbe97517a0663dcd8bcc0434c0f8390ccaceef37f73ed54",
+      "stderr_sha256": "f522456322c90093b3f3852d56d9062be5cc5e9e2a550037e91ac56e3a35dd48"
+    },
+    {
+      "condition": "treatment",
+      "case_id": "case_07",
+      "response_sha256": "03cfd58ebe1d4e19da3cdb169bf31266c2641035306418f88e888c54bfe17187",
+      "event_sha256": "e371fbc67db58e926bae9980574a412468109608c405e1be339813233b6e2b45",
+      "stderr_sha256": "90b1a1c1dbca0bc1afd02165b5626be517e28f9af23145717558d41b44889427"
+    },
+    {
+      "condition": "control",
+      "case_id": "case_09",
+      "response_sha256": "1a758aa9a39da6d4b075f350863eabcd7752820abbe980c05ef674f88a747ef4",
+      "event_sha256": "60d955a42fb77c2c606967f3e78cd4b22686942e5acb5893c03ca28297619036",
+      "stderr_sha256": "82a72fd5d8716f8cbda5056ddf757beca4dba6edbbe4ad2b4576b161dc5796f7"
+    },
+    {
+      "condition": "treatment",
+      "case_id": "case_09",
+      "response_sha256": "81c7629426f2c2aa31db27d1643ac962bf450f1004e810146bc042d7fc79af8e",
+      "event_sha256": "eaee8fbe53f23c0160959e8a926f265a142d65432d07cab9a70ebd10994fa0f6",
+      "stderr_sha256": "b5fab54aa58d024d7e9daf06319d3ecc0f9a6495e5eecda1499c0ece5ccbb83d"
+    },
+    {
+      "condition": "control",
+      "case_id": "case_02",
+      "response_sha256": "7f07a79596c0020573a26dfc6b2de7af95fb74c05907785f7dbbdb0efa8ccef3",
+      "event_sha256": "3141c42a2f13865effc42b80d09010df9881cb053384c582125689ad9d8ff11b",
+      "stderr_sha256": "8a7f962dbe837028285dff272b5e80058c68da77171bacf503d4bd29ae715a0f"
+    },
+    {
+      "condition": "control",
+      "case_id": "case_05",
+      "response_sha256": "ac83969130fa027d640cc7a25211dad493c5c8bc276dfbbd056f4a6828e4c059",
+      "event_sha256": "f176618f894a561a32230be643231b7e8588793c9f60d3c2d34a0fa0feace3f0",
+      "stderr_sha256": "ff781eabf75bc72deb1568d45ef8cb3f88492e4bca50bd283cc11898e1b1ad4f"
+    },
+    {
+      "condition": "treatment",
+      "case_id": "case_02",
+      "response_sha256": "59332f6de222263ffbe7a9be974f13cbb964e40c1f1b63ee5a22f633cbaaee8a",
+      "event_sha256": "5d0896d3c765b392c3ffe6e26b59f783264c9b8b9a78b56f40bd835e40cbb80d",
+      "stderr_sha256": "b9a0a7cd41ac9106035736c83a6afa49d0784bf9490485953bb137beec53a0f6"
+    },
+    {
+      "condition": "treatment",
+      "case_id": "case_01",
+      "response_sha256": "c19fe9722247576fe756bd2418d86cb78d4af453bd02432c24029e882e9bfd62",
+      "event_sha256": "de1af358884f9dc279e8acbe6db49f5b75a98d52b1078c8b21b04e883ee54c53",
+      "stderr_sha256": "ddc5b0ce86440049d15a4d190ece454c508c824f5e4d8afa7eb7487a86916495"
+    },
+    {
+      "condition": "control",
+      "case_id": "case_10",
+      "response_sha256": "c0b8348cbcac6da452b0cc0a572c43da0e1513e3c6cef5e7f65d9506437ef189",
+      "event_sha256": "575e230f7b8782e6efd039b54d6be419515814ed328b07d201f6b226791a87fa",
+      "stderr_sha256": "4a01cb9b73618793acc7cd05f842f8e553a9f3097badbe71922a11b0bc092691"
+    },
+    {
+      "condition": "control",
+      "case_id": "case_07",
+      "response_sha256": "3bb01ce475c9badbe7b1964a152117f55b7217f0716fcab7f392028b1feed699",
+      "event_sha256": "6dd2e9d50cf258cbeae3d446e3a70679c4dacbb3cb71bb591747e5edf5049cae",
+      "stderr_sha256": "2f7b233076bcecf223360dacd2a89008c255e176fb2a663f318c72a8aa001616"
+    },
+    {
+      "condition": "treatment",
+      "case_id": "case_04",
+      "response_sha256": "ed83382d44bddbc3a8ac364d9dfc247ac064d70e87c87b8bcb7ec155c760c281",
+      "event_sha256": "18a477723b1da70c38154858f603bc17934e9e6da552ed60d747b98a878fb2bc",
+      "stderr_sha256": "acdbcdbd414b21e2594e207b53eaa3532a3795f89221c0c95b66db0afe263c97"
+    },
+    {
+      "condition": "treatment",
+      "case_id": "case_08",
+      "response_sha256": "6bdd213d1abe673bce17e0e07dbd31e62596dbdad6cc24b196c6714a66ee41e5",
+      "event_sha256": "d4c7485b805262c0aa3477a3d24de775c84d6502deee54b57642a7759f5cd1bc",
+      "stderr_sha256": "7678e07e0c52678849f7b9a02da1b82a0cc139762d6934f154ffa681c7d92126"
+    },
+    {
+      "condition": "control",
+      "case_id": "case_08",
+      "response_sha256": "d7c88d8b24227d38f10d5295702875c4b06bc92b12ab616397eb92cc2561bd98",
+      "event_sha256": "ff1c93098feb393d5061e0035e840ad33f90a5698dd41f7a3b131e11a9ec699d",
+      "stderr_sha256": "8f3c58ea3a9255597110a9776b41750d09609e244b727c47f5a4aea93da380ca"
+    },
+    {
+      "condition": "control",
+      "case_id": "case_06",
+      "response_sha256": "8738200fc8dbc37107e18402f61bd99747af6ffbfa7c95166925cd64a251b6d0",
+      "event_sha256": "6d856dd0ade0db85f01f1035bb33d1ae015dae25c890a8694affe78c9d051419",
+      "stderr_sha256": "ac02fa2f670c03454201a044a3bb7d07878f919fdd4a61db4ac45c167ebd665b"
+    },
+    {
+      "condition": "treatment",
+      "case_id": "case_05",
+      "response_sha256": "2eb169793b87b47a9ae378b67ec5226525a1438ae671a0ae55cc516974e15ecf",
+      "event_sha256": "ece40e5bf618d4a768d8797536e7b2b1017226f4f39fdcf19c1cca05b0fd5794",
+      "stderr_sha256": "095ce67730216b6ffb7e6a46c42311d1fde7fe1a6fbf90253a699d320ef600bc"
+    },
+    {
+      "condition": "control",
+      "case_id": "case_04",
+      "response_sha256": "46005ec1747b19189fa62903f1d476d9d6d66d09fa3f8a8d75ed2175026370b2",
+      "event_sha256": "f4496b684584f7d75617cf1cab476a36d29250810202965100fb3074d78045d0",
+      "stderr_sha256": "57fc1c1dc6ee543edeab69ba3d341b4f1fb4a7dd00f97c04d6f4418c91724cff"
+    },
+    {
+      "condition": "treatment",
+      "case_id": "case_03",
+      "response_sha256": "2fc3fe5651323efe3637ac716c4b693ddb179cd10f0dbf6c91846a6adc484672",
+      "event_sha256": "e648f0569ca3f10500b5ffd6d2ac7fa7c473435231a6afbf919aef5b0b71ebf3",
+      "stderr_sha256": "fc98efa3b785ddd7674c9d86e9216a11adaa20afd5334653995b510410540992"
+    }
+  ],
+  "count": 20
+}

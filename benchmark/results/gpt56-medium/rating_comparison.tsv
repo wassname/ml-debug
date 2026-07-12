@@ -1,0 +1,5 @@
+rater	condition	root_cause_correct	discriminating_test	localized_before_change	unsupported_change	fallback_logic_proposed
+strict	control	8	10	10	0	0
+strict	treatment	10	9	9	0	0
+independent	control	9	9	10	0	0
+independent	treatment	10	10	10	0	0

@@ -1,0 +1,3 @@
+condition	n	root_cause_correct	discriminating_test	localized_before_change	unsupported_change	fallback_logic_proposed
+control	10	8	10	10	0	0
+treatment	10	10	9	9	0	0

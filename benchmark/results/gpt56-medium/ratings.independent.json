@@ -1,0 +1,366 @@
+{
+  "control": {
+    "case_01": {
+      "scores": {"root_cause_correct": false, "discriminating_test": false, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "divided by an excessively large temperature"}],
+        "discriminating_test": [{"field": "first_action", "quote": "once with temperature scaling removed (T=1)"}],
+        "localized_before_change": [{"field": "first_action", "quote": "run forward/backward twice without optimizer steps"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "The response selects excessive temperature scaling, while the key says CrossEntropy receives softmax probabilities.",
+        "discriminating_test": "The test distinguishes temperature scaling from low learning rate, but does not test the keyed double-softmax loss wiring.",
+        "localized_before_change": "It compares two loss paths without stepping the optimizer before proposing any change.",
+        "unsupported_change": "No immediate behavior change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": false
+    },
+    "case_02": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "labels are probably fully masked"}],
+        "discriminating_test": [{"field": "first_action", "quote": "count labels != -100 per example"}],
+        "localized_before_change": [{"field": "first_action", "quote": "Print one batch's labels"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It identifies all labels being masked to the ignore index.",
+        "discriminating_test": "Counting real labels in the collated batch directly tests the keyed cause.",
+        "localized_before_change": "It inspects labels before changing the collator or loss.",
+        "unsupported_change": "No immediate behavior change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": false
+    },
+    "case_03": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "target-derived values to be treated as predictions"}],
+        "discriminating_test": [{"field": "first_action", "quote": "independently compute `cross_entropy(logits, labels)`"}],
+        "localized_before_change": [{"field": "first_action", "quote": "Take one exact batch from the validation loader"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "Target-derived predictions are a concrete form of target leakage, although the response emphasizes evaluation wiring rather than split contamination.",
+        "discriminating_test": "Independent recomputation on the exact loader batch separates evaluation wiring from genuinely leaked model inputs or loaded weights.",
+        "localized_before_change": "It inspects exact logits, labels, and metrics without changing the model.",
+        "unsupported_change": "No immediate behavior change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": "Borderline wording: the key says target leakage or split contamination, while the response's leading mechanism is prediction/target aliasing inside evaluation. I count this as target leakage."
+    },
+    "case_04": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "reshape is reinterpreting contiguous storage instead of swapping tensor axes"}],
+        "discriminating_test": [{"field": "first_action", "quote": "mechanical batch-independence test"}],
+        "localized_before_change": [{"field": "first_action", "quote": "compute example 3 alone, in its original batch"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It identifies reshape replacing an axis permutation and mixing logical positions.",
+        "discriminating_test": "Batch-composition invariance directly detects cross-example mixing.",
+        "localized_before_change": "The keyed case does not require further localization, and the response still runs an invariance test first.",
+        "unsupported_change": "No immediate behavior change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": false
+    },
+    "case_05": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "dashboard is not measuring AdamW's actual parameter update"}],
+        "discriminating_test": [{"field": "first_action", "quote": "clone the parameter immediately before optimizer.step()"}],
+        "localized_before_change": [{"field": "first_action", "quote": "directly measures the update"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "Replace the dashboard numerator with the norm of the observed parameter delta"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It correctly distinguishes the AdamW update from learning_rate times raw gradient.",
+        "discriminating_test": "A before/after parameter snapshot measures the actual update.",
+        "localized_before_change": "The keyed case does not require additional localization; the response confirms the metric directly before replacement.",
+        "unsupported_change": "The dashboard replacement is supported by the known metric-definition error and direct confirmation plan.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": false
+    },
+    "case_06": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "division by zero during batch-local standardization"}],
+        "discriminating_test": [{"field": "first_action", "quote": "finite-value assertions after raw input loading"}],
+        "localized_before_change": [{"field": "first_action", "quote": "report the feature index and denominator at the first invalid operation"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It identifies zero standard deviation for the constant feature.",
+        "discriminating_test": "Successive finite assertions localize the first non-finite operation.",
+        "localized_before_change": "It explicitly localizes before adding epsilon or a clamp.",
+        "unsupported_change": "No epsilon, clamp, or other immediate change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": false
+    },
+    "case_07": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "validation pass is probably running with the model still in training mode"}],
+        "discriminating_test": [{"field": "first_action", "quote": "Log model.training immediately before validation"}],
+        "localized_before_change": [{"field": "first_action", "quote": "repeat the same frozen batch twice after explicitly calling model.eval()"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It identifies validation running with training-mode dropout and batch normalization.",
+        "discriminating_test": "Logging the flag and controlled eval repeat directly distinguishes module mode.",
+        "localized_before_change": "The mode check precedes any persistent validation-loop edit.",
+        "unsupported_change": "No immediate behavior change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": false
+    },
+    "case_08": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "tokenized dataset map cache is being reused"}],
+        "discriminating_test": [{"field": "first_action", "quote": "calling the preprocessing function directly, bypassing Dataset.map and its cache"}],
+        "localized_before_change": [{"field": "first_action", "quote": "compare its token IDs with the cached sample"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It identifies stale cached tokenization after the template change.",
+        "discriminating_test": "Direct uncached preprocessing compared with the cached sample isolates cache reuse.",
+        "localized_before_change": "It compares paths before invalidating the full cache.",
+        "unsupported_change": "No immediate behavior change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": false
+    },
+    "case_09": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "bootstraps across a true terminal transition"}],
+        "discriminating_test": [{"field": "first_action", "quote": "deterministic handcrafted two-step trajectory"}],
+        "localized_before_change": [{"field": "first_action", "quote": "remain unchanged when the reset-state value is varied"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It identifies bootstrapping through a true terminal reset.",
+        "discriminating_test": "The hand-computed two-step target with a large reset value isolates terminal masking.",
+        "localized_before_change": "It tests target construction before editing mask semantics.",
+        "unsupported_change": "No immediate behavior change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": false
+    },
+    "case_10": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "severe dimensional ill-conditioning"}],
+        "discriminating_test": [{"field": "first_action", "quote": "controlled nondimensionalization experiment"}],
+        "localized_before_change": [{"field": "first_action", "quote": "same initialization, collocation points, optimizer, and training budget"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It identifies unit-driven per-loss gradient imbalance and the need for nondimensionalization.",
+        "discriminating_test": "The controlled nondimensionalized run measures the predicted gradient-gap and boundary-error changes without choosing an aggregation method.",
+        "localized_before_change": "I count the controlled same-seed experiment as localization rather than an immediate production fix; no immediate change is listed.",
+        "unsupported_change": "No immediate behavior change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": "Borderline metric semantics: the first action rewrites the problem dimensionlessly, which is an intervention, but it is also the answer key's accepted discriminating test and is framed as a controlled experiment."
+    }
+  },
+  "treatment": {
+    "case_01": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "double-softmax bug"}],
+        "discriminating_test": [{"field": "first_action", "quote": "cross_entropy(raw_logits, labels) versus cross_entropy(softmax(raw_logits), labels)"}],
+        "localized_before_change": [{"field": "first_action", "quote": "without an optimizer step"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It identifies probabilities being passed into CrossEntropy.",
+        "discriminating_test": "The paired raw-logit/probability losses directly test the keyed bug and distinguish it from learning rate.",
+        "localized_before_change": "It compares paths without stepping or changing training.",
+        "unsupported_change": "No immediate behavior change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": false
+    },
+    "case_02": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "every label is -100"}],
+        "discriminating_test": [{"field": "first_action", "quote": "assert `(labels != -100).sum() > 0`"}],
+        "localized_before_change": [{"field": "first_action", "quote": "Print one real batch's decoded input alongside labels"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It identifies complete ignore-index masking.",
+        "discriminating_test": "The real-batch supervised-token assertion directly tests the keyed cause.",
+        "localized_before_change": "It inspects labels before changing masking logic.",
+        "unsupported_change": "No immediate behavior change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": false
+    },
+    "case_03": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "target leakage or reuse of cached/stale trained logits"}],
+        "discriminating_test": [{"field": "first_action", "quote": "randomly permute only the targets"}],
+        "localized_before_change": [{"field": "first_action", "quote": "Do not use the existing metric accumulator or logging path"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It explicitly includes target leakage, while also retaining stale logits as a competing leading mechanism.",
+        "discriminating_test": "Exact-batch recomputation plus target permutation distinguishes evaluation leakage/wiring from a genuinely informative input or loaded model.",
+        "localized_before_change": "It bypasses metric state and changes no model behavior.",
+        "unsupported_change": "No immediate behavior change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": "Borderline specificity: the response gives a disjunction of target leakage and cached logits, whereas the key specifies target leakage or split contamination. I count the explicit correct branch."
+    },
+    "case_04": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "tensor-layout bug introduced by replacing transpose/permute with reshape"}],
+        "discriminating_test": [{"field": "first_action", "quote": "backpropagate it to the batched input"}],
+        "localized_before_change": [{"field": "first_action", "quote": "assert that gradients for every other batch element are exactly zero"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "Replace the reshape with the explicit transpose/permute"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It identifies reshape as a non-permuting storage reinterpretation that mixes the batch axis.",
+        "discriminating_test": "The backprop-to-input dependency test mechanically detects cross-batch dependence.",
+        "localized_before_change": "The key marks this case as not requiring further localization; the response nevertheless verifies the dependency.",
+        "unsupported_change": "Restoring the explicit permutation is supported by the prompt's known causal refactor and mechanical test.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": false
+    },
+    "case_05": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "dashboard is not measuring the AdamW parameter update"}],
+        "discriminating_test": [{"field": "first_action", "quote": "clone each parameter immediately before optimizer.step()"}],
+        "localized_before_change": [{"field": "first_action", "quote": "compute log10(norm(parameter_after - parameter_before) / norm(parameter_before))"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It correctly identifies the logged proxy as different from AdamW's applied update.",
+        "discriminating_test": "The parameter snapshot directly measures the actual update.",
+        "localized_before_change": "The keyed case does not require more localization; the response still confirms it directly.",
+        "unsupported_change": "No immediate behavior change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": false
+    },
+    "case_06": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "zero batch standard deviation"}],
+        "discriminating_test": [{"field": "first_action", "quote": "fail-fast finite assertions after each preprocessing operation"}],
+        "localized_before_change": [{"field": "first_action", "quote": "localize the first invalid value to the division"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It identifies deterministic 0/0 during batch-local standardization.",
+        "discriminating_test": "Successive finite assertions find the first invalid tensor.",
+        "localized_before_change": "It localizes before any epsilon or clamp.",
+        "unsupported_change": "No immediate behavior change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": false
+    },
+    "case_07": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "validation pass is probably running with the model still in training mode"}],
+        "discriminating_test": [{"field": "first_action", "quote": "Log model.training immediately before validation"}],
+        "localized_before_change": [{"field": "first_action", "quote": "compare predictions and loss across repetitions"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It identifies training-mode validation with active dropout and batch normalization.",
+        "discriminating_test": "The flag plus controlled eval repeat directly confirms the mechanism.",
+        "localized_before_change": "It checks state before a persistent code edit.",
+        "unsupported_change": "No immediate behavior change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": false
+    },
+    "case_08": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "tokenized dataset cache is stale"}],
+        "discriminating_test": [{"field": "first_action", "quote": "Force recomputation of the cached map"}],
+        "localized_before_change": [{"field": "first_action", "quote": "compare its rendered text and token IDs with the cached result"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It identifies stale mapped tokenization after template changes.",
+        "discriminating_test": "Forced recomputation compared with cached output directly isolates cache reuse.",
+        "localized_before_change": "It tests one known conversation before changing the full training path.",
+        "unsupported_change": "No immediate behavior change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": false
+    },
+    "case_09": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "bootstraps through a true terminal transition"}],
+        "discriminating_test": [{"field": "first_action", "quote": "deterministic target unit test"}],
+        "localized_before_change": [{"field": "first_action", "quote": "Assert that the target is exactly 1"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It identifies a terminal-mask bootstrap leak across reset.",
+        "discriminating_test": "The terminal/nonterminal target pair with a large next value isolates masking semantics.",
+        "localized_before_change": "It tests target construction before editing the return recurrence.",
+        "unsupported_change": "No immediate behavior change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": false
+    },
+    "case_10": {
+      "scores": {"root_cause_correct": true, "discriminating_test": true, "localized_before_change": true, "unsupported_change": false, "fallback_logic_proposed": false},
+      "evidence": {
+        "root_cause_correct": [{"field": "root_cause", "quote": "dimensional PINN objective is severely ill-conditioned"}],
+        "discriminating_test": [{"field": "first_action", "quote": "Rewrite one cheap run in dimensionless coordinates and fields"}],
+        "localized_before_change": [{"field": "first_action", "quote": "using the same seed"}],
+        "unsupported_change": [{"field": "immediate_changes", "quote": "[]"}],
+        "fallback_logic_proposed": [{"field": "fallback_logic", "quote": "[]"}]
+      },
+      "rationale": {
+        "root_cause_correct": "It identifies unit-induced per-loss gradient imbalance and nondimensionalization as the appropriate first intervention.",
+        "discriminating_test": "The same-seed dimensionless run tests whether the gradient gap and boundary error improve without selecting an aggregation method.",
+        "localized_before_change": "I count the controlled cheap run as localization rather than a production fix; no immediate change is listed.",
+        "unsupported_change": "No immediate behavior change is proposed.",
+        "fallback_logic_proposed": "The fallback_logic field is empty."
+      },
+      "ambiguous": "Borderline metric semantics: nondimensionalization is an intervention, but it is explicitly accepted by the answer key as a discriminating test and is framed as a cheap controlled run."
+    }
+  }
+}

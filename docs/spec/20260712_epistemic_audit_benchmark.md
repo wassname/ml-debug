@@ -35,14 +35,14 @@ Out: end-to-end case-study prose, new debugging domains, compatibility shims, an
   - likely_fail: humanizer catches repeated AI patterns or external review finds an overclaim; revise and rerun
   - sneaky_fail: checks pass but user-facing meaning regresses; fresh-eyes review compares the changed passages to R1-R2
   - UAT: "the committed diff is small, readable, and its audit output is linked in this spec"
-- [/] T4 (R4-R5): Build the seeded-failure benchmark in a separate worktree.
+- [x] T4 (R4-R5): Build the seeded-failure benchmark in a separate worktree.
   - steps: create 8-12 compact cases with neutral IDs and hidden answer keys; run fresh agent sessions in control and skill conditions; retain raw outputs; record blinded, quote-anchored ratings
   - verify: benchmark validation command checks case count, unique IDs, hidden keys, raw output completeness, and score reproducibility
   - success: both conditions have the same cases and model settings, with no answer-key leakage
   - likely_fail: agent runner or model access is unavailable; record the exact failure and keep a runnable harness
   - sneaky_fail: treatment prompt leaks intended diagnoses or cases are easier in one condition; prompt diff and case-ID pairing checks catch it
   - UAT: "I can inspect each raw diagnosis and reproduce the aggregate A/B table from it"
-- [ ] T5 (R4-R5): Fresh-eyes review the benchmark evidence, then merge the completed benchmark chunk.
+- [x] T5 (R4-R5): Fresh-eyes review the benchmark evidence, then merge the completed benchmark chunk.
   - verify: reviewer reproduces scoring for a sample without seeing aggregate conclusions, then `git diff --check` and benchmark audit pass
   - success: reviewer agrees with the sampled scores or corrections are applied before merge
   - likely_fail: rubric requires subjective reconstruction; tighten evidence fields and rescore
@@ -55,7 +55,7 @@ Out: end-to-end case-study prose, new debugging domains, compatibility shims, an
 - The user rejected adding worked case studies because they may make agents hyper-focus on the examples.
 - The benchmark is last and must use a worktree.
 - Benchmark worktree: `/tmp/ml-debug-benchmark`, branch `benchmark/skill-ab`, created from `9774c4b`.
-- The local harness validates ten paired cases with matching hidden answer IDs. Model execution requires explicit approval to send `SKILL.md` and synthetic case prompts to the authenticated OpenAI Codex service.
+- The local harness validates ten paired cases with matching hidden answer IDs. The user approved the 20 OpenAI calls; all 20 completed without retry or fallback and produced a hashed completion manifest.
 
 ## Log
 - Precise failure percentages in `PLAYBOOK.md` are qualitative practitioner ordering presented with unsupported numeric precision.
@@ -74,6 +74,8 @@ audit: PASS (19 authored Markdown files, 3 skills)
 
 Fresh-eyes adversarial review rejected broken images, missing fragments, malformed quoted frontmatter, `L0`, reversed evidence ranges, and invalid fence info. Commits `fa534cf` and `0be4323` are pushed to `origin/main`.
 
+Benchmark result: [full table and raw-evidence links](../../benchmark/results/gpt56-medium/RESULTS.md). Both raters found higher root-cause accuracy with the skill (strict: 8/10 to 10/10; independent: 9/10 to 10/10). Effects on discriminating-test choice and localization were rater-sensitive.
+
 ## TODO
 
 ## Errors
@@ -86,3 +88,5 @@ Fresh-eyes adversarial review rejected broken images, missing fragments, malform
 | T2 | Fresh-eyes review found broken image links, fragments, quoted YAML, `L0`, reversed ranges, and invalid fence info could pass silently. | Added each case to the parser and mutation suite. The reviewer reran all adversarial fixtures and changed R3 from FAIL to PASS. |
 | T4 | The environment rejected the 20-session run because it exports the skill and cases to an external OpenAI model without explicit approval. | Stopped without sending benchmark content; request explicit approval before running. |
 | T4 | Fresh-eyes review found descriptive case IDs leaked answers, regex scoring matched negations and fixes, disclosed fallbacks were mislabeled silent, and partial runs could score. | Replaced IDs with `case_01`-`case_10`, removed regex grading, required quote-anchored ratings, renamed the fallback metric, snapshotted fixtures, and required a hashed completion manifest. |
+| T5 | Independent raters disagreed on case 03 and on whether a test for a wrong leading diagnosis counts as discriminating. | Preserved both rating artifacts and report per-rater totals; only the direction of the root-cause result is treated as robust. |
+| T5 | Final fresh-eyes UAT checked all 20 response/event/stderr hashes, fixture hashes, quote anchors, eight result links, and both aggregates. | PASS; all local validation, audit, compilation, and diff checks also pass. |

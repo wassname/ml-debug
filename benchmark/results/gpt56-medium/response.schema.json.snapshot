@@ -1,0 +1,58 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "root_cause",
+    "confidence",
+    "evidence",
+    "competing_hypotheses",
+    "first_action",
+    "prediction_if_true",
+    "prediction_if_false",
+    "immediate_changes",
+    "fallback_logic"
+  ],
+  "properties": {
+    "root_cause": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "competing_hypotheses": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "first_action": {
+      "type": "string"
+    },
+    "prediction_if_true": {
+      "type": "string"
+    },
+    "prediction_if_false": {
+      "type": "string"
+    },
+    "immediate_changes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "fallback_logic": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}
