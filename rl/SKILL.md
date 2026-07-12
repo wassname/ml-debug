@@ -139,7 +139,7 @@ Sometimes (rarely) you don't. Schulman:
 
 ## Sources
 
-**Evidence map**: [docs/ml_debug_folklore.argdown](../docs/ml_debug_folklore.argdown) traces each claim to verbatim quotes across 21 evidence files in [docs/evidence/](../docs/evidence/). Process log at [docs/ml_debug_folklore_log.md](../docs/ml_debug_folklore_log.md).
+**Evidence map**: [docs/ml_debug_folklore.argdown](../docs/ml_debug_folklore.argdown) traces claims to verbatim quotes in [docs/evidence/](../docs/evidence/).
 
 ### Talks
 - Schulman, "Nuts and Bolts of Deep RL Experimentation," Deep RL Bootcamp 2017
