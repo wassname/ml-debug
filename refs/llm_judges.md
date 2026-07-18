@@ -25,6 +25,16 @@ From Wang's calibration framework and verdict's best-practices page:
 - Spot-check judge verdicts against your own reading of ~20 transcripts (the [Ng error-analysis move](../SKILL.md#inspect-the-data-first), applied to the judge).
 - Judge quality is benchmarkable: [JudgeBench](https://huggingface.co/spaces/ScalerLab/JudgeBench) ranks judges on objective-correctness pairs.
 
+## Harness validity checks
+
+The following additions are practical evaluation rules from wassname:
+
+- Read both compared outputs for every scenario, not only the winner or aggregate. Verify that A and B are not accidentally identical and that both are coherent, on-task, non-refusing, complete, and untruncated.
+- Reject or revise a scenario when every arm succeeds, every arm fails, outputs visibly struggle with the harness, or the test cannot distinguish the intended behavior. These are harness observations, not model results.
+- Ask evaluated agents for an unscored exit interview about ambiguity, missing context, broken tools, unnatural constraints, and other harness problems. Save and read the feedback, but do not let self-report override task evidence.
+- Save full append-only traces in JSONL or Inspect `.eval`, including prompts, responses, provider-exposed reasoning and tool events, artifacts, machine checks, both judgment orders, usage, costs, and errors. Use Inspect Scout or an equivalent transcript audit when practical.
+- Before reporting a winner, make a judgeable per-scenario audit that links the A output, B output, machine result, forward and reversed judge rationales, saturation status, and the human validity decision.
+
 [^zheng]: Zheng et al., "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena" (NeurIPS 2023) — https://arxiv.org/abs/2306.05685
 [^wang]: Wang et al., "Large Language Models are not Fair Evaluators" (ACL 2024) — https://arxiv.org/abs/2305.17926
 [^panickssery]: Panickssery, Bowman, Feng, "LLM Evaluators Recognize and Favor Their Own Generations" (2024) — https://arxiv.org/abs/2404.13076
