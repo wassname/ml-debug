@@ -128,3 +128,31 @@ Data rows from https://github.com/EQ-bench/EQ-bench-site/blob/main/judgemark-v4.
 | Qwen/Qwen3.5-9B | 0.324 | $0.56 | cheapest |
 
 Off-frontier for reference: Qwen3.5-27B 0.605 ($1.76), DeepSeek-V4-Pro 0.471 ($2.94), grok-4.3 0.496 ($9.71). So in v4, Qwen and DeepSeek are mid-pack, not frontier; grok-4.5 and gemma carry the value case.
+
+## SpeechMap per-lab Free Speech Index (snapshot 2026-07-21) — https://speechmap.ai/labs/
+
+Higher = answers more / refuses less (0-100), windowed to releases in the last 6 months; "Index" is the windowed score, "Peak" the best single model. This is a cross-topic aggregate and a lab average, so it does not resolve per-model or per-topic refusal (e.g. Chinese labs score mid-to-high here but still refuse on Chinese-political topics; a lab's aggregate can hide a heavily safety-tuned model like Gemma). Copied verbatim from the table wassname pasted:
+
+| Rank | Lab | Index | Peak | Models |
+|-|-|-|-|-|
+| 1 | Mistral AI | 88.9 | 98.2 | 9 |
+| 2 | xAI | 85.8 | 98.2 | 5 |
+| 3 | IBM | 84.0 | 84.0 | 1 |
+| 4 | Google DeepMind | 81.1 | 88.4 | 9 |
+| 5 | Meta | 76.8 | 76.8 | 1 |
+| 6 | Zhipu AI (GLM) | 71.0 | 85.9 | 12 |
+| 7 | Arcee AI | 70.1 | 82.2 | 3 |
+| 8 | Meituan | 63.6 | 78.2 | 2 |
+| 9 | Tencent | 60.3 | 76.3 | 4 |
+| 10 | DeepSeek | 59.0 | 89.1 | 7 |
+| 11 | Moonshot AI | 57.6 | 65.9 | 5 |
+| 13 | Anthropic | 53.8 | 71.5 | 10 |
+| 16 | OpenAI | 48.0 | 66.7 | 15 |
+| 19 | Alibaba (Qwen) | 45.5 | 60.8 | 13 |
+| 20 | NVIDIA | 45.3 | 67.7 | 7 |
+| 23 | Xiaomi | 43.9 | 62.6 | 10 |
+| 24 | ByteDance | 32.1 | 34.4 | 3 |
+
+Note the wide Peak-vs-Index gaps (DeepSeek peak 89.1 vs index 59.0; Zhipu 85.9 vs 71.0): pick the specific permissive checkpoint, not the lab.
+
+Not fetched: SpeechMap's per-model and per-topic breakdowns (https://speechmap.ai/timeline/, /labs/<lab>/) and the eqbench4 EI benchmark data (https://github.com/EQ-bench/EQ-bench-site/blob/main/eqbench4/eqbench4_data.js) are separate from the judge data used here.
