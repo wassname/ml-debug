@@ -87,3 +87,44 @@ Key papers the survey collects (worth reading past this file):
 - Shankar et al., "Who Validates the Validators?" — aligning LLM eval with human preferences — arXiv:2404.12272
 
 Judge leaderboards (live, not cached): Judgemark v4 (https://eqbench.com/judgemark-v4.html), SpeechMap refusal rates (https://speechmap.ai/).
+
+---
+
+Source: arXiv abstracts (via WebFetch) + EQ-bench-site repo
+Title: evaluator blind spots (Doddapaneni), criteria drift (Shankar), Judgemark v4 cost/score frontier
+Fetched-via: WebFetch of arXiv abstract pages, 2026-07-22; Judgemark scores read from the checked-in judgemark-v4.js in EQ-bench/EQ-bench-site
+Fetch-status: paper quotes verbatim from abstracts; Judgemark numbers copied from the repo's data rows (not the rendered site table)
+
+## Doddapaneni et al., "Finding Blind Spots in Evaluator LLMs with Interpretable Checklists" (2024) — https://arxiv.org/abs/2406.13439
+
+Evaluator LLMs miss most injected quality drops:
+
+> Our findings reveal significant shortcomings in current Evaluator LLMs, which failed to identify quality drops in over 50% of cases on average.
+
+## Shankar et al., "Who Validates the Validators?" (2024) — https://arxiv.org/abs/2404.12272
+
+Criteria drift, and the validator-needs-validation problem:
+
+> LLM-generated evaluators simply inherit all the problems of the LLMs they evaluate, requiring further human validation.
+
+> users need criteria to grade outputs, but grading outputs helps users define criteria
+
+> some criteria appears dependent on the specific LLM outputs observed (rather than independent criteria that can be defined a priori)
+
+## Judgemark v4 cost-vs-score frontier (snapshot 2026-07)
+
+Data rows from https://github.com/EQ-bench/EQ-bench-site/blob/main/judgemark-v4.js (columns: model, score, lower-CI, upper-CI, USD cost). Higher score = better at separating stronger from weaker creative writing. Pareto frontier (maximize score, minimize cost):
+
+| model | score | cost | note |
+|-|-|-|-|
+| claude-opus-4-6 | 0.907 | $39.37 | top absolute score |
+| gpt-5.5 | 0.878 | $30.44 | |
+| claude-sonnet-4-6 | 0.821 | $23.36 | |
+| gemini-3.1-pro-preview | 0.787 | $23.07 | |
+| grok-4.5 | 0.771 | $17.11 | low refusal |
+| zai-org/GLM-5.2 | 0.732 | $8.28 | Chinese, censors CN-political |
+| google/gemma-4-31B-it | 0.723 | $0.82 | cheap knee; refuses many contentious tasks |
+| google/gemma-4-26B-A4B-it | 0.530 | $0.61 | |
+| Qwen/Qwen3.5-9B | 0.324 | $0.56 | cheapest |
+
+Off-frontier for reference: Qwen3.5-27B 0.605 ($1.76), DeepSeek-V4-Pro 0.471 ($2.94), grok-4.3 0.496 ($9.71). So in v4, Qwen and DeepSeek are mid-pack, not frontier; grok-4.5 and gemma carry the value case.

@@ -14,6 +14,8 @@ Self-preference tracks self-recognition. Panickssery et al. fine-tuned models to
 
 There are also output-distribution quirks. From Haize Labs' verdict docs (practitioner notes): the gpt-4o family skews numerical scores upward and mode-collapses even with logprobs; llama-family judges give higher-entropy, more discriminative score distributions; JSON-mode constrained decoding imposes its own inductive bias on scores.[^verdict]
 
+And the judge misses more than you'd think. Doddapaneni et al. probed evaluator LLMs with deliberately degraded answers and found they "failed to identify quality drops in over 50% of cases on average"[^doddapaneni]. A judge that silently passes half the injected regressions is not a safety net.
+
 ## Mitigation checklist
 
 From Wang's calibration framework and verdict's best-practices page:
@@ -27,9 +29,11 @@ From Wang's calibration framework and verdict's best-practices page:
 
 ## Choosing the judge model
 
-Pick from the cost-vs-score Pareto frontier of a judging leaderboard, and prefer a well-known model so your setup is reproducible. [Judgemark v4](https://eqbench.com/judgemark-v4.html) is "a meta-evaluation of LLM judging ability. The model being tested is the judge, not the writer",[^judgemark] and it plots score against cost. Its lesson (wassname's read): the smartest models are the best judges, so the frontier is the capable-but-cheap-and-unbiased models, not the single top scorer.
+Pick from the cost-vs-score Pareto frontier of a judging leaderboard, and prefer a well-known model so your setup is reproducible. [Judgemark v4](https://eqbench.com/judgemark-v4.html) is "a meta-evaluation of LLM judging ability. The model being tested is the judge, not the writer",[^judgemark] scoring how well a judge's ratings separate stronger from weaker writing, and it lists a cost per model. Its lesson (wassname's read): the smartest models are the best judges, so the value frontier is the capable-but-cheap models, not the single top scorer. Caveat: Judgemark scores creative-writing discrimination, so a judge that tops it may not transfer to code- or fact-correctness judging.
 
-Because the top scorer isn't automatically the right judge: refusals wreck ambiguous or red-teaming evals. Check refusal rates on [speechmap.ai](https://speechmap.ai/), which "publish[es] refusal rates for every model release from every major provider".[^speechmap] Refusal is also topic-conditional: Chinese models (Qwen, DeepSeek) tend to refuse on Chinese political topics, US models on corporate or left-coded topics (Grok and a few are exceptions), so check refusal on *your* eval's subject matter, not in the abstract. As of writing (2026-07), the top-scoring judge (a Gemma model) refuses many contentious tasks, so it's a poor judge for anything involving ambiguity or red-teaming; Qwen, DeepSeek, and Grok-flash-class models score well and refuse less on general contentious prompts. Re-check the live leaderboards rather than trusting these names, they date fast. (I could read each leaderboard's methodology but not its live ranking table, so treat the specific model names as wassname's, not verified from the tables here.)
+From the checked-in v4 scores (snapshot 2026-07, [source](https://github.com/EQ-bench/EQ-bench-site/blob/main/judgemark-v4.js)) the cost-vs-score frontier runs from the top absolute scorers, claude-opus-4-6 (0.91, ~$39) and gpt-5.5 (0.88, ~$30), down through claude-sonnet-4-6 and gemini-3.1-pro (~0.8, ~$23), grok-4.5 (0.77, $17) and GLM-5.2 (0.73, $8), to the cheap knee google/gemma-4-31b (0.72 at $0.82), which nearly matches models 20-40x its price.
+
+But a frontier score isn't sufficient: refusals wreck ambiguous or red-teaming evals, and refusal is topic-conditional. Check refusal rates on [speechmap.ai](https://speechmap.ai/), which "publish[es] refusal rates for every model release from every major provider".[^speechmap] The cheap-and-capable Gemma refuses many contentious tasks; Chinese models (GLM, Qwen, DeepSeek) tend to refuse on Chinese political topics; US models on corporate or left-coded topics, with Grok among the exceptions. So check refusal on *your* eval's subject matter, not in the abstract, and re-read the live leaderboards rather than trusting these names, they date fast.
 
 ## wassname's judge-validity checklist
 
@@ -38,6 +42,7 @@ Practical rules from wassname for before you trust any LLM-judged number. A fail
 Earn the rubric's ink:
 
 - Does each rubric line ever flip a verdict? Cut criteria that never change the score. Rubric quality is the main lever: a judge lacking domain knowledge will "overestimate the effectiveness by a significant margin", and adding brief domain notes raised human-alignment from ~72-79% to 93-96%.[^gradingnotes]
+- Expect criteria drift: you can't fully write the rubric before seeing outputs. Shankar et al. name it, "users need criteria to grade outputs, but grading outputs helps users define criteria"[^shankar], and warn that "LLM-generated evaluators simply inherit all the problems of the LLMs they evaluate, requiring further human validation."[^shankar] Draft the rubric, grade a sample by hand, revise, repeat.
 
 Read a whole trace, not the aggregate:
 
@@ -75,3 +80,5 @@ For a worked example, wassname has a ~300-line async OpenRouter judge (WIP) that
 [^yan]: Eugene Yan, "Evaluating the Effectiveness of LLM-Evaluators (aka LLM-as-Judge)" — https://eugeneyan.com/writing/llm-evaluators/ (survey of position, verbosity, and few-shot-instability biases; argues for binary over Likert; collects G-Eval, Doddapaneni blind-spots, Shankar "Who Validates the Validators?") ([cache](../docs/evidence/llm_judge_biases.md))
 [^judgemark]: EQ-Bench, "Judgemark v4" — https://eqbench.com/judgemark-v4.html (meta-eval of a model's judging ability, scored by how well its ratings separate stronger from weaker writing; leaderboard shows cost per model)
 [^speechmap]: SpeechMap.ai — https://speechmap.ai/ (refusal / completion rates across providers on contentious prompts; useful for spotting a judge that will refuse ambiguous or red-teaming scenarios)
+[^doddapaneni]: Doddapaneni, Khan, Verma, Khapra, "Finding Blind Spots in Evaluator LLMs with Interpretable Checklists" (2024) — https://arxiv.org/abs/2406.13439 (evaluator LLMs missed injected quality drops in >50% of cases) ([cache](../docs/evidence/llm_judge_biases.md))
+[^shankar]: Shankar, Zamfirescu-Pereira, Hartmann, Parameswaran, Arawjo, "Who Validates the Validators? Aligning LLM-Assisted Evaluation of LLM Outputs with Human Preferences" (2024) — https://arxiv.org/abs/2404.12272 (criteria drift; LLM evaluators need human validation) ([cache](../docs/evidence/llm_judge_biases.md))
