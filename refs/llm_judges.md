@@ -6,13 +6,19 @@ Appendix to the [ML Debugging skill](../SKILL.md). When an LLM-judged eval looks
 
 Operational rules of thumb; verbatim quotes, sources, and calibration in [llm_judge_litreview.md](llm_judge_litreview.md).
 
-- Order bias is still ~43% verdict-flip on swap, averaged across 36 models in 2026, and it worsens as the two answers converge in quality. Even a frontier judge can flip ~66%. So swap-and-average every judge, regardless of size.
-- Self-preference scales inversely with size: a DBG bias score of 41.7% at 0.5B vs 2.1% at 14B; reasoning does not remove it. Don't let a small model judge its own family's outputs.
-- Reasoning judges gain roughly +8 F1 on reasoning-heavy grading but keep their length/position/style bias. Use one for hard grading; don't expect it to fix bias.
-- Reasoning tokens are non-monotonic: accuracy peaks (~1.1k thinking tokens in one study) then declines with more. Cap reasoning to the task; on easy items cap low and spend the budget on N passes instead.
-- Know your effort-to-token map: "high" is 4096 tokens on litellm's stock defaults but 24576 in CAIS simple-evals. Set it explicitly or you may truncate the judge ~6x low.
-- Self-consistency plateaus by N~10-15 on 2026 models (was ~40) and can decline past it, so N=4-10 is plenty for a repeat-variance check; more buys noise.
-- Context rot: judge reliability drops well before the window fills (NoLiMa: most models below half their short-context score by 32K). Put the rubric and answer-under-test at the start or end of the prompt, never the middle.
+- Order bias is still large in 2026. Averaged across 36 models, a judge flips its own verdict about 43% of the time when you just swap which answer is shown first, and it flips more when the two answers are close in quality (exactly the hard cases you care about). Even a frontier judge can flip ~66%, so bigger is not safe. The fix is cheap: run each pair in both orders and average, and treat a high flip rate as a broken test, not a result.
+
+- Self-preference shrinks with model size. On a bias score that nets out real quality, a 0.5B judge inflated its own outputs by ~42% while a 14B judge did so by only ~2%. Turning on reasoning does not remove it. So never let a small model grade its own family's outputs, and prefer a larger, different-family judge.
+
+- A reasoning judge grades better but is not less biased. Switching a judge to a reasoning model buys roughly +8 F1 on reasoning-heavy grading (verifying evidence, catching errors), but it keeps the same length, position, and style biases. Use one when the grading itself needs reasoning; do not expect it to fix the biases above.
+
+- More thinking tokens help only up to a point. In one controlled study accuracy rose (82% to 87%) as thinking grew to ~1.1k tokens, then fell as thinking kept growing, because extra tokens add variance, not insight. Match the reasoning budget to task difficulty: on easy items, cap thinking low and spend the saved budget on more repeat passes instead.
+
+- Know what your reasoning-effort setting actually buys. "High effort" is not a fixed number: litellm's stock default caps it at 4096 thinking tokens, but the CAIS simple-evals harness overrides it to 24576 (~6x more). If you set effort=high without checking which mapping is live, you may be silently truncating the judge's reasoning and scoring a cut-off verdict as a real one.
+
+- Repeat passes stop helping early. Self-consistency (sample the judge N times, take the majority) plateaus by about N=10-15 on strong 2026 models, down from ~40 in the original 2022 work, and accuracy can even drop past the plateau as noise creeps in. So N=4-10 repeats is plenty to measure a judge's stability; going higher mostly costs tokens.
+
+- Long inputs quietly degrade the judge (context rot). Reliability starts dropping well before the context window is full: on a hard retrieval test most models fall below half their short-context score by 32K tokens. Put the rubric and the answer-under-test at the start or end of the prompt, never buried in the middle of a long reference block, where models attend least.
 
 ## The measured biases
 
