@@ -1,6 +1,18 @@
 # LLM-as-a-judge: known biases and mitigations
 
-Appendix to the [ML Debugging skill](../SKILL.md). When an LLM-judged eval looks surprisingly good, or a ranking flips between runs, suspect the judge before the model. Each bias below has been measured; verbatim sources in [docs/evidence/llm_judge_biases.md](../docs/evidence/llm_judge_biases.md). For the wider literature, two surveys collect it: Eugene Yan's practitioner review[^yan] and Gu et al., "A Survey on LLM-as-a-Judge"[^survey].
+Appendix to the [ML Debugging skill](../SKILL.md). When an LLM-judged eval looks surprisingly good, or a ranking flips between runs, suspect the judge before the model. Each bias below has been measured; verbatim sources in [docs/evidence/llm_judge_biases.md](../docs/evidence/llm_judge_biases.md), with quote-anchored 2026 numbers and their epistemic status in [llm_judge_litreview.md](llm_judge_litreview.md). For the wider literature, two surveys collect it: Eugene Yan's practitioner review[^yan] and Gu et al., "A Survey on LLM-as-a-Judge"[^survey].
+
+## Numbers worth knowing (2026)
+
+Operational rules of thumb; verbatim quotes, sources, and calibration in [llm_judge_litreview.md](llm_judge_litreview.md).
+
+- Order bias is still ~43% verdict-flip on swap, averaged across 36 models in 2026, and it worsens as the two answers converge in quality. Even a frontier judge can flip ~66%. So swap-and-average every judge, regardless of size.
+- Self-preference scales inversely with size: a DBG bias score of 41.7% at 0.5B vs 2.1% at 14B; reasoning does not remove it. Don't let a small model judge its own family's outputs.
+- Reasoning judges gain roughly +8 F1 on reasoning-heavy grading but keep their length/position/style bias. Use one for hard grading; don't expect it to fix bias.
+- Reasoning tokens are non-monotonic: accuracy peaks (~1.1k thinking tokens in one study) then declines with more. Cap reasoning to the task; on easy items cap low and spend the budget on N passes instead.
+- Know your effort-to-token map: "high" is 4096 tokens on litellm's stock defaults but 24576 in CAIS simple-evals. Set it explicitly or you may truncate the judge ~6x low.
+- Self-consistency plateaus by N~10-15 on 2026 models (was ~40) and can decline past it, so N=4-10 is plenty for a repeat-variance check; more buys noise.
+- Context rot: judge reliability drops well before the window fills (NoLiMa: most models below half their short-context score by 32K). Put the rubric and answer-under-test at the start or end of the prompt, never the middle.
 
 ## The measured biases
 
