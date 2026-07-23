@@ -174,3 +174,225 @@ DeepSeek-AI, "DeepSeek-R1" (arXiv:2501.12948), abstract quotes:
 > emergent development of advanced reasoning patterns, such as self-reflection, verification, and dynamic strategy adaptation
 
 (The response-length-grows-over-training result is R1's headline figure in the body; not re-quoted verbatim here.) Also unverified: the per-model Artificial Analysis token-use splits (https://artificialanalysis.ai/models/qwen3-6-27b#intelligence-index-token-use-tabs) that wassname read as ~5k Gemma-4-31b to ~30k Qwen3.6-35B-A3B; the dashboard is JS-rendered and WebFetch only returned aggregate totals.
+
+---
+
+# 2026 lit-search batch (added 2026-07-23, CLAUDE agent)
+
+Verification legend for this batch:
+- [FT] full-text verified: I curled the paper HTML or raw source this turn and the quote below is copied from that fetch.
+- [ID] arXiv id + title resolved this turn (real paper, topic matches); the in-body number was extracted by a research subagent via WebFetch's summarizer, NOT copied from raw PDF. Trust the direction; re-pull the exact figure before quoting as gospel.
+
+## Reasoning-effort token budgets: CAIS simple-evals + litellm defaults — [FT]
+
+CAIS `simple-evals/.env.example` (curled from raw github, 2026-07-23), the effort->token map a serious eval harness ships:
+
+> DEFAULT_REASONING_EFFORT_HIGH_THINKING_BUDGET=24576
+> DEFAULT_REASONING_EFFORT_MEDIUM_THINKING_BUDGET=8192
+> DEFAULT_REASONING_EFFORT_LOW_THINKING_BUDGET=1024
+
+litellm's OWN stock defaults (`litellm/constants.py`, curled same day) are ~6x lower at the top end:
+
+> DEFAULT_REASONING_EFFORT_DISABLE_THINKING_BUDGET = ... 0
+> DEFAULT_REASONING_EFFORT_MINIMAL_THINKING_BUDGET = ... 128
+> DEFAULT_REASONING_EFFORT_LOW_THINKING_BUDGET = ... 1024
+> DEFAULT_REASONING_EFFORT_MEDIUM_THINKING_BUDGET = ... 2048
+> DEFAULT_REASONING_EFFORT_HIGH_THINKING_BUDGET = ... 4096
+
+Takeaway: "high effort" is not a fixed token count. litellm stock caps high at 4096; CAIS deliberately overrides to 24576 (6x). So when you set effort=high on a judge you must know which mapping is live, or you may be truncating reasoning at 4k without meaning to. Sources: https://github.com/centerforaisafety/simple-evals/blob/main/.env.example , https://github.com/BerriAI/litellm/blob/main/litellm/constants.py
+
+## Position bias, headline flip rates
+
+## Lech Mazur, position_bias benchmark — https://github.com/lechmazur/position_bias — [FT]
+Independent, outsider-run, continuously-updated public harness (strong trust). Method: same story pair shown in both orders, 193 verified pairs, 36 models, 386 prompts/model. Numbers copied from raw README this turn:
+
+> The benchmark finds a large position effect in the current results. The model-average order-flip rate is 43.0%, and the median model flips in 41.3% of decisive two-view cases.
+
+> the model-average first-shown pick rate is 64.3%
+
+> The model-average first-position rating bonus is +0.271 on the 1-to-7 rating scale.
+
+> Mistral Medium 3.5 is the most position-sensitive model in this run: 82.8% first-shown pick rate, +32.8 pp first lift, 72.5% order flip
+
+Rule of thumb: even in 2026, judges flip ~43% of decisive verdicts on order swap alone; the worst flip >70%. Direction is not universal (Mistral Large 3 goes second-position). Always judge both orders. (Note: an earlier subagent draft misattributed 27.4% to Claude Opus; the raw table puts 27.4% first-shown pick on Mistral Large 3, so I dropped the per-model attributions except the verified worst-case.)
+
+## "Judging the Judges: A Systematic Study of Position Bias in LLM-as-a-Judge" — Shi et al. (Dartmouth), IJCNLP-AACL 2025 — https://arxiv.org/abs/2406.07791 — [ID]
+Most-cited dedicated position-bias study, largest scale (150k+ instances, 15 judges, 22 tasks).
+
+> Our experiments, involving 15 LLM judges across MTBench and DevBench with 22 tasks and approximately 40 solution-generating models, result in over 150,000 evaluation instances.
+
+> While position bias is weakly influenced by the length of prompt components, it is strongly affected by the quality gap between solutions.
+
+Rule of thumb: position bias is systematic, not random noise, and it gets WORSE as the two answers converge in quality (exactly when you most need the judge). Metrics introduced: repetition stability, position consistency, preference fairness.
+
+## "Reliability without Validity: A Systematic, Large-Scale Evaluation of LLM-as-a-Judge Models" — Norman, Rivera, Hughes (UC Berkeley), 2026 — https://arxiv.org/abs/2606.19544 — [ID]
+2026 audit of 21 judges. Title confirmed via arxiv abs this turn; in-body numbers via subagent WebFetch (re-fetched HTML mirror after PDF parse failed).
+
+> High test-retest reliability (>0.95) coexists with severe position bias (>0.10) in two production-deployed judges (instantiating a consistency-bias paradox).
+
+> Across a range of judge models, flip rates range from 25% to 50%
+
+> All 21 judges evaluated under the bias-audit protocol register a verbosity bias below 0.011 on MT-Bench, with the largest value being GPT-4o-mini at 0.010
+
+Two rules of thumb: (1) a judge being REPRODUCIBLE (same verdict on re-run) does not make it VALID (right, or order-invariant); measure both. (2) Verbosity bias in current-gen judges is ~10x smaller than 2023-era studies reported, so don't over-correct for length on modern judges. Contested-direction flag lives with the self-preference entries below.
+
+## Self-preference / self-enhancement scales inversely with size
+
+## "Beyond the Surface: Measuring Self-Preference in LLM Judgments" — Chen et al., EMNLP 2025 main — https://arxiv.org/abs/2506.02592 — [FT]
+Machine-accessible: https://github.com/zhiyuanc2001/self-preference . Its DBG score uses gold judgments to separate bias from genuine quality. Quotes copied from arxiv HTML full-text this turn:
+
+> the DBG score of Qwen2.5-0.5B-Instruct is 41.7%. In contrast, the DBG score of Qwen2.5-14B-Instruct is only 2.1%.
+
+> the DBG score of Llama-3.1-70B is 0.4%, whereas that of Llama-3.1-8B is 21.6%, which is much higher than the score of Llama-3.1-70B.
+
+> Larger models exhibit less self-preference bias compared to smaller models.
+
+> the self-preference bias in reasoning models is not necessarily less significant than the bias found in language models. For instance, the DBG score of DS-R1-Distill-Qwen-32B is 4.8%, whereas the DBG score of Qwen2.5-72B-Instruct is only 2.6%.
+
+Rule of thumb: self-preference is inversely proportional to size. Tiny judges (<1B) can inflate their own scores ~40%; strong large judges drop to low single digits. Reasoning does NOT reliably remove it. Do not use a small model to judge its own family's outputs.
+
+## "Do LLM Evaluators Prefer Themselves for a Reason?" — Chen et al., 2025 — https://arxiv.org/abs/2504.03846 — [ID]
+The counter-intuitive one: CoT REDUCES self-preference (contradicts naive "more thinking = more bias"). Title confirmed this turn; HSPP numbers via subagent WebFetch.
+
+> generating reasoning traces substantially reduces harmful self-preference across all models
+
+> For MATH500, harmful self-preference propensity (HSPP) dropped from 56.9% (no reasoning) to 19.3% (standard CoT) to 17.0% (long CoT)
+
+Tension to flag: this paper says CoT roughly halves self-preference; 2506.02592 (above) says LRMs "not necessarily less" biased. Different metrics (HSPP vs DBG), so the direction of "does reasoning fix self-preference" is contested. State it as open, not settled.
+
+## Reasoning judges: accuracy up, superficial bias not fixed
+
+## "JudgeLRM: Large Reasoning Models as a Judge" — Chen et al., 2025 — https://arxiv.org/abs/2504.00050 — [ID]
+RL-trained reasoning judge. Title confirmed; F1 numbers via subagent WebFetch.
+
+> JudgeLRM achieves an average improvement of 8.14% in F1 score [vs same-size SFT judges]
+
+> On the human-annotated PandaLM benchmark, JudgeLRM-3B surpasses GPT-4 [F1 72.12% vs 61.80%]
+
+## "Reasoning Model Is Superior LLM-Judge, Yet Suffers from Biases" — Huang et al., Jan 2026 — https://arxiv.org/abs/2601.03630 — [ID]
+
+> LRMs outperform non-reasoning LLMs in terms of judgment accuracy, particularly on reasoning-intensive tasks
+
+> [LRMs] still exhibit strong evaluation biases
+
+Rule of thumb across these two: prefer a reasoning judge for reasoning-heavy grading (~5-8 F1 gain), but it does not remove length/position/style bias. "Use a reasoning judge" is defensible; "reasoning fixes bias" is not.
+
+## "Explicit Reasoning Makes Better Judges" — 2025 — https://arxiv.org/abs/2509.13332 — [ID]
+Directly tests small judges (Qwen3 0.6B/1.7B/4B). (Subagent first mislabeled the title as "Thinking Small Models..."; corrected to the real arxiv title this turn.)
+
+> thinking models achieve approximately 10% points higher accuracy with little overhead (under 2x), in contrast to augmentation strategies like few-shot learning, which deliver modest gains at a higher cost (>8x).
+
+> The smallest model in our study (Qwen 3 0.6B) fails to surpass 50% accuracy on difficult 'Chat Hard' and 'Safety' tasks, in some cases performing worse than random selection.
+
+> when subjected to verbosity bias, the thinking model exhibits a higher consistency (83.48 vs 73.86)
+
+Rule of thumb: sub-1B judges fall to random on hard/safety pairs; turning on reasoning buys ~+10 accuracy and higher bias-consistency far cheaper than few-shot ICL (<2x cost vs >8x).
+
+## "RLAIF vs. RLHF" — Lee et al. (Google), ICML 2024 — https://arxiv.org/abs/2309.00267 — [FT]
+The canonical "smaller = more position-biased" source. Main-text quotes copied from arxiv HTML this turn; the 18/21/56% per-size figures are in its Appendix B (table, not captured by my main-text grep).
+
+> We find evidence of position bias, which is especially prevalent in smaller LLM labelers
+
+> two inferences are made for every pair of candidates, where the order in which candidates are presented to the LLM is reversed for the second inference. The results from both inferences are then averaged to obtain the final preference distribution.
+
+> Alignment decreases by 4% when substituting PaLM 2 L with PaLM 2 S, and decreases another 11% when using PaLM 2 XS
+
+Reported (Appendix B, via subagent): PaLM 2 L/S/XS keep the same position after swap 18% / 21% / 56% of the time; for L, 94% of same-position cases favor the first candidate. Rule of thumb: the order-swap-and-average mitigation is standard and it comes from here; smaller judges need it most.
+
+## Overthinking: token budget vs task difficulty is non-monotonic
+
+## "Does Thinking More always Help? Mirage of Test-Time Scaling in Reasoning Models" — Ghosal et al., 2025 — https://arxiv.org/abs/2506.04210 — [ID]
+Cleanest non-monotonic curve. Title confirmed this turn; numbers via subagent WebFetch.
+
+> accuracy increases from 82.2% to 87.3% as the average number of thinking tokens increases from 385 to 1100. However... pushing the average thinking token count from 1100 to 15980 reduces accuracy from 87.3% to 70.3%
+
+Rule of thumb: return on thinking tokens peaks then declines. In their setup peak was ~1.1k tokens; 14x more tokens (16k) cost ~17 accuracy points. Past the peak, extra tokens add variance, not reasoning.
+
+## "OptimalThinkingBench: Evaluating Over and Underthinking in LLMs" — Aggarwal et al., 2025 — https://arxiv.org/abs/2508.13141 — [ID]
+
+> Thinking models often overthink for hundreds of tokens on the simplest user queries without improving performance. In contrast, large non-thinking models underthink, often falling short of much smaller thinking models.
+
+Rule of thumb: easy items hit negative marginal utility of thinking earlier than hard items; no current model budgets thinking optimally, so difficulty-aware caps beat a fixed cap. This is the evidence base for "cap reasoning low on easy tasks, spend the savings on N passes."
+
+## Self-consistency convergence: how many samples N
+
+## "Self-Consistency Improves Chain of Thought Reasoning" — Wang et al., 2022 — https://arxiv.org/abs/2203.11171 — [ID]
+Foundational (several-thousand citations), PaLM-540B era.
+
+> GSM8K (+17.9%) [self-consistency over CoT; 56.5% -> 74.4% at N=40]
+
+Widely-reproduced pattern: gain is monotonic in N with diminishing returns; bulk arrives by N=5-10, saturates ~N=40 for that era's models.
+
+## "Self-Consistency Is Losing Its Edge: Diminishing Returns and Rising Costs in Modern LLMs" — Loo, 2025 — https://arxiv.org/abs/2511.00751 — [ID]
+Single-author preprint (low citation signal, flagged), but directly answers "how has N moved." Numbers via subagent WebFetch.
+
+> [MATH-500, Gemini-2.5-Flash-Lite] accuracy improved through approximately 10 sampled paths before plateauing... declining slightly beyond 15
+
+> [MATH-500, Gemini-2.5-Pro] ... improved to 99.2% at 3 paths and 99.6% at 15... a total gain of 1.6% at approximately 15x the single-sample token cost
+
+Rule of thumb for N: on strong 2026 models the self-consistency plateau moved in to N~10-15 (from ~40), total gain shrank to <2 points, and accuracy can DECLINE past the plateau. Reserve repeats for genuinely hard items where the base model is well below ceiling. This also sets the sane N for your N=4 repeat-variance check: 4-10 is plenty to see instability; going past ~15 buys nothing.
+
+## "Inference-Time Scaling for Generalist Reward Modeling" (DeepSeek-GRM) — Liu et al., 2025 — https://arxiv.org/abs/2504.02495 — [ID]
+Vendor paper (mild caution). Numbers via subagent WebFetch.
+
+> Direct voting with 32 samples of DeepSeek-GRM-27B could achieve comparable performance to the 671B MoE model
+
+> [ReaLMistake] inference-time scaling with 32 samples improved from 67.9 (voting@1) to 72.8 (voting@32 with meta RM)
+
+Rule of thumb: sampling+voting a small generative judge 32x can match a ~25x-larger single-shot judge, and a learned meta-verifier over the votes beats plain majority vote. Scaling judge COMPUTE can substitute for judge SIZE.
+
+## Context rot: long inputs/rubrics degrade judging
+
+## Chroma, "Context Rot: How Increasing Input Tokens Impacts LLM Performance" — Hong, Troynikov, Huber, July 2025 — https://research.trychroma.com/context-rot — [ID]
+Industry report (not peer-reviewed), 18-model controlled study. Numbers via subagent WebFetch.
+
+> Even a single distractor reduces performance relative to the baseline (needle only), and adding four distractors compounds this degradation further.
+
+> as needle-question similarity decreases, model performance degrades more significantly with increasing input length
+
+Rule of thumb: degradation is continuous and starts well before the window fills; a 1M-token window does not reliably reason over 1M tokens. Accuracy is highest when the key info sits near the START of the sequence.
+
+## "NoLiMa: Long-Context Evaluation Beyond Literal Matching" — Modarressi et al., ICML 2025 — https://arxiv.org/abs/2502.05167 — [ID]
+Repo: https://github.com/adobe-research/NoLiMa . Removes literal lexical overlap, so it measures latent-association retrieval (closest analog to a judge matching a rubric to a semantically-distant answer). Numbers via subagent WebFetch.
+
+> The effective length is defined as the longest context where a model maintains at least 85% of its base score.
+
+> At 32K, for instance, 10 models drop below 50% of their strong short-length baselines.
+
+> GPT-4o: ... a reduction from an almost-perfect baseline of 99.3% to 69.7% [at 32K]
+
+Rule of thumb: once literal cues are gone, even top models fall below their 85%-effective-length by ~8-16K tokens; by 32K most are below half their short-context score.
+
+## "Lost in the Middle" — Liu et al., TACL 2024 — https://arxiv.org/abs/2307.03172 — [ID]
+Origin of the U-shaped/middle-penalty result, replicated across 6 model families.
+
+> performance is often highest when relevant information occurs at the beginning or end of the input context, and significantly degrades when models must access relevant information in the middle of long contexts, even for explicitly long-context models.
+
+Rule of thumb for judge prompts: put the rubric and the answer-under-test at the START or END of the prompt, never buried mid-way through a long reference block. (Exact "%drop when moved to middle" varies by model, ~15-25 pts in secondary summaries; direction robust, magnitude approximate.)
+
+## Machine-accessible judge benchmark index (URLs resolve; pull data programmatically)
+
+| name | measures | data URL | machine-accessible |
+|---|---|---|---|
+| JudgeBench (2410.12784) | objective-correctness judge accuracy (near-random for many strong judges) | https://huggingface.co/datasets/ScalerLab/JudgeBench | yes (Parquet) |
+| RewardBench (2403.13787) | RM accuracy chat/safety/reasoning | https://huggingface.co/datasets/allenai/reward-bench | yes (+ results dataset) |
+| RewardBench 2 (2506.01937) | RM accuracy, harder unseen prompts (~20pt harder) | https://huggingface.co/datasets/allenai/reward-bench-2 | yes (Parquet) |
+| RM-Bench (2410.16184) | RM subtlety + style-bias robustness (SOTA ~46.6% under style bias) | https://github.com/THU-KEG/RM-Bench | yes (JSON/HF) |
+| PPE (2410.14872) | RM/judge vs real post-RLHF human prefs | https://github.com/lmarena/PPE | yes (HF+JSON) |
+| LLMBar (2310.07641) | adversarial instruction-following judge | https://github.com/princeton-nlp/LLMBar | yes (JSON) |
+| CALM / Justice-or-Prejudice (2410.02736) | 12 cognitive-bias categories, robustness+consistency rate | https://github.com/Y0oMu/LLM-Judge-Bias-Dataset | yes (JSON; mirror repo) |
+| MT-Bench (2306.05685) | judge-human agreement, chat | https://huggingface.co/datasets/lmsys/mt_bench_human_judgments | yes (Parquet) |
+| Arena-Hard-Auto (2406.11939) | pairwise win-rate vs baseline | https://github.com/lmarena/arena-hard-auto | yes (JSON; viewer glitchy) |
+| JudgeLM (2310.17631) | fine-tuned 7-33B judge vs GPT-4 | https://huggingface.co/datasets/BAAI/JudgeLM-100K | yes (JSON) |
+| PandaLM (2306.05087) | small fine-tuned judge vs GPT-3.5/4 | https://github.com/WeOpenML/PandaLM | yes (JSON in-repo) |
+| Judgemark v4 | judge score-separability, creative writing | https://github.com/EQ-bench/EQ-bench-site/blob/main/judgemark-v4.js | yes but nonstandard (JS object) |
+| JETTS (2504.15253) | judge usefulness for test-time scaling (rerank/beam/critique) | https://github.com/SalesforceAIResearch/jetts-benchmark | yes (JSONL) |
+| RewardMATH (2410.01729) | RM math robustness (1 correct vs 9 wrong) | https://huggingface.co/datasets/RewardMATH/RewardMATH | yes (Parquet; code anon) |
+
+URL provenance: subagent reported all resolve via WebFetch; I have NOT independently curled every dataset. JudgeBench near-random headline and RM-Bench 46.6% are subagent WebFetch quotes. Lower-provenance: CALM data is a mirror repo (Y0oMu, not the main org); RewardMATH code lives on anonymous.4open.science; Judgemark has no arXiv paper (independent practitioner benchmark by Sam Paech).
+
+## Honesty flags for this batch
+- [FT] entries (Lech Mazur 43%, self-preference DBG 41.7/2.1, RLAIF position-bias direction + averaging mitigation, CAIS/litellm budgets) are copied from raw source I fetched this turn.
+- [ID] entries: arXiv id + title confirmed real and on-topic this turn, but the specific in-body number was pulled by a research subagent through WebFetch's summarizer, not from raw PDF. Re-pull before quoting a figure as exact.
+- Discarded as hallucinated by subagents: arXiv IDs with impossible month codes (e.g. 2602.08028, 2606.13603 from search autocomplete); not included.
+- Contested / do-not-state-as-settled: whether reasoning fixes self-preference (2504.03846 says CoT halves HSPP; 2506.02592 says LRMs "not necessarily less" on DBG). Different metrics.
