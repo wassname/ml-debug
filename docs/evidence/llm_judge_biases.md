@@ -156,3 +156,21 @@ Higher = answers more / refuses less (0-100), windowed to releases in the last 6
 Note the wide Peak-vs-Index gaps (DeepSeek peak 89.1 vs index 59.0; Zhipu 85.9 vs 71.0): pick the specific permissive checkpoint, not the lab.
 
 Not fetched: SpeechMap's per-model and per-topic breakdowns (https://speechmap.ai/timeline/, /labs/<lab>/) and the eqbench4 EI benchmark data (https://github.com/EQ-bench/EQ-bench-site/blob/main/eqbench4/eqbench4_data.js) are separate from the judge data used here.
+
+## Reasoning-token budget: Epoch AI + DeepSeek-R1
+
+Epoch AI, "Output length" — https://epoch.ai/data-insights/output-length (via WebFetch, 2026-07-22):
+
+> Reasoning models also exhibit longer response lengths overall - currently, around 8x more tokens on average, compared to non-reasoning models.
+
+> Reasoning models' responses are growing considerably faster (5x per year) than those from non-reasoning models (2.2x per year).
+
+> moving from 'medium' to 'high' effort resulted in a 1.6x increase in output tokens
+
+DeepSeek-AI, "DeepSeek-R1" (arXiv:2501.12948), abstract quotes:
+
+> The reasoning abilities of LLMs can be incentivized through pure reinforcement learning (RL), obviating the need for human-labeled reasoning trajectories.
+
+> emergent development of advanced reasoning patterns, such as self-reflection, verification, and dynamic strategy adaptation
+
+(The response-length-grows-over-training result is R1's headline figure in the body; not re-quoted verbatim here.) Also unverified: the per-model Artificial Analysis token-use splits (https://artificialanalysis.ai/models/qwen3-6-27b#intelligence-index-token-use-tabs) that wassname read as ~5k Gemma-4-31b to ~30k Qwen3.6-35B-A3B; the dashboard is JS-rendered and WebFetch only returned aggregate totals.
