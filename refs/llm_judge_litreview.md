@@ -59,11 +59,12 @@ epistemic context: peer-review status unclear (preprint); the paper attributes t
 ## CAIS `simple-evals` and litellm defaults — raw source, fetched 2026-07-23
 - [simple-evals/.env.example](https://github.com/centerforaisafety/simple-evals/blob/main/.env.example) and [litellm/constants.py](https://github.com/BerriAI/litellm/blob/main/litellm/constants.py)
 
+> # Some env for reasoning effort if you using litellm https://github.com/BerriAI/litellm/blob/main/litellm/constants.py#L81
 > DEFAULT_REASONING_EFFORT_HIGH_THINKING_BUDGET=24576
 > DEFAULT_REASONING_EFFORT_MEDIUM_THINKING_BUDGET=8192
 > DEFAULT_REASONING_EFFORT_LOW_THINKING_BUDGET=1024
 
-epistemic context: CAIS's eval harness deliberately overrides litellm's stock defaults, whose own constants.py sets HIGH=4096, MEDIUM=2048, LOW=1024. So "effort=high" can mean 4096 or 24576 tokens depending on which mapping is live; setting effort on a judge without checking this can truncate its reasoning ~6x below what a serious harness allots.
+epistemic context: config lines quoted verbatim (not prose, so no surrounding sentences); CAIS's eval harness deliberately overrides litellm's stock defaults, whose own constants.py sets HIGH=4096, MEDIUM=2048, LOW=1024. So "effort=high" can mean 4096 or 24576 tokens depending on which mapping is live; setting effort on a judge without checking this can truncate its reasoning ~6x below what a serious harness allots.
 
 ## Self-consistency: how many samples N
 
@@ -86,7 +87,7 @@ epistemic context: peer-reviewed; removes literal lexical overlap so the test me
 ## "Lost in the Middle: How Language Models Use Long Contexts" — Liu et al., TACL 2024 — [arXiv:2307.03172](https://arxiv.org/abs/2307.03172)
 - page date: arXiv July 2023; TACL 2024
 
-> We find that performance can degrade significantly when changing the position of relevant information, indicating that current language models do not robustly make use of information in long input contexts. **In particular, we observe that performance is often highest when relevant information occurs at the beginning or end of the input context, and significantly degrades when models must access relevant information in the middle of long contexts, even for explicitly long-context models.** Our analysis provides a better understanding of how language models use their input context.
+> We find that performance can degrade significantly when changing the position of relevant information, indicating that current language models do not robustly make use of information in long input contexts. **In particular, we observe that performance is often highest when relevant information occurs at the beginning or end of the input context, and significantly degrades when models must access relevant information in the middle of long contexts, even for explicitly long-context models.** Our analysis provides a better understanding of how language models use their input context and provides new evaluation protocols for future long-context language models.
 
 epistemic context: peer-reviewed; the origin of the U-shaped/middle-penalty result, replicated across 6 model families. Operational read for judging: put the rubric and the answer-under-test at the start or end of the prompt, never buried mid-way through a long reference block.
 
