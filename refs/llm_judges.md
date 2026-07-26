@@ -82,9 +82,11 @@ Check the score distribution:
 
 Keep the comparison set fixed:
 
-> "if there are NaNs we should not drop them else we end up comparing different samples sets and it's invalid?" - wassname
+> "If there are NaNs, we should not drop them, else we end up comparing different sample sets and it's invalid. A might be a single easy sample, and B might be all 128 hard samples. Of course A looks much better, but actually it failed on the vast majority of samples." - wassname, lightly edited for spelling
 
-Before ranking arms or metrics, assert that every arm has one finite score for every expected sample ID. Do not use `nanmean`, per-arm `dropna`, or any other operation that silently changes the denominator. For a paired difference $d_i = s_{A,i} - s_{B,i}$, report the expected and observed pair counts and fail aggregation if any pair is missing. A refusal, parse failure, timeout, or NaN is evidence about the harness or runtime; diagnose and rerun it, and report its rate separately from task quality.
+`A.dropna().mean()` and `B.dropna().mean()` can average different sample populations. A can look best by scoring one easy survivor while B is averaged across all 128 hard samples; A's missingness is part of the result. Pandas [`mean`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.mean.html) and [`GroupBy.mean`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.api.typing.DataFrameGroupBy.mean.html) skip missing values by default, so a naive aggregate-then-plot pipeline can create this comparison without an explicit `dropna`.
+
+Before plotting or ranking, assert that every arm has one finite score for every expected sample ID. Give a model refusal or task failure the metric's defined failure score; make a judge, parser, timeout, or infrastructure failure fail the eval and rerun it. Do not use `nanmean`, `skipna`, or independent `dropna`; report coverage and failure reasons beside the scores. Restricting all arms to their shared complete cases makes the comparison paired, but it can still select only easy survivors and does not support an overall ranking.
 
 Check stability across order and repeats:
 
