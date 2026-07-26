@@ -80,6 +80,12 @@ Check the score distribution:
 - Not clustered: plot the raw histogram. Mode collapse or skew means the scale isn't being used.[^verdict]
 - Not anchored: don't put an example score in the prompt. A few-shot "+2" pulls a weak judge toward +2, and Eugene Yan's survey notes few-shot judges are "unstable when changing the label, example order, and number of examples".[^yan] Ask for a bare integer or label, and prefer a coarse scale: Databricks recommend a low-precision range (0-3 or 1-5) because "Scales like 0-10 are difficult to come up with distinguishing criteria between all scores".[^databricks] Hamel is blunter, preferring binary: "If your evaluations consist of a bunch of metrics that LLMs score on a 1-5 scale (or any other scale), you're doing it wrong."[^hamel]
 
+Keep the comparison set fixed:
+
+> "if there are NaNs we should not drop them else we end up comparing different samples sets and it's invalid?" - wassname
+
+Before ranking arms or metrics, assert that every arm has one finite score for every expected sample ID. Do not use `nanmean`, per-arm `dropna`, or any other operation that silently changes the denominator. For a paired difference $d_i = s_{A,i} - s_{B,i}$, report the expected and observed pair counts and fail aggregation if any pair is missing. A refusal, parse failure, timeout, or NaN is evidence about the harness or runtime; diagnose and rerun it, and report its rate separately from task quality.
+
 Check stability across order and repeats:
 
 - Position: score both orderings, map back to arm identity, report strict reversals (mechanics in the mitigation checklist above). Watch for a judge that always picks A, sometimes a model does this in protest.
