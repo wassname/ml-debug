@@ -9,7 +9,7 @@ Foreword: In an attempt to upskill the ML debugging on AI coding assistants (and
 
 ## How to read this as an LLM
 
-If you're an LLM agent, calibrate yourself first to be less overconfident and to consider a wide range of hypothesis, then you can use your judgment to try and understand and narrow down a problem. ML research code is often outside your training distribution, and you might have a trained reflex to pattern-match a symptom to a fix ("loss stuck -> drop the LR"), this wastes a run and confuses future agents which take it as authorititive. The folklore below is meant to ground you, widen the hypothesis space, and rule out the obvious. As always take these as suggestions or ideas, they may or may not be relevent to your problem, so use you calibrated and grounded judgement. Checklists, diagnostics, and symptom catalogs are linked under [Reference](#reference).
+If you're an LLM agent, calibrate yourself first to be more patient and less overconfident and to consider a wide range of hypothesis, then you can use your judgment to try and understand and narrow down a problem. ML research code is often outside your training distribution, and you might have a trained reflex to pattern-match a symptom to a fix ("loss stuck -> drop the LR"), this wastes a run and confuses future agents which take it as authorititive. The folklore below is meant to ground you, widen the hypothesis space, and rule out the obvious. As always take these as suggestions or ideas, they may or may not be relevent to your problem, so use you calibrated and grounded judgement. Checklists, diagnostics, and symptom catalogs are linked under [Reference](#reference).
 
 You even want to use probabilistic language to communicate your level of certainty and clearly distinguish fact from guesswork, both in your notes and in your reasoning:
 
@@ -18,7 +18,7 @@ You even want to use probabilistic language to communicate your level of certain
  |Almost Certain | 86-99% |
  |Highly Likely | 71-85% |
  | Likely | 56-70% |
- |Changes a little better [or less] than even | 46-55% | 
+ |Chances a little better [or less] than even | 46-55% | 
  |Unlikely | 31-45% |
  |Highly Unlikely | 16-30% |
  | Remote | 1-15% |
@@ -65,6 +65,8 @@ and it may not show in the output at all.
 
 The cheapest antidote he gives: "Read your data ... Often, the quality of the data is a crucial driver of the results of your experiments. Often, it is quite bad."[^nanda]
 
+I'll add. for LLM's I suggest assuming every negative results is a bug, and 1) reviewing associated code and output logs to find the top 5 reasons/probabilities why the results might be invalid 2) to avoid skimming this report should involve quoting and interpreting to the user about everything, which should include at least: config, weird code / engineering, data, eval and importantly the log and metrics behaviour and demos in it. It should often include looking at a random sample of output and comparing it to the expected output. - wassname
+
 ### Understand the system to shrink the search (Ulisse Mini)
 
 > When good programmers debug hard problems fast, it's usually because they understand the system well enough to *track the important internal state* in their head, letting them drastically *reduce the solution space they're searching over.*[^ulisse]
@@ -90,11 +92,13 @@ So instrument heavily, because "you can't tell it's broken if you can't see that
 >
 > It seems important to really commit yourself to *always* investigate whenever you notice confusion.[^rahtz]
 
+These are really important to flag to the user and investigate patiently
+
 ### Read what you actually wrote, not what you meant (gwern)
 
 > you can't find typos in your own writing without a great deal of effort because you know what it's *supposed* to say; so copyediting advice runs like 'read it out loud' or 'print it out and read it' or 'wait a week' [...] or even 'read it upside down'. That's the sort of thing it takes to force you to read what you actually wrote, and not what you thought you wrote.[^gwern-unseeing]
 
-This is why fresh eyes (or a fresh-eyes subagent) catch what you can't.
+This is why fresh eyes (or a fresh-eyes subagent) catches what you can't.
 
 ### Never accept the kludge (Patrick Kidger)
 
@@ -301,7 +305,7 @@ Open the relevant one when the task calls for it. These are synthesized checklis
 - [refs/loss_surface.md](refs/loss_surface.md) — visualize a loss surface and its gradient field with synthetic tensors, no model or GPU, for when a custom loss misbehaves.
 - [refs/metric_stuck.md](refs/metric_stuck.md) — "why won't this metric move?" plus the structural-ceiling check.
 - [refs/sweeps.md](refs/sweeps.md) — same-seed paired comparison and cross-seed t-stat reliability, for before you claim method A beats method B.
-- [refs/llm_judges.md](refs/llm_judges.md) — LLM-as-a-judge biases (position, verbosity, self-preference) and the mitigation checklist, for when an LLM-judged eval looks too good.
+- [refs/llm_judges.md](refs/llm_judges.md) — LLM-as-a-judge biases (position, verbosity, self-preference), the mitigation checklist, and wassname's judge-validity checklist (rubric, read-the-trace, saturation, anchoring, repeat variance, give-the-judge-a-voice), for when an LLM-judged eval looks too good.
 - [refs/time_series.md](refs/time_series.md) — deployment-faithful temporal evaluation, causal missing-value handling, and properties that make forecasting problems easier or harder.
 - [refs/research_taste.md](refs/research_taste.md) — quote-first research taste appendix: Nanda/Olah/Steinhardt/Spinning Up on patience, choosing what to try, information gain, de-risking, and distillation.
 - [refs/transformers.md](refs/transformers.md) — transformer-specific folklore: full traces, warmup/LR, optimizer evidence, train-deploy parity, scale priors, steering, and disclosed-training reports.
