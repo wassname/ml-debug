@@ -54,6 +54,19 @@ The disclosed training reports mostly reinforce this boring answer. DeepSeek-V3,
 
 Inspect the best run's traces. It may have won by learning a shortcut, formatting artifact, or easier token distribution rather than the intended task.
 
+## Offline preference training can barely move
+
+Tinker's own DPO reference run reports, after 50 steps on its demo data:[^tinker-dpo]
+
+> │ accuracy              │ 0.515748      │
+> │ margin                │ 0.005681      │
+
+Accuracy 0.5 is coin-flip on pair ordering, so the vendor's reference DPO run barely separates chosen from rejected. The same cookbook's RLHF pipeline (reward-model SFT, then RL against the RM) reports:[^tinker-rlhf]
+
+> Policy RL stage: `test/win_rate` should increase from ~46% to ~94% in 100 steps.
+
+Practitioner reports point the same way: wassname tried DPO in three experiments and it never worked well, a friend hit the same on Tinker, and GRPO worked in the same hands (2026-07, verbal). A politely decreasing DPO loss is weak evidence of behavior change; check pair accuracy and margin, and prefer online RL when a reward can be computed.
+
 ## Distributed and numerical failures
 
 > If any rank's gradient contains inf, all ranks must clip to avoid divergence.[^nanochat]
@@ -124,3 +137,5 @@ For experiment design, keep the [Google Deep Learning Tuning Playbook](https://d
 [^qwen3-report]: Qwen Team, ["Qwen3 Technical Report"](https://arxiv.org/abs/2505.09388) ([cache](../docs/evidence/reports/qwen3_technical_report.md))
 [^llama3-report]: Meta AI, ["The Llama 3 Herd of Models"](https://arxiv.org/abs/2407.21783) ([cache](../docs/evidence/reports/llama3_herd_technical_report.md))
 [^opt175b-report]: Zhang et al., ["OPT: Open Pre-trained Transformer Language Models"](https://arxiv.org/abs/2205.01068) ([cache](../docs/evidence/reports/opt175b_technical_report.md))
+[^tinker-dpo]: Thinking Machines, [tinker-cookbook recipes/preference/dpo README](https://github.com/thinking-machines-lab/tinker-cookbook/tree/main/tinker_cookbook/recipes/preference/dpo)
+[^tinker-rlhf]: Thinking Machines, [tinker-cookbook recipes/preference/rlhf README](https://github.com/thinking-machines-lab/tinker-cookbook/tree/main/tinker_cookbook/recipes/preference/rlhf)
