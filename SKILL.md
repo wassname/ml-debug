@@ -1,6 +1,6 @@
 ---
 name: ml-debug
-description: "Wassname's practical folklore for debugging ML systems: convergence, gradients, stuck metrics, sweep reliability, same-seed comparisons. Use when stuck on training, designing sweeps, or analyzing results. Verbatim quotes from practitioners, with linked checklists and diagnostics."
+description: "Wassname's ML debugging method: quoted evidence, competing hypotheses, and calibrated diagnoses. Use when training stalls, metrics look wrong, a run fails, sweep results conflict, or an apparent result needs audit. Requires agents to inspect raw samples and logs, separate sourced observations from reasoned inferences, treat bugs or misconceptions as leading candidates, and choose tests that distinguish them. Includes practitioner folklore, checklists, and diagnostics."
 ---
 
 # wassname's ML Debugging Folklore
@@ -9,9 +9,40 @@ Foreword: In an attempt to upskill the ML debugging on AI coding assistants (and
 
 ## How to read this as an LLM
 
-If you're an LLM agent, calibrate yourself first to be more patient and less overconfident and to consider a wide range of hypothesis, then you can use your judgment to try and understand and narrow down a problem. ML research code is often outside your training distribution, and you might have a trained reflex to pattern-match a symptom to a fix ("loss stuck -> drop the LR"), this wastes a run and confuses future agents which take it as authorititive. The folklore below is meant to ground you, widen the hypothesis space, and rule out the obvious. As always take these as suggestions or ideas, they may or may not be relevent to your problem, so use you calibrated and grounded judgement. Checklists, diagnostics, and symptom catalogs are linked under [Reference](#reference).
+ML research code is often outside an LLM's training distribution. Pattern-matching a symptom to one familiar fix wastes runs and causes later agents to treat a guess as fact. Use the folklore to widen the hypothesis space, then narrow it with evidence.
 
-You even want to use probabilistic language to communicate your level of certainty and clearly distinguish fact from guesswork, both in your notes and in your reasoning:
+Before changing code or launching another substantial run:
+
+1. Read the actual artifacts. Quote the relevant raw samples, configuration, code or log lines, and metric behavior. A summary without quotes does not show that you inspected the data.
+2. Separate observations from inferences. Give each observation a source. Give each inference a reason and a calibrated confidence.
+3. Write multiple serious diagnoses and give each a rough credence. Include a code or data bug, a misconception or invalid evaluation, and genuine method behavior when they are plausible. Keep some probability for an unknown cause when the list is not exhaustive. Do not invent weak alternatives to reach a fixed count.
+4. State what each diagnosis predicts. Run the cheapest test that distinguishes the leading diagnoses before changing the system.
+5. Start with a substantial probability that a surprising positive or negative result is invalid. Reduce that probability only when checks rule out bugs, misconceptions, leakage, and broken evaluation.
+
+Make the evidence and uncertainty visible to the user before recommending a fix or a substantial run. For a small diagnosis, inline prose is enough:
+
+```markdown
+> Verbatim data, sample, code, or log excerpt. Source: `path:line`
+
+Observation: what the excerpt shows.
+My read: H1 70% because... H2 20% because... Other or unknown causes 10%.
+Next check: the cheapest result that would distinguish them.
+```
+
+Use a table when several live diagnoses are hard to compare in prose:
+
+```markdown
+| Diagnosis | Credence | Evidence for and against | Cheapest distinguishing test |
+|---|---:|---|---|
+| ... | ... | ... | ... |
+
+Test result: quoted output and source.
+Updated read: what changed, why, and the remaining uncertainty.
+```
+
+The report is part of the debugging method. Quoting prevents skimming, competing diagnoses reduce anchoring, and credences expose conclusions that are more certain than the evidence supports. A number on only the leading diagnosis, followed by unquantified caveats, does not expose the remaining uncertainty.
+
+Use these estimative words when communicating uncertainty:
 
  |Word | Certainty | 
  |-|-|
