@@ -1,3 +1,7 @@
+Source: https://github.com/NousResearch/atropos/blob/main/README.md
+Title: Atropos, Nous Research's LLM RL Gym (repository README)
+Fetch-status: verbatim README
+
 # Atropos - Nous Research's LLM RL Gym
 
 ![newatr-02](banner-image.jpg)

@@ -1,3 +1,7 @@
+Source: https://github.com/allenai/OLMo-core/blob/main/README.md
+Title: OLMo-core, building blocks for OLMo modeling and training (repository README)
+Fetch-status: verbatim README
+
 <div align="center">
   <!-- <img src="https://github.com/allenai/OLMo/assets/8812459/774ac485-a535-4768-8f7c-db7be20f5cc3" width="300"/> -->
   <img src="https://huggingface.co/datasets/allenai/blog-images/resolve/main/olmo2/olmo.png" alt="OLMo Logo" width="280" style="margin-left:'auto' margin-right:'auto' display:'block'"/>

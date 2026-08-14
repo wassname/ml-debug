@@ -5,6 +5,15 @@ Fetch-status: verbatim (abstracts in full or near-full; verdict pages are short 
 
 # LLM judge biases (excerpts)
 
+WARNING, read before quoting anything from this file. It was assembled by
+agents across several sessions and the provenance is uneven. Entries tagged
+[FT] were copied from raw source. Entries tagged [ID] have numbers a
+summarizer produced from a web page, and nobody has read the paper. On
+2026-08-15 I re-pulled the five [ID] entries the litreview depends on and two
+of the five carried a wrong number, so treat the remaining 11 as roughly 2-in-5
+wrong until each is checked against raw text. Do not promote an [ID] number
+into SKILL.md or refs/ without re-pulling the paper first.
+
 ## "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena" — Zheng et al. (LMSYS), NeurIPS 2023 — https://arxiv.org/pdf/2306.05685
 
 The canonical paper naming the bias taxonomy:
