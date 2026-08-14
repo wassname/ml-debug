@@ -332,7 +332,7 @@ Their training-stability page adds the masking check ("inspect tokenized samples
 Open the relevant one when the task calls for it. These are synthesized checklists and menus, useful for widening a hypothesis search but not authoritative for your particular system:
 
 - [PLAYBOOK.md](PLAYBOOK.md) — the long-form version: mental models and practitioner priors, the general step catalog (component isolation, baseline ladder, what to log, numerical hygiene), symptom tables, the agent debugging loop, triage, and anti-patterns.
-- [refs/checklist.md](refs/checklist.md) — Lones's full 36-item do/don't checklist across data, building, evaluation, comparison, and reporting.
+- [refs/checklist.md](refs/checklist.md) — Lones's full 36-item do/don't checklist across data, building, evaluation, comparison, and reporting, plus wassname's extra checks from the 37-reasons thread (sample size from a cumulative-mean plot, dummy metrics, jumpy validation loss, activation swaps, loss-curve shapes).
 - [refs/diagnostics.md](refs/diagnostics.md) — copy-paste diagnostic snippets: init-loss check, overfit-one-batch, gradient-flow check, NaN hooks, NaN-poisoning leakage tracer, backprop-to-input dependency check, class-imbalance check.
 - [refs/static_analysis.md](refs/static_analysis.md) — grep patterns for silent bugs (shape mismatches, autograd breakers, double softmax, step ordering, leakage).
 - [refs/loss_surface.md](refs/loss_surface.md) — visualize a loss surface and its gradient field with synthetic tensors, no model or GPU, for when a custom loss misbehaves.

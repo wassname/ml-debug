@@ -5,7 +5,7 @@ Fetch-status: all 22 comments, verbatim. Nesting is flattened; scores not captur
 
 # [P] 37 Reasons why your NN is not working
 
-Companion thread to [slavv_37_reasons_nn.md](slavv_37_reasons_nn.md). It matters because a commenter posted 13 extra checks here, the author replied "Do you mind if I add them to the article?", and the article never did add them: checking the 2025 archived copy, only the batch-size point overlaps. So this thread, not the article, is the source for those checks.
+Companion thread to [slavv_37_reasons_nn.md](slavv_37_reasons_nn.md). It matters because u/tinkerWithoutSink (wassname, this repo's author) posted 13 extra checks here, the author replied "Do you mind if I add them to the article?", and the article never did add them: checking the 2025 archived copy, only the batch-size point overlaps. So this thread, not the article, is the source for those checks.
 
 
 ## u/slavivanov

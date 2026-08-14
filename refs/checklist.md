@@ -62,3 +62,36 @@ Two especially common leak routes:
 > The best thing you can do to prevent these issues is to partition off a subset of your data right at the start of your project, and only use this independent test set once to measure the generality of a single model at the end.
 
 > Most notably, time series data are subject to a particular kind of data leakage known as look ahead bias.
+
+
+## Extra checks from the 37-reasons thread (wassname, 2017)
+
+Slav Ivanov's "37 Reasons why your Neural Network is not working" drew a reply from
+wassname (u/tinkerWithoutSink) with further checks. Ivanov asked "Do you mind if I add
+them to the article?" and never did, so this is the only place they live. Quoted from
+[the thread cache](../docs/evidence/reddit_37_reasons_nn_6pfsyk.md); the numbers refer
+to items in the original article.
+
+> - I. Sample size: you can work out the minimum sample size by graphing the cumulative mean or std and seeing when it stabilized. It it converges on 256, then that's probably a good batch (not sure about this and batches). And the minimum size for your training data.
+> - 8. Loss for unbalanced data. I'll add that when you can't balance the dataset KLD and Dice loss help to get convergence on unbalanced data
+> - 11. Small batches. You don't want batches that are too small either right (serious question)? I figure that if they are a decent sample of your data then that will help, but I'm not sure
+> - 12. How much data augmentation is too much, I use simple hypterparam optimization and a scikit learn model to test this. You can look at the standard deviation of a data feature and try not to exceed that for risk of drowning out signal with noise.
+> - III architecture mistakes
+>   - [have dropout *after* pooling](https://www.reddit.com/r/MachineLearning/comments/46b8dz/what_does_debugging_a_deep_net_look_like/d04qyqm/)
+> - 17. I Use dummy metrics too, http://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyClassifier.html
+> - 21.
+>   - If your validation loss is jumping around, then your validation set is too small
+>   - If your validation accuracy is higher than you training accuracy... actually this one has me stumped?
+> - 22. Test frameworks. Too many DL and RL frameworks are broken, so it might be worth testing frameworks too
+> - 33. You didn't mentioned different activations.
+>   - I've noticed that if your loss if fluctuating up and down try using Elu instead of ReLU. This is because ReLU masks half the data, and so the model might be flipping between masking one of two modes
+>   - sigmoidal (sigmoid, tanh) activation units, which can saturate/have regions of near flat curvature and thus very little gradient gets propagated backwards, so learning is incredibly slow if not completely halted [src](http://stats.stackexchange.com/questions/163600/pre-training-in-deep-convolutional-neural-network)
+>   - you can always try linear activations as a sanity check
+>   - loss curves. This has been done but you might want to think about diagnosing differen't loss curves e.g.
+>     - 1) a sharp drop in loss at the start (bad init?)
+>     - 2) fluctuating loss (bad activation?)
+>     - 3) increasing loss (high learning rate?)
+
+The validation-accuracy question was answered in the same thread: it happens when
+regularizers, dropout and batch norm are active in training and switched off at
+evaluation, so the training number is measured on a handicapped model.
