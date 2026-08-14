@@ -16,9 +16,9 @@ epistemic context: outsider-run public benchmark with a reproducible swapped-ord
 ## "Judging the Judges: A Systematic Study of Position Bias in LLM-as-a-Judge" — Shi et al. (Dartmouth), IJCNLP-AACL 2025 — [arXiv:2406.07791](https://arxiv.org/abs/2406.07791)
 - page date: arXiv June 2024; IJCNLP-AACL 2025
 
-> Our findings confirm that position bias is not due to random chance and varies significantly across judges and tasks. **While position bias is weakly influenced by the length of prompt components, it is strongly affected by the quality gap between solutions.** Our agreement and disagreement analysis among judges further provides insights into the distribution of judging difficulty across the dataset, and highlights the potential for dataset modifications.
+> The findings confirm that position bias is not due to random chance and varies significantly across judges and tasks. **While position bias is weakly influenced by the length of prompt components, it is strongly affected by the quality gap between solutions.** Our agreement and disagreement analysis among judges further provides insights into the distribution of judging difficulty across the dataset, and highlights the potential for dataset modifications.
 
-epistemic context: peer-reviewed; largest-scale dedicated position-bias study (over 150,000 evaluation instances, 15 judges, 22 tasks); "quality gap" here means the closer the two answers in quality, the more the judge flips on order.
+epistemic context: peer-reviewed; largest-scale dedicated position-bias study (over 150,000 evaluation instances, 15 judges, 22 tasks); "quality gap" here means the closer the two answers in quality, the more the judge flips on order. The abstract's counts moved across versions (v1-v3: 9 judges / 80,000 instances), and Section 3.1 of the current version still says "more than 100,000", contradicting its own abstract. Best judges in Table 2 reach position consistency 0.82, so ~18% of pairs flip on order even at the top.
 
 ## "RLAIF vs. RLHF" — Lee et al. (Google), ICML 2024 — [arXiv:2309.00267](https://arxiv.org/abs/2309.00267)
 - page date: arXiv Sept 2023; ICML 2024
@@ -41,9 +41,9 @@ epistemic context: peer-reviewed; the DBG (Difference-based Bias Gauge) score ne
 ## "JudgeLRM: Large Reasoning Models as a Judge" — Chen et al., 2025 — [arXiv:2504.00050](https://arxiv.org/abs/2504.00050)
 - page date: arXiv April 2025
 
-> JudgeLRM, a family of judgment-oriented LLMs, trained using reinforcement learning (RL) with judge-wise, outcome-driven rewards to activate reasoning capabilities. **JudgeLRM consistently outperform SFT-tuned baselines in the same size, as well as other RL and SFT variants, and even surpass state-of-the-art reasoning models:** notably, JudgeLRM-3B/4B exceeds GPT-4, while JudgeLRM-7B/8B outperforms DeepSeek-R1.
+> Empirical results demonstrate that JudgeLRM not only surpasses proprietary models like GPT-4 and DeepSeek-R1 but also outperforms SFT and RL baselines of comparable sizes, **with an average improvement of 8.14% in F1 score over SFT counterparts.**
 
-epistemic context: single-group result, not independently replicated; the abstract's headline "+8.14% F1 over same-size SFT" figure is in the body (not re-verified verbatim here). Complementary finding from Huang et al. (arXiv:2601.03630): reasoning judges win on accuracy "particularly on reasoning-intensive tasks" but "still exhibit strong evaluation biases".
+epistemic context: quoted from Section 1 (Introduction), v3; the 8.14% figure is not in any abstract version. Single-group result, not independently replicated. Table 3 backs the PandaLM claim: JudgeLRM-3B F1 72.12 vs GPT-4 61.80 on human ground truth, out of distribution. The abstract's own wording is "JudgeLRM-3B/4B exceeds GPT-4, while JudgeLRM-7B/8B/14B outperforms DeepSeek-R1 by over 2% in F1 score, with particularly strong gains on reasoning-heavy tasks", and it too has changed across versions (v1/v2 said 2.79%). Complementary finding from Huang et al. (arXiv:2601.03630): reasoning judges win on accuracy "particularly on reasoning-intensive tasks" but "still exhibit strong evaluation biases".
 
 ## Overthinking: the reasoning-token budget is non-monotonic
 
@@ -71,9 +71,11 @@ epistemic context: config lines quoted verbatim (not prose, so no surrounding se
 ## "Self-Consistency Is Losing Its Edge: Diminishing Returns and Rising Costs in Modern LLMs" — Loo, 2025 — [arXiv:2511.00751](https://arxiv.org/abs/2511.00751)
 - page date: arXiv Oct 2025 (v2 May 2026)
 
-> Self-consistency was designed for an era when base models frequently made reasoning errors; this technique has become an expensive habit mismatched to current model capabilities. **Results confirm that accuracy gains plateau early and, in some configurations, decline at high sample counts** — a pattern inconsistent with diminishing returns alone and more consistent with noise introduction on problems that were already solved. This suggests self-consistency should be reserved for genuinely difficult problems rather than applied as a default scaling strategy.
+> **Results confirm that accuracy gains plateau early and, in some configurations, decline at high sample counts** — a pattern inconsistent with diminishing returns alone and more consistent with noise introduction on problems that were already solved. This suggests self-consistency should be reserved for genuinely difficult problems rather than applied as a default scaling strategy.
 
-epistemic context: single-author preprint (low citation signal, flagged); its reported plateau is N~10-15 on strong 2026 models (Gemini 2.5), down from the ~40 of the original PaLM-540B-era self-consistency paper (Wang et al., arXiv:2203.11171). Sets a sane ceiling for a repeat-variance check: 4-10 passes is plenty, past ~15 buys nothing.
+> On MATH-500, Flash-Lite accuracy improved through approximately 10 sampled paths before plateauing and then declining slightly beyond 15, as shown in Figure 2. **This decline is notable: it suggests that once a model reliably solves most problems, additional samples introduce occasional wrong reasoning paths that the aggregator cannot fully suppress.**
+
+epistemic context: single-author preprint (low citation signal, flagged), and the author states AI tools assisted the drafting. Both quotes are from Section 1 and Section 4 of the raw PDF. The plateau is N~10-15 for Gemini-2.5-Flash-Lite on MATH-500, down from the ~40 of the original PaLM-540B-era self-consistency paper (Wang et al., arXiv:2203.11171); Gemini-2.5-Pro was only run to N=15 and did not decline. Sample sizes are small (Section 6: 250 rows for Flash-Lite). Sets a sane ceiling for a repeat-variance check: 4-10 passes is plenty, past ~15 buys nothing.
 
 ## Context rot: long inputs and rubrics degrade judging
 
@@ -82,14 +84,14 @@ epistemic context: single-author preprint (low citation signal, flagged); its re
 
 > While they perform well in short contexts (<1K), performance degrades significantly as context length increases. **At 32K, for instance, 11 models drop below 50% of their strong short-length baselines.** Even GPT-4o, one of the top-performing exceptions, experiences a reduction from an almost-perfect baseline of 99.3% to 69.7%.
 
-epistemic context: peer-reviewed; removes literal lexical overlap so the test measures latent-association retrieval, the closest analog to a judge matching a rubric to a semantically-distant answer. The paper defines "effective length as the maximum length at which the score remains above a threshold, set at 85% of the model's base score" -- most models fall below it by 8-16K tokens.
+epistemic context: peer-reviewed; removes literal lexical overlap so the test measures latent-association retrieval, the closest analog to a judge matching a rubric to a semantically-distant answer. The paper defines "effective length as the maximum length at which the score remains above a threshold, set at 85% of the model's base score" (Table 3). Effective lengths are shorter than they sound: 1-4K tokens for most of the 13 models (median 2K), 8K for GPT-4o, and 16K for GPT-4.1 in the extended Table 10.
 
 ## "Lost in the Middle: How Language Models Use Long Contexts" — Liu et al., TACL 2024 — [arXiv:2307.03172](https://arxiv.org/abs/2307.03172)
 - page date: arXiv July 2023; TACL 2024
 
 > We find that performance can degrade significantly when changing the position of relevant information, indicating that current language models do not robustly make use of information in long input contexts. **In particular, we observe that performance is often highest when relevant information occurs at the beginning or end of the input context, and significantly degrades when models must access relevant information in the middle of long contexts, even for explicitly long-context models.** Our analysis provides a better understanding of how language models use their input context and provides new evaluation protocols for future long-context language models.
 
-epistemic context: peer-reviewed; the origin of the U-shaped/middle-penalty result, replicated across 6 model families. Operational read for judging: put the rubric and the answer-under-test at the start or end of the prompt, never buried mid-way through a long reference block.
+epistemic context: peer-reviewed; the origin of the U-shaped/middle-penalty result, across 6 model families (MPT, LongChat, GPT-3.5, Claude, GPT-4, Llama-2; the last two are appendix-only subsets). Size of the effect, Section 2.3: "GPT-3.5-Turbo's multi-document QA performance can drop by more than 20% -- in the worst case, performance in 20- and 30-document settings is lower than performance without any input documents (i.e., closed-book performance; 56.1%)". Operational read for judging: put the rubric and the answer-under-test at the start or end of the prompt, never buried mid-way through a long reference block.
 
 ## Machine-accessible judge benchmarks
 

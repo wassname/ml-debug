@@ -216,7 +216,7 @@ Independent, outsider-run, continuously-updated public harness (strong trust). M
 
 Rule of thumb: even in 2026, judges flip ~43% of decisive verdicts on order swap alone; the worst flip >70%. Direction is not universal (Mistral Large 3 goes second-position). Always judge both orders. (Note: an earlier subagent draft misattributed 27.4% to Claude Opus; the raw table puts 27.4% first-shown pick on Mistral Large 3, so I dropped the per-model attributions except the verified worst-case.)
 
-## "Judging the Judges: A Systematic Study of Position Bias in LLM-as-a-Judge" — Shi et al. (Dartmouth), IJCNLP-AACL 2025 — https://arxiv.org/abs/2406.07791 — [ID]
+## "Judging the Judges: A Systematic Study of Position Bias in LLM-as-a-Judge" — Shi et al. (Dartmouth), IJCNLP-AACL 2025 — https://arxiv.org/abs/2406.07791 — [FT]
 Most-cited dedicated position-bias study, largest scale (150k+ instances, 15 judges, 22 tasks).
 
 > Our experiments, involving 15 LLM judges across MTBench and DevBench with 22 tasks and approximately 40 solution-generating models, result in over 150,000 evaluation instances.
@@ -262,8 +262,8 @@ Tension to flag: this paper says CoT roughly halves self-preference; 2506.02592 
 
 ## Reasoning judges: accuracy up, superficial bias not fixed
 
-## "JudgeLRM: Large Reasoning Models as a Judge" — Chen et al., 2025 — https://arxiv.org/abs/2504.00050 — [ID]
-RL-trained reasoning judge. Title confirmed; F1 numbers via subagent WebFetch.
+## "JudgeLRM: Large Reasoning Models as a Judge" — Chen et al., 2025 — https://arxiv.org/abs/2504.00050 — [FT]
+RL-trained reasoning judge. Full text re-pulled from raw PDF 2026-08-14; F1 numbers confirmed.
 
 > JudgeLRM achieves an average improvement of 8.14% in F1 score [vs same-size SFT judges]
 
@@ -323,8 +323,8 @@ Foundational (several-thousand citations), PaLM-540B era.
 
 Widely-reproduced pattern: gain is monotonic in N with diminishing returns; bulk arrives by N=5-10, saturates ~N=40 for that era's models.
 
-## "Self-Consistency Is Losing Its Edge: Diminishing Returns and Rising Costs in Modern LLMs" — Loo, 2025 — https://arxiv.org/abs/2511.00751 — [ID]
-Single-author preprint (low citation signal, flagged), but directly answers "how has N moved." Numbers via subagent WebFetch.
+## "Self-Consistency Is Losing Its Edge: Diminishing Returns and Rising Costs in Modern LLMs" — Loo, 2025 — https://arxiv.org/abs/2511.00751 — [FT]
+Single-author preprint (low citation signal, flagged; author states AI tools assisted drafting), but directly answers "how has N moved." Full text re-pulled from raw PDF 2026-08-14.
 
 > [MATH-500, Gemini-2.5-Flash-Lite] accuracy improved through approximately 10 sampled paths before plateauing... declining slightly beyond 15
 
@@ -352,18 +352,18 @@ Industry report (not peer-reviewed), 18-model controlled study. Numbers via suba
 
 Rule of thumb: degradation is continuous and starts well before the window fills; a 1M-token window does not reliably reason over 1M tokens. Accuracy is highest when the key info sits near the START of the sequence.
 
-## "NoLiMa: Long-Context Evaluation Beyond Literal Matching" — Modarressi et al., ICML 2025 — https://arxiv.org/abs/2502.05167 — [ID]
-Repo: https://github.com/adobe-research/NoLiMa . Removes literal lexical overlap, so it measures latent-association retrieval (closest analog to a judge matching a rubric to a semantically-distant answer). Numbers via subagent WebFetch.
+## "NoLiMa: Long-Context Evaluation Beyond Literal Matching" — Modarressi et al., ICML 2025 — https://arxiv.org/abs/2502.05167 — [FT]
+Repo: https://github.com/adobe-research/NoLiMa . Removes literal lexical overlap, so it measures latent-association retrieval (closest analog to a judge matching a rubric to a semantically-distant answer). Full text re-pulled from raw PDF 2026-08-14.
 
 > The effective length is defined as the longest context where a model maintains at least 85% of its base score.
 
-> At 32K, for instance, 10 models drop below 50% of their strong short-length baselines.
+> At 32K, for instance, 11 models drop below 50% of their strong short-length baselines.
 
 > GPT-4o: ... a reduction from an almost-perfect baseline of 99.3% to 69.7% [at 32K]
 
-Rule of thumb: once literal cues are gone, even top models fall below their 85%-effective-length by ~8-16K tokens; by 32K most are below half their short-context score.
+Rule of thumb: once literal cues are gone, most models fall below their 85% effective length by 1-4K tokens (median 2K, Table 3); only GPT-4o reaches 8K and GPT-4.1 16K. By 32K, 11 of 13 are below half their short-context score.
 
-## "Lost in the Middle" — Liu et al., TACL 2024 — https://arxiv.org/abs/2307.03172 — [ID]
+## "Lost in the Middle" — Liu et al., TACL 2024 — https://arxiv.org/abs/2307.03172 — [FT]
 Origin of the U-shaped/middle-penalty result, replicated across 6 model families.
 
 > performance is often highest when relevant information occurs at the beginning or end of the input context, and significantly degrades when models must access relevant information in the middle of long contexts, even for explicitly long-context models.
@@ -394,5 +394,6 @@ URL provenance: subagent reported all resolve via WebFetch; I have NOT independe
 ## Honesty flags for this batch
 - [FT] entries (Lech Mazur 43%, self-preference DBG 41.7/2.1, RLAIF position-bias direction + averaging mitigation, CAIS/litellm budgets) are copied from raw source I fetched this turn.
 - [ID] entries: arXiv id + title confirmed real and on-topic this turn, but the specific in-body number was pulled by a research subagent through WebFetch's summarizer, not from raw PDF. Re-pull before quoting a figure as exact.
+- 2026-08-14 (CLAUDE agent): the five papers the litreview quotes (2406.07791, 2504.00050, 2511.00751, 2502.05167, 2307.03172) were re-pulled from raw PDF and moved [ID] -> [FT]. Two numbers here were wrong and are now fixed: NoLiMa effective length was "~8-16K", actually 1-4K for most models, and "10 models drop below 50%" at 32K was 11. Everything else in those five entries held up.
 - Discarded as hallucinated by subagents: arXiv IDs with impossible month codes (e.g. 2602.08028, 2606.13603 from search autocomplete); not included.
 - Contested / do-not-state-as-settled: whether reasoning fixes self-preference (2504.03846 says CoT halves HSPP; 2506.02592 says LRMs "not necessarily less" on DBG). Different metrics.
