@@ -23,8 +23,8 @@ wording; this one only carries the source graph. (CLAUDE agent, 2026-08-15)
 
 Spinning Up intro references, with local status:
 - Alex Irpan, Deep Reinforcement Learning Doesn't Work Yet: https://www.alexirpan.com/2018/02/14/rl-hard.html. Local cache: docs/evidence/alexirpan_rl_hard.md.
-- Islam et al., Reproducibility of Benchmarked Deep Reinforcement Learning Tasks for Continuous Control: https://arxiv.org/abs/1708.04133. Not separately cached; discussed/cited inside Henderson local cache.
-- Henderson et al., Deep Reinforcement Learning that Matters: https://arxiv.org/abs/1709.06560. Local cache: docs/evidence/henderson_2018_deep_rl_matters.md.
+- Islam et al., Reproducibility of Benchmarked Deep Reinforcement Learning Tasks for Continuous Control: https://arxiv.org/pdf/1708.04133. Not separately cached; discussed/cited inside Henderson local cache.
+- Henderson et al., Deep Reinforcement Learning that Matters: https://arxiv.org/pdf/1709.06560. Local cache: docs/evidence/henderson_2018_deep_rl_matters.md.
 - Matthew Rahtz, Lessons Learned Reproducing a Deep RL Paper: http://amid.fish/reproducing-deep-rl. Local cache: docs/evidence/amid_fish_reproducing_deep_rl.md.
 - David Silver UCL RL course: http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html. Not cached.
 - Berkeley Deep RL course: http://rll.berkeley.edu/deeprlcourse/. Not cached.
