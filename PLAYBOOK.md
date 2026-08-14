@@ -214,14 +214,14 @@ Look these up when the symptom calls for them; they're kept out of the main flow
 
 Folklore sources (the quotes above trace to these):
 
-[^jones]: Andy Jones, "Debugging RL, Without the Agonizing Pain" — https://andyljones.com/posts/rl-debugging.html ([cache](docs/evidence/andyljones_rl_debugging.md): anomalies L103-109, write-from-scratch L155, assume-bug L176-180, raise-threshold L182, loss-curve L186-188)
-[^rahtz]: Matthew Rahtz (Amid Fish), "Lessons Learned Reproducing a Deep RL Paper" — http://amid.fish/reproducing-deep-rl ([cache](docs/evidence/amid_fish_reproducing_deep_rl.md): frame-diff confusion L85-87, investigate-confusion L100-102, think-more L145-153, don't-implement-RL-yourself L497-501)
-[^schulman]: John Schulman, "Nuts and Bolts of Deep RL Research" slides — http://joschu.net/docs/nuts-and-bolts.pdf ([cache](docs/evidence/joschu_nuts_and_bolts.md): Always-Be-Ablating L71-75, standardize-observations L84-88; clean slide transcript)
-[^henderson]: Henderson et al., "Deep Reinforcement Learning that Matters" (AAAI 2018) — https://arxiv.org/pdf/1709.06560 ([cache](docs/evidence/henderson_2018_deep_rl_matters.md): seeds-create-different-distributions L235, implementation-differences L251)
-[^cs231n]: Stanford CS231n, "Neural Networks Part 3" — https://cs231n.github.io/neural-networks-3/ ([cache](docs/evidence/cs231n_neural_networks_3.md): overfit-tiny-subset L89)
-[^slavv]: Slav Ivanov, "37 Reasons why your Neural Network is not working" (2017) — https://blog.slavv.com/37-reasons-why-your-neural-network-is-not-working-4020854bd607 ([cache](docs/evidence/slavv_37_reasons_nn.md): opening anecdote L19, emergency checklist L45-51)
+[^jones]: Andy Jones, "Debugging RL, Without the Agonizing Pain" — https://andyljones.com/posts/rl-debugging.html ([cache](docs/evidence/andyljones_rl_debugging.md): anomalies, write-from-scratch, assume-bug, raise-threshold, loss-curve)
+[^rahtz]: Matthew Rahtz (Amid Fish), "Lessons Learned Reproducing a Deep RL Paper" — http://amid.fish/reproducing-deep-rl ([cache](docs/evidence/amid_fish_reproducing_deep_rl.md): frame-diff confusion, investigate-confusion, think-more, don't-implement-RL-yourself)
+[^schulman]: John Schulman, "Nuts and Bolts of Deep RL Research" slides — http://joschu.net/docs/nuts-and-bolts.pdf ([cache](docs/evidence/joschu_nuts_and_bolts.md): Always-Be-Ablating, standardize-observations; clean slide transcript)
+[^henderson]: Henderson et al., "Deep Reinforcement Learning that Matters" (AAAI 2018) — https://arxiv.org/pdf/1709.06560 ([cache](docs/evidence/henderson_2018_deep_rl_matters.md): seeds-create-different-distributions, implementation-differences)
+[^cs231n]: Stanford CS231n, "Neural Networks Part 3" — https://cs231n.github.io/neural-networks-3/ ([cache](docs/evidence/cs231n_neural_networks_3.md): overfit-tiny-subset)
+[^slavv]: Slav Ivanov, "37 Reasons why your Neural Network is not working" (2017) — https://blog.slavv.com/37-reasons-why-your-neural-network-is-not-working-4020854bd607 ([cache](docs/evidence/slavv_37_reasons_nn.md): opening anecdote, emergency checklist)
 [^fsdl]: Josh Tobin, Full Stack Deep Learning Spring 2021, Lecture 7 "Troubleshooting DNNs" — https://fullstackdeeplearning.com/spring2021/lecture-7/ ([cache](docs/evidence/fsdl_spring2021_lecture7.md))
-[^goodfellow]: Goodfellow, Bengio, Courville, *Deep Learning*, ch. 11 "Practical Methodology" — https://www.deeplearningbook.org/ ([cache](docs/evidence/goodfellow_ch11_practical_methodology.md): one-part-broken-others-adapt L198, weights-adapt-to-compensate L204)
+[^goodfellow]: Goodfellow, Bengio, Courville, *Deep Learning*, ch. 11 "Practical Methodology" — https://www.deeplearningbook.org/ ([cache](docs/evidence/goodfellow_ch11_practical_methodology.md): one-part-broken-others-adapt, weights-adapt-to-compensate)
 [^cs229]: Andrew Ng, CS229 "Advice for Applying Machine Learning" — https://cs229.stanford.edu/ ([cache](docs/evidence/cs229_ml_advice.md))
 [^jaxtyping]: Patrick Kidger, jaxtyping (runtime shape/dtype checking) — https://github.com/patrick-kidger/jaxtyping
 
