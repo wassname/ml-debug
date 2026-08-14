@@ -26,7 +26,7 @@ Unsloth also says to test both hypotheses: an unnecessary start-of-sequence toke
 
 Axolotl's SFT stability guide says the learning rate should follow the expected "warmup then decay" schedule, and lists insufficient warmup as a cause of early loss plateaus.[^axolotl-stability] Treat warmup as a strong transformer recipe prior: verify that the LR actually ramps up before the stable/high-LR phase, and that scheduler steps are counted in optimizer steps, not raw microbatches.
 
-> Fine-tuned d12 hyperparameters actively hurt d20 performance.[^nanochat]
+> Hyperparameters are scale-dependent. What works at d12 doesn't transfer to d20. The elaborate fine-tuning that won at d12 actively hurts at d20.[^nanochat]
 
 Smith and Topin's Super-Convergence paper gives the key empirical support: neural nets trained with "one learning rate cycle and a large maximum learning rate" can train an order of magnitude faster on the workloads they tested.[^super-convergence] Treat this as strong evidence for trying OneCycle, not a universal proof that it is best for every transformer run.
 
@@ -48,9 +48,9 @@ The disclosed training reports mostly reinforce this boring answer. DeepSeek-V3,
 
 ## Better numbers can mean worse learning
 
-> The 'lower validation loss' from BOS-alignment is misleading—it's just fewer noisy tokens, not better learning.[^nanochat]
+> Do note that switching to the BOS dataloader changes the validation loss and makes all previous experiments not comparable in absolute value of the loss, because we have a lot fewer "confusing" tokens in the train/val batches. [...] Therefore, the loss appears lower but this is "fake" to some extent.[^nanochat]
 
-> Improvements must show gains across multiple axes: per-step efficiency (loss vs. step), wall-clock efficiency (loss vs. time), and compute efficiency (loss vs. FLOPs).[^nanochat]
+> Other experiments, looking at val/bpb as a function of all of steps, flops and wall clock time [...] on all axes (steps, wall clock time, flops), this somewhat parameter-bloated architecture beats the baseline and will now become the default.[^nanochat]
 
 Inspect the best run's traces. It may have won by learning a shortcut, formatting artifact, or easier token distribution rather than the intended task.
 
@@ -69,7 +69,7 @@ Practitioner reports point the same way: wassname tried DPO in three experiments
 
 ## Distributed and numerical failures
 
-> If any rank's gradient contains inf, all ranks must clip to avoid divergence.[^nanochat]
+> Original implementation clipped local gradients before sync. Since this codebase doesn't use DDP (gradient sync is in the optimizers), each rank was clipping based on its own local norm.[^nanochat]
 
 > As you can see it's the previous frames that we need to look into when the numbers start going into very large for fp16 numbers.[^bekman]
 
@@ -122,7 +122,7 @@ For experiment design, keep the [Google Deep Learning Tuning Playbook](https://d
 [^goyal]: Goyal et al., ["Accurate, Large Minibatch SGD"](https://arxiv.org/pdf/1706.02677)
 [^super-convergence]: Smith and Topin, ["Super-Convergence: Very Fast Training of Neural Networks Using Large Learning Rates"](https://arxiv.org/pdf/1708.07120)
 [^wsd]: Wen et al., ["Understanding Warmup-Stable-Decay Learning Rates: A River Valley Loss Landscape Perspective"](https://arxiv.org/pdf/2410.05192)
-[^nanochat]: Karpathy, [nanochat experiment log](https://github.com/karpathy/nanochat/blob/main/dev/LOG.md) ([cache](../docs/evidence/nanochat_deepwiki_llm_pretraining_2026.md))
+[^nanochat]: Karpathy, [nanochat experiment log](https://github.com/karpathy/nanochat/blob/master/dev/LOG.md) ([cache](../docs/evidence/karpathy_nanochat_experiments.md))
 [^karpathy-recipe]: Karpathy, ["A Recipe for Training Neural Networks"](https://karpathy.github.io/2019/04/25/recipe/) ([cache](../docs/evidence/karpathy_recipe_training_nn_2019.md))
 [^nanochat-optimizer]: Karpathy, [`nanochat`](https://github.com/karpathy/nanochat) (`optim.py`: AdamW + Muon)
 [^optimizer-benchmark]: Wen et al., ["Fantastic Pretraining Optimizers and Where to Find Them"](https://arxiv.org/pdf/2509.02046) (ICLR 2026)

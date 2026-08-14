@@ -225,6 +225,6 @@ Folklore sources (the quotes above trace to these):
 [^cs229]: Andrew Ng, CS229 "Advice for Applying Machine Learning" — https://cs229.stanford.edu/ ([cache](docs/evidence/cs229_ml_advice.md))
 [^jaxtyping]: Patrick Kidger, jaxtyping (runtime shape/dtype checking) — https://github.com/patrick-kidger/jaxtyping
 
-For modern transformer pretraining specifically (the sources above predate it), see [Karpathy's recipe](https://karpathy.github.io/2019/04/25/recipe/) and the [nanochat deepwiki](https://deepwiki.com/karpathy/nanochat) (320+ empirical HP sweeps for a GPT-2-scale run). Most multi-source claims trace to quotes in [docs/ml_debug_folklore.argdown](docs/ml_debug_folklore.argdown) (vargdown); the full evidence set is in [docs/evidence/](docs/evidence/).
+For modern transformer pretraining specifically (the sources above predate it), see [Karpathy's recipe](https://karpathy.github.io/2019/04/25/recipe/) and the [nanochat experiment log](https://github.com/karpathy/nanochat/blob/master/dev/LOG.md) (320+ empirical HP sweeps for a GPT-2-scale run). Most multi-source claims trace to quotes in [docs/ml_debug_folklore.argdown](docs/ml_debug_folklore.argdown) (vargdown); the full evidence set is in [docs/evidence/](docs/evidence/).
 
 Curated by [wassname](https://github.com/wassname).

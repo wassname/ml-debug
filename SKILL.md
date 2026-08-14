@@ -271,9 +271,11 @@ Scaled-up recipes accumulate these one-line stability fixes in code long before 
 
 Karpathy's nanochat is one of the few public records of what scaling a transformer from scratch actually takes. Two gotchas:
 
-> The 'lower validation loss' from BOS-alignment is misleading—it's just fewer noisy tokens, not better learning.[^nanochat]
+> Do note that switching to the BOS dataloader changes the validation loss and makes all previous experiments not comparable in absolute value of the loss, because we have a lot fewer "confusing" tokens in the train/val batches. [...] Therefore, the loss appears lower but this is "fake" to some extent.[^nanochat]
 
-> If any rank's gradient contains inf, all ranks must clip to avoid divergence.[^nanochat]
+> Original implementation clipped local gradients before sync. Since this codebase doesn't use DDP (gradient sync is in the optimizers), each rank was clipping based on its own local norm.[^nanochat]
+
+He then removed clipping altogether: "Grad norm never exceeds 1.0 naturally, so clipping is always inactive", and it cost ~2% in time from the all-reduce.[^nanochat]
 
 ### When NaN hits, look at the frames before it (Stas Bekman)
 
@@ -369,7 +371,7 @@ Folklore sources (the quotes above trace to these):
 [^goyal]: Goyal et al., "Accurate, Large Minibatch SGD" (2017) — https://arxiv.org/pdf/1706.02677
 [^lucidrains]: Phil Wang (lucidrains), x-transformers README — https://github.com/lucidrains/x-transformers ([cache](docs/evidence/lucidrains_x_transformers_readme.md): post-embedding LayerNorm / BLOOM+YaLM L366, attention-overflow / cosine-sim norm L1230, autoregressive validation L1234, "wiping out a source of instability" / QK RMSNorm L1292)
 [^koaning]: Vincent D. Warmerdam (koaning), "Bad Labels" (2021) — https://koaning.io/posts/labels/ ([cache](docs/evidence/koaning_bad_labels.md): bad-labels-huge-problem L13, confidence-sort trick L21, spend-less-time-tuning L33)
-[^nanochat]: nanochat (Karpathy), documented via DeepWiki — https://deepwiki.com/karpathy/nanochat ([cache](docs/evidence/nanochat_deepwiki_llm_pretraining_2026.md): BOS fake-improvement L97, all-ranks-clip-on-inf L131)
+[^nanochat]: Karpathy, [nanochat experiment log](https://github.com/karpathy/nanochat/blob/master/dev/LOG.md) ([cache](docs/evidence/karpathy_nanochat_experiments.md))
 [^kidger]: Patrick Kidger, "Just Know Stuff" (2023) — https://kidger.site/thoughts/just-know-stuff/ ([cache](docs/evidence/kidger_just_know_stuff.md): kludge-definition L7, junior-developer L9, never-accept-the-kludge L11, don't-delete-and-clone L13)
 [^gwern]: Gwern Branwen, "The Neural Net Tank Legend" — https://gwern.net/tank ([cache](docs/evidence/gwern_tank.md): cautionary tale L7, urban-legend conclusion L9)
 [^spinningup]: Joshua Achiam, "Spinning Up as a Deep RL Researcher" (OpenAI, 2018) — https://spinningup.openai.com/en/latest/spinningup/spinningup.html ([cache](docs/evidence/spinningup_researcher.md): fails-silently L11, test-more-than-one-env L19, measure-everything L21)
@@ -388,6 +390,6 @@ Folklore sources (the quotes above trace to these):
 [^bekman-book]: Stas Bekman, *Machine Learning Engineering Open Book*, "Understanding Training Loss Patterns" + "Instabilities" — https://github.com/stas00/ml-engineering ([cache](docs/evidence/bekman_ml_engineering_instabilities.md): heartbeat L10, 104B post-mortem L18, spike types + bad-data-pocket L22-24, init-std L28-32, PaLM batch-skipping L36, logbooks L40)
 [^lones]: Michael A. Lones, "How to avoid machine learning pitfalls" (2021, updated annually) — https://arxiv.org/pdf/2108.02497 ([cache](docs/evidence/lones_2021_ml_pitfalls.md): full do/don't TOC L18-22, leakage L26, look-ahead bias L30). Aimed at beginners but the most exhaustive checklist here: 36 do/don'ts across data prep, training, evaluation, comparison, and reporting.
 
-For modern transformer pretraining specifically (most sources above predate it), see [Karpathy's recipe](https://karpathy.github.io/2019/04/25/recipe/) and the [nanochat deepwiki](https://deepwiki.com/karpathy/nanochat) (320+ empirical HP sweeps for a GPT-2-scale run). For LLM-as-judge eval debugging workflow more broadly, Hamel Husain's ["Your AI Product Needs Evals"](https://hamel.dev/blog/posts/evals/) covers the error-analysis-first approach for LLM products. Most multi-source claims trace to quotes in [docs/ml_debug_folklore.argdown](docs/ml_debug_folklore.argdown) (vargdown); the full evidence set is in [docs/evidence/](docs/evidence/).
+For modern transformer pretraining specifically (most sources above predate it), see [Karpathy's recipe](https://karpathy.github.io/2019/04/25/recipe/) and the [nanochat experiment log](https://github.com/karpathy/nanochat/blob/master/dev/LOG.md) (320+ empirical HP sweeps for a GPT-2-scale run). For LLM-as-judge eval debugging workflow more broadly, Hamel Husain's ["Your AI Product Needs Evals"](https://hamel.dev/blog/posts/evals/) covers the error-analysis-first approach for LLM products. Most multi-source claims trace to quotes in [docs/ml_debug_folklore.argdown](docs/ml_debug_folklore.argdown) (vargdown); the full evidence set is in [docs/evidence/](docs/evidence/).
 
 Curated by [wassname](https://github.com/wassname).
