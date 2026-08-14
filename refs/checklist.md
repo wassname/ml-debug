@@ -2,7 +2,7 @@
 
 Appendix to the [ML Debugging skill](../SKILL.md).
 
-This is the full do/don't list from Michael A. Lones, ["How to avoid machine learning pitfalls: a guide for academic researchers"](https://arxiv.org/abs/2108.02497) (v5, updated annually). Read the paper for the reasoning and examples behind each item; the local evidence excerpt is [here](../docs/evidence/lones_2021_ml_pitfalls.md).
+This is the full do/don't list from Michael A. Lones, ["How to avoid machine learning pitfalls: a guide for academic researchers"](https://arxiv.org/pdf/2108.02497) (v5, updated annually). Read the paper for the reasoning and examples behind each item; the local evidence excerpt is [here](../docs/evidence/lones_2021_ml_pitfalls.md).
 
 > Mistakes in machine learning practice are commonplace, and can result in a loss of confidence in the findings and products of machine learning.
 

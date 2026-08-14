@@ -49,7 +49,7 @@ This also makes the input domain ~[0,1] naturally, which is what NeuralPDE.jl ex
 If you can't nondimensionalize cleanly (unknown material properties, mixed units), at minimum z-score each input/output channel so the network sees zero-mean unit-variance data.
 
 > Rathore et al. 2024: "the estimate of the κ grows polynomially with nres" -- but this is in raw units. Nondimensionalization reduces the effective condition number by making all PDE coefficients O(1).
-> Source: https://arxiv.org/abs/2402.01868, Section 8.2 (Theorem 8.4), empirical check in Appendix F.5
+> Source: https://arxiv.org/pdf/2402.01868, Section 8.2 (Theorem 8.4), empirical check in Appendix F.5
 
 ---
 
@@ -67,12 +67,12 @@ From NeuralPDE.jl tests/docs + Wang et al. 2021:
 
 **Modified MLP** (Wang et al. 2021, credence ~70%):
 > Wang et al. propose a modified MLP with multiplicative interactions. With `U = φ(XW1 + b1)`, `V = φ(XW2 + b2)` two nonlinear encodings of the input (φ = tanh) and a per-layer gate `Z(k) = φ(H(k)Wz,k + bz,k)` computed from the hidden state, the update is `H(k+1) = (1 - Z(k)) * U + Z(k) * V`. Authors claim a ~3x decrease in the leading Hessian eigenvalue.
-> Source: https://arxiv.org/abs/2001.04536, Section 2.6, equations 43-47
+> Source: https://arxiv.org/pdf/2001.04536, Section 2.6, equations 43-47
 > Evidence: on Helmholtz the architecture alone (M3) improves relative L2 error 3.4-8.7x over vanilla PINN (M1) across 9 width/depth settings (Table 2); with LR annealing (M4) it is 23-97x. On Klein-Gordon M3 is 9.1x, M4 is 64x (Table 3). The paper's headline "50-100x" is the combination, not the architecture. Only tested by the proposing authors; no independent replication found.
 
 **Random Weight Factorization (RWF)** (arXiv 2210.01274, credence ~60%):
 > Factorize each neuron's weight vector as w = s * w_unit, where s is a trainable scalar and w_unit is the unit-normalized direction. This changes the optimization geometry so the loss surface has better-conditioned local minima. "Predictions obtained by RWF are in excellent agreement with ground truth, while other weight parameterizations result in poor or non-physical approximations."
-> Source: https://arxiv.org/abs/2210.01274
+> Source: https://arxiv.org/pdf/2210.01274
 > Used in the PirateNet architecture alongside causal training, sequence-to-sequence, and Fourier features. Simple to implement as a custom parameterization on Linear layers.
 > Credence: plausible mechanism, but proposing-author result; check jaxpi repo for independent adoption.
 
@@ -107,7 +107,7 @@ The loss landscape of PINNs is ill-conditioned. First-order methods (Adam) conve
 ```
 
 > Rathore et al. 2024 (ICML, credence ~80%): "Adam+L-BFGS attains 14.2x smaller L2RE than Adam on convection and 6.07x smaller than L-BFGS on wave." Tested on 3 PDEs (convection, reaction, wave), 5 seeds, widths 50-400.
-> Source: https://arxiv.org/abs/2402.01868, Table 1
+> Source: https://arxiv.org/pdf/2402.01868, Table 1
 > Code: https://github.com/pratikrathore8/opt_for_pinns
 
 **Alternative from NeuralPDE.jl**: Stepwise LR decrease with warm-start:
@@ -120,12 +120,12 @@ Adam(0.1) -> Adam(0.01) -> Adam(0.001)
 
 **Near-zero loss required** (Rathore et al., credence ~85%):
 > "on the convection PDE, a loss of 10^-3 yields an L2RE around 10^-1, but decreasing the loss by a factor of 100 to 10^-5 yields an L2RE around 10^-2, a 10x improvement."
-> Source: https://arxiv.org/abs/2402.01868, Section 4, Figure 2
+> Source: https://arxiv.org/pdf/2402.01868, Section 4, Figure 2
 > Implication: you need to drive the loss very low for useful accuracy. Don't stop at "loss looks flat."
 
 **L-BFGS stalls but gradient is still useful** (Rathore et al., credence ~80%):
 > "L-BFGS stops in these cases without reaching a critical point: the gradient norm is around 10^-2 or 10^-3. The gradient still contains useful information for improving the loss."
-> Source: https://arxiv.org/abs/2402.01868, Section 7.1, Figure 4 (line-search failure in Appendix E, Figure 9)
+> Source: https://arxiv.org/pdf/2402.01868, Section 7.1, Figure 4 (line-search failure in Appendix E, Figure 9)
 > Cause: strong Wolfe line search fails, step size goes to zero.
 > Fix: switch to NNCG (Armijo only) or restart with different LR.
 
@@ -147,7 +147,7 @@ The PINN loss has multiple terms (PDE residual, BCs, ICs, data) with different g
 > Source: Brunton, S. "AI/ML+Physics Part 4 - Crafting a Loss Function." https://www.youtube.com/watch?v=3SNkQ8jhKXc
 
 > Wang et al. 2021 (credence ~80%): "the gradients corresponding to the boundary loss term Lub(θ) in each layer are sharply concentrated around zero and overall attain significantly smaller values than the gradients corresponding to the PDE residual loss Lr(θ)." Shown via per-layer histograms of back-propagated gradients; the paper does not quantify the gap in orders of magnitude.
-> Source: https://arxiv.org/abs/2001.04536, Section 2.2, Figures 2-3
+> Source: https://arxiv.org/pdf/2001.04536, Section 2.2, Figures 2-3
 
 **Consequences:**
 - BC/IC losses are undertrained (gradient signal drowned out)
@@ -157,7 +157,7 @@ The PINN loss has multiple terms (PDE residual, BCs, ICs, data) with different g
 ### Hessian stiffness
 
 > Wang et al. 2021: "many eigenvalues of the residual-loss Hessian are extremely large up to 1e5" while the boundary-loss Hessian eigenvalues stay small, so the gradient-flow stiffness is dominated by the residual term. This is an absolute magnitude, not a condition number; Wang never reports one.
-> Source: https://arxiv.org/abs/2001.04536, Section 2.4, Figures 4-5
+> Source: https://arxiv.org/pdf/2001.04536, Section 2.4, Figures 4-5
 > For a condition number, use Rathore Figure 3: outlier eigenvalues > 1e4 (convection), > 1e3 (reaction), > 1e5 (wave).
 
 ### Solutions (in order of preference)
@@ -166,7 +166,7 @@ The PINN loss has multiple terms (PDE residual, BCs, ICs, data) with different g
 
 **2. Learning rate annealing** (Wang et al. 2021, credence ~75%):
 > Adaptively weight each loss term inversely proportional to its gradient magnitude. EMA of gradient statistics for stability.
-> Source: https://arxiv.org/abs/2001.04536, Algorithm 1
+> Source: https://arxiv.org/pdf/2001.04536, Algorithm 1
 > NeuralPDE.jl implements this as `GradientScaleAdaptiveLoss`.
 
 **3. Gradient aggregation methods** (ConFIG or UPGrad):
@@ -184,18 +184,18 @@ ConFIG and UPGrad are both reasonable candidates when the losses cannot be repla
 > Standard PINNs use penalized (soft) constraints: add physics as a loss term. The alternative is constrained optimization: minimize data error while exactly satisfying the physics constraints. "With a loss function you're not exactly satisfying your constraints. With constrained optimization you are."
 > Source: Brunton, S. "AI/ML+Physics Part 5 - Employing an Optimization Algorithm." https://www.youtube.com/watch?v=T4iJ10TAIMg
 > Physics-informed DMD (Baddoo et al. 2021) is the cleanest example: restrict the DMD matrix to a symmetry-preserving manifold (Hermitian, symplectic, etc.) via the Procrustes problem. KKT closed-form solutions exist because DMD is linear in its parameters -- the constraint is linear in both the output and the parameters simultaneously.
-> Baddoo et al. 2021. "Physics-informed dynamic mode decomposition." Proc. R. Soc. A. https://arxiv.org/abs/2112.04307
+> Baddoo et al. 2021. "Physics-informed dynamic mode decomposition." Proc. R. Soc. A. https://arxiv.org/pdf/2112.04307
 > **Critical caveat for PINNs**: A BC like u(0)=0 is affine in the output u, but it is nonlinear in the NN weights theta. Closed-form KKT does NOT apply to neural network parameters. For NN-based PINNs, the two options for hard constraints are: (a) architectural -- multiply output by a distance function that satisfies the BC (Section 4 item 8), or (b) Augmented Lagrangian Methods (ALM), which are iterative and substantially more complex than Adam. Constrained optimization is most practical for linear models (DMD, SINDy, linear state-space) where the parameters enter linearly.
 
 **5. Curriculum regularization** (Krishnapriyan et al. 2021 NeurIPS, credence ~80%):
 > When the PINN fails on hard PDE regimes (high convection coefficient, strong reaction), don't start there. Start with easy parameters (small coefficient), train to convergence, then warm-start and increase to the target regime. 1-2 orders of magnitude improvement over naive training.
 > "The curriculum training approach achieves significantly better errors, as well as lower variance in the error." (From Figure E.2 showing 10 seeds)
-> Source: https://arxiv.org/abs/2109.01050, Sections 5.1 and Figure 4
+> Source: https://arxiv.org/pdf/2109.01050, Sections 5.1 and Figure 4
 > Evidence: evidence/krishnapriyan2021_failure_modes.md
 
 **6. Sequence-to-sequence (time-marching)** (Krishnapriyan et al. 2021, credence ~75%):
 > For time-dependent PDEs: train on a short time window, predict next state, step forward. Don't train on full space-time at once. "Posing the problem as seq2seq learning results in significantly lower error. The difference is particularly striking for reaction and reaction-diffusion cases, where seq2seq decreases error by almost two orders of magnitude."
-> Source: https://arxiv.org/abs/2109.01050, Section 5.2
+> Source: https://arxiv.org/pdf/2109.01050, Section 5.2
 > NeuralPDE.jl calls this time-marching; see `WeightedIntervalTraining`.
 > Note: these failures are not due to limited NN expressivity -- the architecture has enough capacity. The problem is optimization difficulty from the soft PDE constraint.
 
@@ -203,7 +203,7 @@ ConFIG and UPGrad are both reasonable candidates when the losses cannot be repla
 > Standard PINNs trained by gradient descent are implicitly biased toward minimizing residuals at *later* times before even fitting the initial conditions -- violating physical causality. The NTK analysis shows the residual at time t is influenced more by residuals at later t' > t than earlier ones. This makes PINNs fail on chaotic/turbulent systems.
 > Fix: weight each temporal residual point by wi = exp(-epsilon * sum_j<i R_j(theta)), where R_j is the accumulated residual before time i. This forces earlier times to converge first before the loss "turns on" at later times.
 > "10-100x improvements in accuracy compared to competing approaches. First time PINNs succeeded on chaotic Lorenz, Kuramoto-Sivashinsky, and 2D Navier-Stokes in turbulent regime."
-> Source: https://arxiv.org/abs/2203.07404, Abstract and Section 3
+> Source: https://arxiv.org/pdf/2203.07404, Abstract and Section 3
 > Evidence: evidence/wang2022_causal_training.md
 > Key difference from seq2seq/curriculum: causal weighting works within a single continuous training, without requiring separate time windows or changing the PDE coefficients. Can be combined with seq2seq for further gains.
 > Sensitivity: epsilon controls the steepness of the causal weights. Too small = residuals at later times turn on too early. Too large = training stalls on early time steps. Anneal epsilon during training.
@@ -212,7 +212,7 @@ ConFIG and UPGrad are both reasonable candidates when the losses cannot be repla
 > Instead of penalizing BC violations (soft), multiply the PINN output by a distance function phi(x) that is zero on the boundary. Then u(x) = phi(x) * NN(x) satisfies BCs exactly by construction.
 > "We eliminate modeling error associated with the satisfaction of boundary conditions. The sole contribution to the loss function is from the residual error at interior collocation points."
 > "The proposed approach consistently outperforms a standard PINN-based collocation method."
-> Source: https://arxiv.org/abs/2104.08426, Abstract and Section 1
+> Source: https://arxiv.org/pdf/2104.08426, Abstract and Section 1
 > Evidence: evidence/sukumar2022_exact_bc_distance.md
 > Domain-specific failure modes and hard BC examples: see [refs/heat_exchanger.md](refs/heat_exchanger.md).
 
@@ -343,7 +343,7 @@ optimizer.step()
 
 For large or geometrically complex domains, split into subdomains each with a local PINN. Interface conditions enforce continuity between subdomains.
 
-> Jagtap et al. 2020. "Extended physics-informed neural networks (XPINNs): A generalized space-time domain decomposition based deep learning framework for nonlinear partial differential equations." Commun. Comput. Phys. https://arxiv.org/abs/2005.11025
+> Jagtap et al. 2020. "Extended physics-informed neural networks (XPINNs): A generalized space-time domain decomposition based deep learning framework for nonlinear partial differential equations." Commun. Comput. Phys. https://arxiv.org/pdf/2005.11025
 > Credence ~70%: Multiple citations, implemented in DeepXDE. Enables parallelization; each subdomain network is smaller and easier to optimize.
 > Key: interface residuals must be added as additional loss terms. Continuity of u and its normal derivative across interfaces.
 > Useful when the solution has different character in different regions (e.g., different phases, boundary layers).
@@ -353,7 +353,7 @@ For large or geometrically complex domains, split into subdomains each with a lo
 ## 10. PIKANs (Kolmogorov-Arnold Networks for PINNs)
 
 > Toscano et al. 2024: PIKANs "lead to smaller models and may also contribute to lowering computational cost while maintaining good accuracy."
-> Source: https://arxiv.org/abs/2410.13228
+> Source: https://arxiv.org/pdf/2410.13228
 > Credence ~40%: New, no independent replication. Other authors focus on improving PINNs within the MLP framework, not validating PIKANs as an alternative. Interesting but unproven.
 
 ---
@@ -361,39 +361,39 @@ For large or geometrically complex domains, split into subdomains each with a lo
 ## References
 
 ### Comprehensive guides (start here)
-- Wang et al. 2023. "An Expert's Guide to Training Physics-Informed Neural Networks." arXiv:2308.08468. https://arxiv.org/abs/2308.08468
+- Wang et al. 2023. "An Expert's Guide to Training Physics-Informed Neural Networks." arXiv:2308.08468. https://arxiv.org/pdf/2308.08468
   - Key: most thorough practical guide. Covers architecture (modified MLP), sampling, loss weighting, Fourier features, causal training, code. By the same group as 2021 paper.
-- Wang et al. 2021. "Understanding and mitigating gradient pathologies in physics-informed neural networks." SIAM J. Sci. Comput. https://arxiv.org/abs/2001.04536
+- Wang et al. 2021. "Understanding and mitigating gradient pathologies in physics-informed neural networks." SIAM J. Sci. Comput. https://arxiv.org/pdf/2001.04536
   - Key: gradient imbalance diagnosis, learning rate annealing, modified MLP architecture
 
 ### Loss landscape and optimization
-- Rathore et al. 2024. "Challenges in Training PINNs: A Loss Landscape Perspective." ICML. https://arxiv.org/abs/2402.01868
+- Rathore et al. 2024. "Challenges in Training PINNs: A Loss Landscape Perspective." ICML. https://arxiv.org/pdf/2402.01868
   - Key: Adam+L-BFGS, ill-conditioning from differential operators, near-zero loss required
-- Krishnapriyan et al. 2021. "Characterizing possible failure modes in physics-informed neural networks." NeurIPS. https://arxiv.org/abs/2109.01050
+- Krishnapriyan et al. 2021. "Characterizing possible failure modes in physics-informed neural networks." NeurIPS. https://arxiv.org/pdf/2109.01050
   - Key: curriculum regularization, seq2seq, failure is optimization not expressivity
 
 ### Training strategies
-- Wang et al. 2022. "Respecting causality for training physics-informed neural networks." J. Comput. Phys. https://arxiv.org/abs/2203.07404
+- Wang et al. 2022. "Respecting causality for training physics-informed neural networks." J. Comput. Phys. https://arxiv.org/pdf/2203.07404
   - Key: causal weighting of temporal residuals, 10-100x improvement on chaotic systems, first PINN success on turbulence
-- Jagtap et al. 2020. "Extended Physics-Informed Neural Networks (XPINNs)." Commun. Comput. Phys. https://arxiv.org/abs/2005.11025
+- Jagtap et al. 2020. "Extended Physics-Informed Neural Networks (XPINNs)." Commun. Comput. Phys. https://arxiv.org/pdf/2005.11025
   - Key: domain decomposition, parallelizable, implemented in DeepXDE
 
 ### Hard constraints and boundary conditions
-- Sukumar & Srivastava 2022. "Exact imposition of boundary conditions with distance functions in physics-informed deep neural networks." CMAME. https://arxiv.org/abs/2104.08426
+- Sukumar & Srivastava 2022. "Exact imposition of boundary conditions with distance functions in physics-informed deep neural networks." CMAME. https://arxiv.org/pdf/2104.08426
   - Key: distance-function trial functions, eliminates BC loss, consistently outperforms soft BCs
 - Lagaris et al. 1998. "Artificial neural networks for solving ordinary and partial differential equations." IEEE Trans. Neural Netw. doi:10.1109/72.712178
   - Key: original paper on hard BCs via trial functions. Sukumar 2022 is the modern extension.
 
 ### Architecture and parameterization
-- Wang et al. 2022. "Random Weight Factorization Improves the Training of Continuous Neural Representations." https://arxiv.org/abs/2210.01274
+- Wang et al. 2022. "Random Weight Factorization Improves the Training of Continuous Neural Representations." https://arxiv.org/pdf/2210.01274
   - Key: factorize w = s * w_unit, better local minima, used in PirateNet
-- Toscano et al. 2024. "From PINNs to PIKANs." https://arxiv.org/abs/2410.13228
+- Toscano et al. 2024. "From PINNs to PIKANs." https://arxiv.org/pdf/2410.13228
 - PirateNet / jaxpi: https://github.com/PredictiveIntelligenceLab/jaxpi (bundles RWF + causal + seq2seq + Fourier)
 - Ling et al. 2016. "Machine learning strategies for systems with invariance properties." J. Comput. Phys. https://doi.org/10.1016/j.jcp.2016.05.003
   - Key: tensor-layer architecture enforcing Galilean invariance by construction for turbulence closure; symmetry-via-architecture beats symmetry-via-augmentation
 
 ### Constrained optimization and physics-informed DMD
-- Baddoo et al. 2021. "Physics-informed dynamic mode decomposition." Proc. R. Soc. A. https://arxiv.org/abs/2112.04307
+- Baddoo et al. 2021. "Physics-informed dynamic mode decomposition." Proc. R. Soc. A. https://arxiv.org/pdf/2112.04307
   - Key: restrict DMD to symmetry-preserving matrix manifolds (Hermitian, symplectic) via Procrustes problem; exactly satisfies conservation laws without penalty terms
 
 ### Lecture series
@@ -405,7 +405,7 @@ For large or geometrically complex domains, split into subdomains each with a lo
   - Part 5 (optimization): https://www.youtube.com/watch?v=T4iJ10TAIMg
 
 ### Alternative formulations
-- Weinan E & Bing Yu 2018. "The Deep Ritz Method: A Deep Learning-Based Numerical Algorithm for Solving Variational Problems." Commun. Math. Stat. https://arxiv.org/abs/1710.00211
+- Weinan E & Bing Yu 2018. "The Deep Ritz Method: A Deep Learning-Based Numerical Algorithm for Solving Variational Problems." Commun. Math. Stat. https://arxiv.org/pdf/1710.00211
   - Key: energy minimization formulation instead of strong-form residuals. Better-conditioned for elliptic PDEs, can be easier to optimize since the loss is an energy (always positive, no cancellation).
 
 ### Multi-loss training

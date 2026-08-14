@@ -1,4 +1,4 @@
-Source: https://arxiv.org/abs/2108.02497 (v5)
+Source: https://arxiv.org/pdf/2108.02497 (v5)
 Title: "How to avoid machine learning pitfalls: a guide for academic researchers" -- Michael A. Lones (Heriot-Watt University)
 Fetched-via: curl https://r.jina.ai/https://arxiv.org/pdf/2108.02497, 2026-08-14
 Fetch-status: verbatim, full paper (33 pages)

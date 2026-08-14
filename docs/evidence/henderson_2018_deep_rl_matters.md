@@ -1,4 +1,4 @@
-Source: https://arxiv.org/abs/1709.06560
+Source: https://arxiv.org/pdf/1709.06560
 Title: Deep Reinforcement Learning that Matters - Henderson et al. (2018)
 Fetched-via: curl https://r.jina.ai/https://arxiv.org/pdf/1709.06560
 Fetch-status: verbatim

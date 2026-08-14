@@ -103,12 +103,12 @@ Hermes 4 and Qwen3 both lean on filtered synthetic/verifiable data, but with gua
 
 When debugging or designing a modern transformer run, read reports that disclose the model-building process rather than only final benchmark scores:
 
-- [Olmo 3](https://arxiv.org/abs/2512.13961) releases the "entire model flow," including stages, checkpoints, data, and dependencies; code lives in [OLMo-core](https://github.com/allenai/OLMo-core).
+- [Olmo 3](https://arxiv.org/pdf/2512.13961) releases the "entire model flow," including stages, checkpoints, data, and dependencies; code lives in [OLMo-core](https://github.com/allenai/OLMo-core).
 - Microsoft's [MAI-Thinking-1](https://microsoft.ai/pdf/mai-thinking-1.pdf) treats model development as a system-level optimization problem and gives a long-form account of scaling and RL decisions.
-- Nous Research's [Hermes 4](https://arxiv.org/abs/2508.18255) describes failures and solutions across data curation, synthesis, training, and evaluation; Nous also releases open training/evaluation tooling such as [Atropos](https://github.com/NousResearch/atropos).
-- [DeepSeek-V3](https://arxiv.org/abs/2412.19437) reports architecture, infrastructure, training, and a run with no irrecoverable loss spikes or rollbacks.
-- [Qwen3](https://arxiv.org/abs/2505.09388) documents a dense/MoE family from `0.6B` to `235B`, including pretraining and post-training details.
-- Secondary postmortems: [The Llama 3 Herd](https://arxiv.org/abs/2407.21783) for large-scale pretraining operations, and [OPT-175B](https://arxiv.org/abs/2205.01068) for training interruptions, instability, and mid-flight recovery.
+- Nous Research's [Hermes 4](https://arxiv.org/pdf/2508.18255) describes failures and solutions across data curation, synthesis, training, and evaluation; Nous also releases open training/evaluation tooling such as [Atropos](https://github.com/NousResearch/atropos).
+- [DeepSeek-V3](https://arxiv.org/pdf/2412.19437) reports architecture, infrastructure, training, and a run with no irrecoverable loss spikes or rollbacks.
+- [Qwen3](https://arxiv.org/pdf/2505.09388) documents a dense/MoE family from `0.6B` to `235B`, including pretraining and post-training details.
+- Secondary postmortems: [The Llama 3 Herd](https://arxiv.org/pdf/2407.21783) for large-scale pretraining operations, and [OPT-175B](https://arxiv.org/pdf/2205.01068) for training interruptions, instability, and mid-flight recovery.
 
 These are useful as working implementations and experiment logs: copy proven priors, compare the exact computation graph and recipe, and look for engineering details absent from method papers.
 
@@ -119,23 +119,23 @@ For experiment design, keep the [Google Deep Learning Tuning Playbook](https://d
 [^hfcourse]: Hugging Face LLM Course, ["Debugging the training pipeline"](https://huggingface.co/learn/llm-course/chapter8/4) ([cache](../docs/evidence/hf_llm_course_ch8_4_debugging_pipeline.md))
 [^axolotl-stability]: Axolotl, ["Training Stability"](https://docs.axolotl.ai/docs/training_stability.html) ([cache](../docs/evidence/axolotl_training_stability.md))
 [^unsloth]: Unsloth, ["Troubleshooting & FAQs"](https://docs.unsloth.ai/basics/troubleshooting-and-faqs) ([cache](../docs/evidence/unsloth_troubleshooting_faqs.md))
-[^goyal]: Goyal et al., ["Accurate, Large Minibatch SGD"](https://arxiv.org/abs/1706.02677)
-[^super-convergence]: Smith and Topin, ["Super-Convergence: Very Fast Training of Neural Networks Using Large Learning Rates"](https://arxiv.org/abs/1708.07120)
-[^wsd]: Wen et al., ["Understanding Warmup-Stable-Decay Learning Rates: A River Valley Loss Landscape Perspective"](https://arxiv.org/abs/2410.05192)
+[^goyal]: Goyal et al., ["Accurate, Large Minibatch SGD"](https://arxiv.org/pdf/1706.02677)
+[^super-convergence]: Smith and Topin, ["Super-Convergence: Very Fast Training of Neural Networks Using Large Learning Rates"](https://arxiv.org/pdf/1708.07120)
+[^wsd]: Wen et al., ["Understanding Warmup-Stable-Decay Learning Rates: A River Valley Loss Landscape Perspective"](https://arxiv.org/pdf/2410.05192)
 [^nanochat]: Karpathy, [nanochat experiment log](https://github.com/karpathy/nanochat/blob/main/dev/LOG.md) ([cache](../docs/evidence/nanochat_deepwiki_llm_pretraining_2026.md))
 [^karpathy-recipe]: Karpathy, ["A Recipe for Training Neural Networks"](https://karpathy.github.io/2019/04/25/recipe/) ([cache](../docs/evidence/karpathy_recipe_training_nn_2019.md))
 [^nanochat-optimizer]: Karpathy, [`nanochat`](https://github.com/karpathy/nanochat) (`optim.py`: AdamW + Muon)
-[^optimizer-benchmark]: Wen et al., ["Fantastic Pretraining Optimizers and Where to Find Them"](https://arxiv.org/abs/2509.02046) (ICLR 2026)
+[^optimizer-benchmark]: Wen et al., ["Fantastic Pretraining Optimizers and Where to Find Them"](https://arxiv.org/pdf/2509.02046) (ICLR 2026)
 [^tuning-playbook]: Google Developers, ["Deep Learning Tuning Playbook"](https://developers.google.com/machine-learning/guides/deep-learning-tuning-playbook)
 [^bekman]: Stas Bekman, [`DebugUnderflowOverflow`](https://github.com/huggingface/transformers/blob/main/src/transformers/debug_utils.py) ([cache](../docs/evidence/bekman_debug_utils_transformers.md))
-[^eval-awareness]: Chaudhary et al., ["Evaluation Awareness Scales Predictably in Open-Weights Large Language Models"](https://arxiv.org/abs/2509.13333)
-[^steering-reliability]: Braun et al., ["Understanding (Un)Reliability of Steering Vectors in Language Models"](https://arxiv.org/abs/2505.22637)
-[^olmo3-report]: OLMo Team, ["Olmo 3"](https://arxiv.org/abs/2512.13961) ([cache](../docs/evidence/reports/olmo3_technical_report.md); [OLMo-core](https://github.com/allenai/OLMo-core), [cache](../docs/evidence/reports/code/olmo_core_readme.md))
+[^eval-awareness]: Chaudhary et al., ["Evaluation Awareness Scales Predictably in Open-Weights Large Language Models"](https://arxiv.org/pdf/2509.13333)
+[^steering-reliability]: Braun et al., ["Understanding (Un)Reliability of Steering Vectors in Language Models"](https://arxiv.org/pdf/2505.22637)
+[^olmo3-report]: OLMo Team, ["Olmo 3"](https://arxiv.org/pdf/2512.13961) ([cache](../docs/evidence/reports/olmo3_technical_report.md); [OLMo-core](https://github.com/allenai/OLMo-core), [cache](../docs/evidence/reports/code/olmo_core_readme.md))
 [^mai-thinking-report]: Microsoft AI Team, ["MAI-Thinking-1: Building a Hill-Climbing Machine"](https://microsoft.ai/pdf/mai-thinking-1.pdf) ([cache](../docs/evidence/reports/mai_thinking_1_technical_report.md))
-[^hermes4-report]: Nous Research, ["Hermes 4 Technical Report"](https://arxiv.org/abs/2508.18255) ([cache](../docs/evidence/reports/hermes4_technical_report.md); [Atropos](https://github.com/NousResearch/atropos), [cache](../docs/evidence/reports/code/nous_atropos_readme.md))
-[^deepseek-v3-report]: DeepSeek-AI, ["DeepSeek-V3 Technical Report"](https://arxiv.org/abs/2412.19437) ([cache](../docs/evidence/reports/deepseek_v3_technical_report.md))
-[^qwen3-report]: Qwen Team, ["Qwen3 Technical Report"](https://arxiv.org/abs/2505.09388) ([cache](../docs/evidence/reports/qwen3_technical_report.md))
-[^llama3-report]: Meta AI, ["The Llama 3 Herd of Models"](https://arxiv.org/abs/2407.21783) ([cache](../docs/evidence/reports/llama3_herd_technical_report.md))
-[^opt175b-report]: Zhang et al., ["OPT: Open Pre-trained Transformer Language Models"](https://arxiv.org/abs/2205.01068) ([cache](../docs/evidence/reports/opt175b_technical_report.md))
+[^hermes4-report]: Nous Research, ["Hermes 4 Technical Report"](https://arxiv.org/pdf/2508.18255) ([cache](../docs/evidence/reports/hermes4_technical_report.md); [Atropos](https://github.com/NousResearch/atropos), [cache](../docs/evidence/reports/code/nous_atropos_readme.md))
+[^deepseek-v3-report]: DeepSeek-AI, ["DeepSeek-V3 Technical Report"](https://arxiv.org/pdf/2412.19437) ([cache](../docs/evidence/reports/deepseek_v3_technical_report.md))
+[^qwen3-report]: Qwen Team, ["Qwen3 Technical Report"](https://arxiv.org/pdf/2505.09388) ([cache](../docs/evidence/reports/qwen3_technical_report.md))
+[^llama3-report]: Meta AI, ["The Llama 3 Herd of Models"](https://arxiv.org/pdf/2407.21783) ([cache](../docs/evidence/reports/llama3_herd_technical_report.md))
+[^opt175b-report]: Zhang et al., ["OPT: Open Pre-trained Transformer Language Models"](https://arxiv.org/pdf/2205.01068) ([cache](../docs/evidence/reports/opt175b_technical_report.md))
 [^tinker-dpo]: Thinking Machines, [tinker-cookbook recipes/preference/dpo README](https://github.com/thinking-machines-lab/tinker-cookbook/tree/main/tinker_cookbook/recipes/preference/dpo)
 [^tinker-rlhf]: Thinking Machines, [tinker-cookbook recipes/preference/rlhf README](https://github.com/thinking-machines-lab/tinker-cookbook/tree/main/tinker_cookbook/recipes/preference/rlhf)

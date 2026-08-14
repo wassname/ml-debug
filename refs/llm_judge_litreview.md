@@ -13,14 +13,14 @@ Verify: **current LLM judges carry large, size-dependent biases (order, self-pre
 
 epistemic context: outsider-run public benchmark with a reproducible swapped-order harness (193 pairs, 36 models); no arXiv paper, the numbers are the raw output of the author's own runs. The headline order-flip figure elsewhere in the same README is "the model-average order-flip rate is 43.0%".
 
-## "Judging the Judges: A Systematic Study of Position Bias in LLM-as-a-Judge" — Shi et al. (Dartmouth), IJCNLP-AACL 2025 — [arXiv:2406.07791](https://arxiv.org/abs/2406.07791)
+## "Judging the Judges: A Systematic Study of Position Bias in LLM-as-a-Judge" — Shi et al. (Dartmouth), IJCNLP-AACL 2025 — [arXiv:2406.07791](https://arxiv.org/pdf/2406.07791)
 - page date: arXiv June 2024; IJCNLP-AACL 2025
 
 > The findings confirm that position bias is not due to random chance and varies significantly across judges and tasks. **While position bias is weakly influenced by the length of prompt components, it is strongly affected by the quality gap between solutions.** Our agreement and disagreement analysis among judges further provides insights into the distribution of judging difficulty across the dataset, and highlights the potential for dataset modifications.
 
 epistemic context: peer-reviewed; largest-scale dedicated position-bias study (over 150,000 evaluation instances, 15 judges, 22 tasks); "quality gap" here means the closer the two answers in quality, the more the judge flips on order. The abstract's counts moved across versions (v1-v3: 9 judges / 80,000 instances), and Section 3.1 of the current version still says "more than 100,000", contradicting its own abstract. Best judges in Table 2 reach position consistency 0.82, so ~18% of pairs flip on order even at the top.
 
-## "RLAIF vs. RLHF" — Lee et al. (Google), ICML 2024 — [arXiv:2309.00267](https://arxiv.org/abs/2309.00267)
+## "RLAIF vs. RLHF" — Lee et al. (Google), ICML 2024 — [arXiv:2309.00267](https://arxiv.org/pdf/2309.00267)
 - page date: arXiv Sept 2023; ICML 2024
 
 > We find evidence of position bias, which is especially prevalent in smaller LLM labelers (see Appendix B). **To mitigate the effect of position bias, two inferences are made for every pair of candidates, where the order in which candidates are presented to the LLM is reversed for the second inference.** The results from both inferences are then averaged to obtain the final preference distribution.
@@ -29,7 +29,7 @@ epistemic context: peer-reviewed; the standard citation for both the "smaller = 
 
 ## Self-preference scales inversely with judge size
 
-## "Beyond the Surface: Measuring Self-Preference in LLM Judgments" — Chen et al., EMNLP 2025 main — [arXiv:2506.02592](https://arxiv.org/abs/2506.02592)
+## "Beyond the Surface: Measuring Self-Preference in LLM Judgments" — Chen et al., EMNLP 2025 main — [arXiv:2506.02592](https://arxiv.org/pdf/2506.02592)
 - page date: arXiv June 2025; EMNLP 2025 main conference. Data + code: [github.com/zhiyuanc2001/self-preference](https://github.com/zhiyuanc2001/self-preference)
 
 > As observed in the figure, models larger than 7B exhibit significantly less self-preference bias compared to those of 7B or smaller. **For example, the DBG score of Qwen2.5-0.5B-Instruct is 41.7%. In contrast, the DBG score of Qwen2.5-14B-Instruct is only 2.1%.** This suggests that LLM judging tasks should utilize larger models to obtain more accurate and unbiased judgment results.
@@ -38,7 +38,7 @@ epistemic context: peer-reviewed; the DBG (Difference-based Bias Gauge) score ne
 
 ## Reasoning judges: accuracy up, superficial bias not fixed
 
-## "JudgeLRM: Large Reasoning Models as a Judge" — Chen et al., 2025 — [arXiv:2504.00050](https://arxiv.org/abs/2504.00050)
+## "JudgeLRM: Large Reasoning Models as a Judge" — Chen et al., 2025 — [arXiv:2504.00050](https://arxiv.org/pdf/2504.00050)
 - page date: arXiv April 2025
 
 > Empirical results demonstrate that JudgeLRM not only surpasses proprietary models like GPT-4 and DeepSeek-R1 but also outperforms SFT and RL baselines of comparable sizes, **with an average improvement of 8.14% in F1 score over SFT counterparts.**
@@ -47,7 +47,7 @@ epistemic context: quoted from Section 1 (Introduction), v3; the 8.14% figure is
 
 ## Overthinking: the reasoning-token budget is non-monotonic
 
-## "Does Thinking More always Help? ... Mirage of Test-Time Scaling in Reasoning Models" — Ghosal et al., 2025 — [arXiv:2506.04210](https://arxiv.org/abs/2506.04210)
+## "Does Thinking More always Help? ... Mirage of Test-Time Scaling in Reasoning Models" — Ghosal et al., 2025 — [arXiv:2506.04210](https://arxiv.org/pdf/2506.04210)
 - page date: arXiv June 2025
 
 > We observe an initial increase (similar to (Muennighoff et al., 2025; Aggarwal & Welleck, 2025)) in accuracy as the average thinking budget increases. **For example, in Figure 2(a), accuracy increases from 82.2% to 87.3% as the average number of thinking tokens increases from 385 to 1100.** However, this trend does not continue indefinitely.
@@ -68,7 +68,7 @@ epistemic context: config lines quoted verbatim (not prose, so no surrounding se
 
 ## Self-consistency: how many samples N
 
-## "Self-Consistency Is Losing Its Edge: Diminishing Returns and Rising Costs in Modern LLMs" — Loo, 2025 — [arXiv:2511.00751](https://arxiv.org/abs/2511.00751)
+## "Self-Consistency Is Losing Its Edge: Diminishing Returns and Rising Costs in Modern LLMs" — Loo, 2025 — [arXiv:2511.00751](https://arxiv.org/pdf/2511.00751)
 - page date: arXiv Oct 2025 (v2 May 2026)
 
 > **Results confirm that accuracy gains plateau early and, in some configurations, decline at high sample counts** — a pattern inconsistent with diminishing returns alone and more consistent with noise introduction on problems that were already solved. This suggests self-consistency should be reserved for genuinely difficult problems rather than applied as a default scaling strategy.
@@ -79,14 +79,14 @@ epistemic context: single-author preprint (low citation signal, flagged), and th
 
 ## Context rot: long inputs and rubrics degrade judging
 
-## "NoLiMa: Long-Context Evaluation Beyond Literal Matching" — Modarressi et al., ICML 2025 — [arXiv:2502.05167](https://arxiv.org/abs/2502.05167)
+## "NoLiMa: Long-Context Evaluation Beyond Literal Matching" — Modarressi et al., ICML 2025 — [arXiv:2502.05167](https://arxiv.org/pdf/2502.05167)
 - page date: arXiv Feb 2025; ICML 2025. Repo: [github.com/adobe-research/NoLiMa](https://github.com/adobe-research/NoLiMa)
 
 > While they perform well in short contexts (<1K), performance degrades significantly as context length increases. **At 32K, for instance, 11 models drop below 50% of their strong short-length baselines.** Even GPT-4o, one of the top-performing exceptions, experiences a reduction from an almost-perfect baseline of 99.3% to 69.7%.
 
 epistemic context: peer-reviewed; removes literal lexical overlap so the test measures latent-association retrieval, the closest analog to a judge matching a rubric to a semantically-distant answer. The paper defines "effective length as the maximum length at which the score remains above a threshold, set at 85% of the model's base score" (Table 3). Effective lengths are shorter than they sound: 1-4K tokens for most of the 13 models (median 2K), 8K for GPT-4o, and 16K for GPT-4.1 in the extended Table 10.
 
-## "Lost in the Middle: How Language Models Use Long Contexts" — Liu et al., TACL 2024 — [arXiv:2307.03172](https://arxiv.org/abs/2307.03172)
+## "Lost in the Middle: How Language Models Use Long Contexts" — Liu et al., TACL 2024 — [arXiv:2307.03172](https://arxiv.org/pdf/2307.03172)
 - page date: arXiv July 2023; TACL 2024
 
 > We find that performance can degrade significantly when changing the position of relevant information, indicating that current language models do not robustly make use of information in long input contexts. **In particular, we observe that performance is often highest when relevant information occurs at the beginning or end of the input context, and significantly degrades when models must access relevant information in the middle of long contexts, even for explicitly long-context models.** Our analysis provides a better understanding of how language models use their input context and provides new evaluation protocols for future long-context language models.

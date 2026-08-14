@@ -1,4 +1,4 @@
-Source: https://arxiv.org/abs/1812.06162
+Source: https://arxiv.org/pdf/1812.06162
 Title: An Empirical Model of Large-Batch Training - McCandlish & Kaplan (2018)
 Fetched-via: curl https://r.jina.ai/https://arxiv.org/pdf/1812.06162
 Fetch-status: verbatim

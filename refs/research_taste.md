@@ -218,6 +218,6 @@ Less central but useful:
 [^steinhardt]: Jacob Steinhardt, "Research as a Stochastic Decision Process" - https://cs.stanford.edu/~jsteinhardt/ResearchasaStochasticDecisionProcess.html ([cache](../docs/evidence/steinhardt_research_stochastic_decision_process.md)).
 [^spinningup]: Joshua Achiam, "Spinning Up as a Deep RL Researcher" (OpenAI, 2018-10-13) - https://spinningup.openai.com/en/latest/spinningup/spinningup.html ([research cache](../docs/evidence/spinningup_research_source_graph.md), [debugging cache](../docs/evidence/spinningup_researcher.md)).
 [^rahtz]: Matthew Rahtz, "Lessons Learned Reproducing a Deep Reinforcement Learning Paper" (2018) - http://amid.fish/reproducing-deep-rl ([cache](../docs/evidence/amid_fish_reproducing_deep_rl.md)).
-[^henderson]: Henderson et al., "Deep Reinforcement Learning that Matters" (AAAI 2018) - https://arxiv.org/abs/1709.06560 ([cache](../docs/evidence/henderson_2018_deep_rl_matters.md)).
+[^henderson]: Henderson et al., "Deep Reinforcement Learning that Matters" (AAAI 2018) - https://arxiv.org/pdf/1709.06560 ([cache](../docs/evidence/henderson_2018_deep_rl_matters.md)).
 [^schulman]: John Schulman, "Nuts and Bolts of Deep RL Research" (2016) - http://joschu.net/docs/nuts-and-bolts.pdf ([cache](../docs/evidence/joschu_nuts_and_bolts.md)).
 [^irpan]: Alex Irpan, "Deep Reinforcement Learning Doesn't Work Yet" (2018) - https://www.alexirpan.com/2018/02/14/rl-hard.html ([cache](../docs/evidence/alexirpan_rl_hard.md)).

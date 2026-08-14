@@ -149,9 +149,9 @@ Sometimes (rarely) you don't. Schulman:
 ### Articles
 - Andy Jones, "Debugging RL, Without the Agonizing Pain" (2021): https://andyljones.com/posts/rl-debugging.html
 - Matthew Rahtz, "Lessons Learned Reproducing a Deep RL Paper" (2018): http://amid.fish/reproducing-deep-rl
-- Henderson et al., "Deep Reinforcement Learning that Matters" (2018): https://arxiv.org/abs/1709.06560
+- Henderson et al., "Deep Reinforcement Learning that Matters" (2018): https://arxiv.org/pdf/1709.06560
 - Alex Irpan, "Deep Reinforcement Learning Doesn't Work Yet" (2018): https://www.alexirpan.com/2018/02/14/rl-hard.html
-- McCandlish & Kaplan, "An Empirical Model of Large-Batch Training" (2018): https://arxiv.org/abs/1812.06162
+- McCandlish & Kaplan, "An Empirical Model of Large-Batch Training" (2018): https://arxiv.org/pdf/1812.06162
 - Slav Ivanov, "37 Reasons why your Neural Network is not working" (2017): https://blog.slavv.com/37-reasons-why-your-neural-network-is-not-working-4020854bd607
 - Huang et al., "The 37 Implementation Details of PPO" (ICLR Blog Track 2022): https://iclr-blog-track.github.io/2022/03/25/ppo-implementation-details/ ([cache](../docs/evidence/cleanrl_37_ppo_details.md))
 - Joshua Achiam, "Spinning Up as a Deep RL Researcher" (OpenAI, 2018): https://spinningup.openai.com/en/latest/spinningup/spinningup.html ([cache](../docs/evidence/spinningup_researcher.md))
