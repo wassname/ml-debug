@@ -1,15 +1,8 @@
-Source: https://blog.slavv.com/37-reasons-why-your-neural-network-is-not-working-4020854bd607
-Title: 37 Reasons why your Neural Network is not working - Slav Ivanov (2017)
-Fetched-via: curl https://r.jina.ai/https://blog.slavv.com/37-reasons-why-your-neural-network-is-not-working-4020854bd607
-Fetch-status: verbatim
+Source: https://blog.slavv.com/37-reasons-why-your-neural-network-is-not-working-4020854bd607 (Medium serves nothing to a scraper now; verified 2026-08-15 against the Wayback snapshot https://web.archive.org/web/20250402063528/https://blog.slavv.com/37-reasons-why-your-neural-network-is-not-working-4020854bd607 )
+Title: "37 Reasons why your Neural Network is not working" - Slav Ivanov, 2017
+Fetch-status: full post, all 37 items plus Addition 1. Checked item by item against the 2025 archive: the only text not carried over is Medium site chrome, the author bio, and the trailing resources link list.
+See also: [reddit_37_reasons_nn_6pfsyk.md](reddit_37_reasons_nn_6pfsyk.md), the discussion thread, which carries 13 further checks the article never absorbed.
 
-Title: 37 Reasons why your Neural Network is not working
-
-URL Source: https://blog.slavv.com/37-reasons-why-your-neural-network-is-not-working-4020854bd607
-
-Published Time: 2017-07-25T08:13:45Z
-
-Markdown Content:
 [![Image 1: Slav Ivanov](https://miro.medium.com/v2/resize:fill:32:32/1*EkrMhH3YffQBM18wAoHTTw.jpeg)](https://medium.com/@slavivanov?source=post_page---byline--4020854bd607---------------------------------------)
 
 10 min read
