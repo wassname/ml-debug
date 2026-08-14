@@ -48,8 +48,8 @@ This also makes the input domain ~[0,1] naturally, which is what NeuralPDE.jl ex
 
 If you can't nondimensionalize cleanly (unknown material properties, mixed units), at minimum z-score each input/output channel so the network sees zero-mean unit-variance data.
 
-> Rathore et al. 2024: "The condition number grows polynomially with nres" -- but this is in raw units. Nondimensionalization reduces the effective condition number by making all PDE coefficients O(1).
-> Source: https://arxiv.org/abs/2402.01868, Section 5, Theorem 8.4
+> Rathore et al. 2024: "the estimate of the κ grows polynomially with nres" -- but this is in raw units. Nondimensionalization reduces the effective condition number by making all PDE coefficients O(1).
+> Source: https://arxiv.org/abs/2402.01868, Section 8.2 (Theorem 8.4), empirical check in Appendix F.5
 
 ---
 
@@ -57,18 +57,18 @@ If you can't nondimensionalize cleanly (unknown material properties, mixed units
 
 From NeuralPDE.jl tests/docs + Wang et al. 2021:
 
-- **Depth**: 2-3 layers most common; 4 sometimes; 5 is rare. Deeper doesn't help and hurts conditioning.
+- **Depth**: 2-3 layers most common in NeuralPDE.jl examples; 4-5 sometimes. Wang et al. 2021 Table 2 found the opposite for their improved models (M2-M4): accuracy improved monotonically up to 7 layers / 100 units. Only the vanilla PINN (M1) was depth-sensitive.
 - **Width**: 16-64 (start at 32). Occasionally 128 for harder problems.
 - **Activations**: tanh dominates. SiLU/GeLU sometimes. sigmoid for some ODEs. Final layer linear.
 - **Multi-output**: One chain per dependent variable: `[Chain(Dense(in, n, act), Dense(n, n, act), Dense(n, 1)) for _ in 1:k]` or a single shared trunk with separate heads.
 - **No**: Fourier features (unless spectral bias is a problem), batch norm, dropout, skip connections, attention. These are for data-rich regimes; PINNs are data-poor + physics-rich.
 - **Precision**: float64 for numerical stability. Convert model: `model.double()` or `|> f64` in Julia.
-- **Init**: Glorot uniform (Xavier), zero biases. Standard.
+- **Init**: Xavier/Glorot normal, zero biases (Rathore et al. 2024 setup).
 
 **Modified MLP** (Wang et al. 2021, credence ~70%):
-> Wang et al. propose a modified MLP with multiplicative interactions: `σ(Wz + b) * U + (1 - σ(Wz + b)) * V` where U, V are linear projections of the input. Authors claim this reduces Hessian stiffness.
-> Source: https://arxiv.org/abs/2001.04536, Section 2.6
-> Evidence: 49x improvement on Helmholtz, 64x on Klein-Gordon. Only tested by the proposing authors; no independent replication found.
+> Wang et al. propose a modified MLP with multiplicative interactions. With `U = φ(XW1 + b1)`, `V = φ(XW2 + b2)` two nonlinear encodings of the input (φ = tanh) and a per-layer gate `Z(k) = φ(H(k)Wz,k + bz,k)` computed from the hidden state, the update is `H(k+1) = (1 - Z(k)) * U + Z(k) * V`. Authors claim a ~3x decrease in the leading Hessian eigenvalue.
+> Source: https://arxiv.org/abs/2001.04536, Section 2.6, equations 43-47
+> Evidence: on Helmholtz the architecture alone (M3) improves relative L2 error 3.4-8.7x over vanilla PINN (M1) across 9 width/depth settings (Table 2); with LR annealing (M4) it is 23-97x. On Klein-Gordon M3 is 9.1x, M4 is 64x (Table 3). The paper's headline "50-100x" is the combination, not the architecture. Only tested by the proposing authors; no independent replication found.
 
 **Random Weight Factorization (RWF)** (arXiv 2210.01274, credence ~60%):
 > Factorize each neuron's weight vector as w = s * w_unit, where s is a trainable scalar and w_unit is the unit-normalized direction. This changes the optimization geometry so the loss surface has better-conditioned local minima. "Predictions obtained by RWF are in excellent agreement with ground truth, while other weight parameterizations result in poor or non-physical approximations."
@@ -95,15 +95,15 @@ The loss landscape of PINNs is ill-conditioned. First-order methods (Adam) conve
 ### Recommended workflow
 
 ```
-1. Adam (lr grid search: {1e-1, 1e-2, 1e-3}) for 1k-11k iterations
+1. Adam (Rathore grid: {1e-5 ... 1e-1}) for 1k-31k iterations, then switch
    - Escapes saddle points, explores broadly
    - Tolerates noisy gradients
 2. L-BFGS (lr=1.0, memory=100) until convergence stalls
-   - Preconditions the Hessian, reduces condition number by ~1000x
+   - Preconditions the Hessian, reduces the condition number by at least 1000x (Figure 3)
    - Often stalls: cannot find step size satisfying strong Wolfe conditions
 3. (Optional) NysNewton-CG (NNCG) for final polish
-   - 1.4-4.3x further improvement in L2RE
-   - But 5-300x slower per iteration than L-BFGS
+   - 1.9-4.3x further improvement in L2RE, 16-18x in loss (Table 2)
+   - But 5x / 20x / 322x slower per iteration than L-BFGS on convection / reaction / wave (Table 3)
 ```
 
 > Rathore et al. 2024 (ICML, credence ~80%): "Adam+L-BFGS attains 14.2x smaller L2RE than Adam on convection and 6.07x smaller than L-BFGS on wave." Tested on 3 PDEs (convection, reaction, wave), 5 seeds, widths 50-400.
@@ -119,17 +119,19 @@ Adam(0.1) -> Adam(0.01) -> Adam(0.001)
 ### Key findings on loss landscape
 
 **Near-zero loss required** (Rathore et al., credence ~85%):
-> "A loss of 1e-3 yields L2RE ~ 1e-1, but decreasing loss by 100x to 1e-5 yields L2RE ~ 1e-2."
+> "on the convection PDE, a loss of 10^-3 yields an L2RE around 10^-1, but decreasing the loss by a factor of 100 to 10^-5 yields an L2RE around 10^-2, a 10x improvement."
+> Source: https://arxiv.org/abs/2402.01868, Section 4, Figure 2
 > Implication: you need to drive the loss very low for useful accuracy. Don't stop at "loss looks flat."
 
 **L-BFGS stalls but gradient is still useful** (Rathore et al., credence ~80%):
-> "L-BFGS stops without reaching a critical point: gradient norm is ~1e-2 to 1e-3. The gradient still contains useful information."
+> "L-BFGS stops in these cases without reaching a critical point: the gradient norm is around 10^-2 or 10^-3. The gradient still contains useful information for improving the loss."
+> Source: https://arxiv.org/abs/2402.01868, Section 7.1, Figure 4 (line-search failure in Appendix E, Figure 9)
 > Cause: strong Wolfe line search fails, step size goes to zero.
 > Fix: switch to NNCG (Armijo only) or restart with different LR.
 
 **Condition number grows with nres** (Rathore et al., credence ~70%):
-> Theorem 8.4: condition number = Omega(nres^alpha) where alpha > 1/2.
-> With typical nres = 1e3 to 1e4, condition numbers > 1e4 are expected.
+> Theorem 8.4 (Section 8.2): condition number = Omega(nres^alpha) with alpha > 1/2, given eigenvalues of A o K_inf decaying as O(j^-2alpha). nres typically ranges 1e3 to 1e4.
+> Separately, measured condition numbers near a solution are often > 1e4 (Section 6.2, Figure 3).
 > Implication: more collocation points doesn't just mean more compute -- it makes the optimization harder.
 
 ---
@@ -144,8 +146,8 @@ The PINN loss has multiple terms (PDE residual, BCs, ICs, data) with different g
 > L2 norm (MSE) on residuals: default; promotes smooth, low-frequency solutions. L1 norm (MAE) on residuals: more robust to outlier collocation errors and sharp gradients (shocks) since it doesn't square-penalize large pointwise residuals. This is distinct from L1 *regularization on equation coefficients*, which is what SINDy and sparse equation discovery use to promote parsimony (few active terms). Don't conflate the two: L1 residual = robust fitting; L1 coefficient regularization = sparse model selection. For standard PINNs with a known PDE, L2 is correct. L1 residual loss is worth trying if you have shocks or suspect outlier collocation points.
 > Source: Brunton, S. "AI/ML+Physics Part 4 - Crafting a Loss Function." https://www.youtube.com/watch?v=3SNkQ8jhKXc
 
-> Wang et al. 2021 (credence ~80%): "We observe that the gradient of the PDE residual loss is several orders of magnitude larger than the gradient of the boundary/initial condition losses." Demonstrated via histograms of per-parameter gradient magnitudes.
-> Source: https://arxiv.org/abs/2001.04536, Figures 2-3
+> Wang et al. 2021 (credence ~80%): "the gradients corresponding to the boundary loss term Lub(θ) in each layer are sharply concentrated around zero and overall attain significantly smaller values than the gradients corresponding to the PDE residual loss Lr(θ)." Shown via per-layer histograms of back-propagated gradients; the paper does not quantify the gap in orders of magnitude.
+> Source: https://arxiv.org/abs/2001.04536, Section 2.2, Figures 2-3
 
 **Consequences:**
 - BC/IC losses are undertrained (gradient signal drowned out)
@@ -154,8 +156,9 @@ The PINN loss has multiple terms (PDE residual, BCs, ICs, data) with different g
 
 ### Hessian stiffness
 
-> Wang et al. 2021: Hessian eigenvalue ratios ~1e5 (max eigenvalue / min eigenvalue). This is the definition of an ill-conditioned problem.
-> Source: https://arxiv.org/abs/2001.04536, Figures 4-5
+> Wang et al. 2021: "many eigenvalues of the residual-loss Hessian are extremely large up to 1e5" while the boundary-loss Hessian eigenvalues stay small, so the gradient-flow stiffness is dominated by the residual term. This is an absolute magnitude, not a condition number; Wang never reports one.
+> Source: https://arxiv.org/abs/2001.04536, Section 2.4, Figures 4-5
+> For a condition number, use Rathore Figure 3: outlier eigenvalues > 1e4 (convection), > 1e3 (reaction), > 1e5 (wave).
 
 ### Solutions (in order of preference)
 
