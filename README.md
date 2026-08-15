@@ -35,9 +35,10 @@ For scale, changing the judge moves a score by 0.04 on average, so the effect is
 the noise. Two questions cite this repo as their source, and dropping them raises the effect rather
 than lowering it, so the model is not just reading the answer.
 
-Put next to the frontier models on the same questions, the document closes most of the gap:
+Only deepseek-v4-flash-0731 reads the document. The frontier models below answer the same questions
+with no document, as they normally do, and the document closes most of the distance to them:
 
-| against | questions in common | bare | with SKILL.md | the other model | gap closed |
+| frontier model, no document | questions in common | flash, no document | flash, with SKILL.md | the frontier model | distance closed |
 | --- | --- | --- | --- | --- | --- |
 | gpt-5.6-sol | 9 | +0.540 | +0.678 | +0.774 | 59% |
 | glm-5.2, the top of the table | 11 | +0.563 | +0.698 | +0.694 | 103% |
