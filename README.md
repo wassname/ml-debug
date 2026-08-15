@@ -47,7 +47,7 @@ deepseek-v4-flash-0731 costs $0.036 for all 12 questions and gpt-5.6-sol costs $
 20x cheaper model reading a document instead of thinking harder.
 
 Caveats: one model, one run, one judge, at bench version v94. The gain is uneven, from +0.81 on one
-question to -0.17 on another. Replication on other models is in progress.
+question to -0.17 on another, so read this as one measurement and not as a rate.
 
 ## Citation
 
