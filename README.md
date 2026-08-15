@@ -18,6 +18,26 @@ Or paste `SKILL.md` into your system prompt / context when debugging.
 
 - **[docs/evidence/](docs/evidence/)** -- frozen local copies of source material (blog posts, talks, papers, reddit threads). Claims in SKILL.md link back to exact quotes here.
 
+## Does it help?
+
+One measurement so far, on [ml-bench](https://github.com/wassname/ml-bench): 12 hard machine
+learning research problems from my own work, none of them in any training set, each answer graded
+against my own answer by an LLM judge. A score of 1.00 means the model matched me. The test gives
+the model this SKILL.md and nothing else, so the only change is the document.
+
+| deepseek-v4-flash-0731 | bare | with SKILL.md | change |
+| --- | --- | --- | --- |
+| the 11 questions both runs answered | +0.563 | +0.698 | +0.135, or +24% |
+| same, minus the one field that can score above 1.00 | +0.555 | +0.672 | +0.117 |
+| 9 questions, dropping the two this skill is the source of | +0.501 | +0.689 | +0.188 |
+
+For scale, changing the judge moves a score by 0.04 on average, so the effect is about three times
+the noise. Two questions cite this repo as their source, and dropping them raises the effect rather
+than lowering it, so the model is not just reading the answer.
+
+Caveats: one model, one run, one judge, at bench version v94. The gain is uneven, from +0.81 on one
+question to -0.17 on another. Replication on other models is in progress.
+
 ## Citation
 
 ```bibtex
