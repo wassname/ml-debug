@@ -35,6 +35,16 @@ For scale, changing the judge moves a score by 0.04 on average, so the effect is
 the noise. Two questions cite this repo as their source, and dropping them raises the effect rather
 than lowering it, so the model is not just reading the answer.
 
+Put next to the frontier models on the same questions, the document closes most of the gap:
+
+| against | questions in common | bare | with SKILL.md | the other model | gap closed |
+| --- | --- | --- | --- | --- | --- |
+| gpt-5.6-sol | 9 | +0.540 | +0.678 | +0.774 | 59% |
+| glm-5.2, the top of the table | 11 | +0.563 | +0.698 | +0.694 | 103% |
+
+deepseek-v4-flash-0731 costs $0.036 for all 12 questions and gpt-5.6-sol costs $0.70, so this is a
+20x cheaper model reading a document instead of thinking harder.
+
 Caveats: one model, one run, one judge, at bench version v94. The gain is uneven, from +0.81 on one
 question to -0.17 on another. Replication on other models is in progress.
 
