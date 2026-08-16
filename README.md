@@ -20,34 +20,36 @@ Or paste `SKILL.md` into your system prompt / context when debugging.
 
 ## Does it help?
 
-One measurement so far, on [ml-bench](https://github.com/wassname/ml-bench): 12 hard machine
-learning research problems from my own work, none of them in any training set, each answer graded
-against my own answer by an LLM judge. A score of 1.00 means the model matched me. The test gives
-the model this SKILL.md and nothing else, so the only change is the document.
+Measured on [ml-bench](https://github.com/wassname/ml-bench): 12 hard machine learning research
+problems from my own work, none of them in any training set, each answer graded against my own
+answer by a panel of five LLM judges. A score of 1.00 means the model matched me. The test gives the
+model this SKILL.md and nothing else, so the only change is the document.
 
-| deepseek-v4-flash-0731 | bare | with SKILL.md | change |
+No measurable gain, from three answers per question in each arm:
+
+| deepseek-v4-flash-0731, 12 questions | bare | with SKILL.md | change |
 | --- | --- | --- | --- |
-| the 11 questions both runs answered | +0.563 | +0.698 | +0.135, or +24% |
-| same, minus the one field that can score above 1.00 | +0.555 | +0.672 | +0.117 |
-| 9 questions, dropping the two this skill is the source of | +0.501 | +0.689 | +0.188 |
+| first answer | +0.608 | +0.746 | +0.137 |
+| second answer | +0.648 | +0.641 | -0.007 |
+| third answer | +0.674 | +0.614 | -0.060 |
+| mean | +0.643 | +0.667 | +0.023, sd 0.102 |
 
-For scale, changing the judge moves a score by 0.04 on average, so the effect is about three times
-the noise. Two questions cite this repo as their source, and dropping them raises the effect rather
-than lowering it, so the model is not just reading the answer.
+The same model answering the same question again moves its score by about this much, so +0.023 is
+not distinguishable from zero. Pairing by question rather than by answer gives the same +0.023, with
+a standard error of 0.031 over the 12 questions.
 
-Only deepseek-v4-flash-0731 reads the document. The frontier models below answer the same questions
-with no document, as they normally do, and the document closes most of the distance to them:
+An earlier version of this section reported +0.135, or 59% of the distance to gpt-5.6-sol. That
+number was one answer per arm, and it is the first row of the table above. It did not survive the
+other two answers.
 
-| frontier model, no document | questions in common | flash, no document | flash, with SKILL.md | the frontier model | distance closed |
-| --- | --- | --- | --- | --- | --- |
-| gpt-5.6-sol | 9 | +0.540 | +0.678 | +0.774 | 59% |
-| glm-5.2, the top of the table | 11 | +0.563 | +0.698 | +0.694 | 103% |
+Two other readings. With SKILL.md the model writes 31% more text for the same score, so any
+verbosity bias in the judges makes the true effect smaller than +0.023, not larger. And only 1 answer
+in 36 uses the document's own vocabulary, so the document is in the context without changing much of
+what the model writes. The header does tell it not to quote the document back.
 
-deepseek-v4-flash-0731 costs $0.036 for all 12 questions and gpt-5.6-sol costs $0.70, so this is a
-20x cheaper model reading a document instead of thinking harder.
-
-Caveats: one model, one run, one judge, at bench version v94. The gain is uneven, from +0.81 on one
-question to -0.17 on another, so read this as one measurement and not as a rate.
+Caveats: one model, three answers per question, one judge panel, at bench version v96. The result is
+that this document did not help this model on these questions. It is not evidence about a stronger
+model, a longer task, or an agent that can run code.
 
 ## Citation
 
