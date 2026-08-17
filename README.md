@@ -27,20 +27,18 @@ model this SKILL.md and nothing else, so the only change is the document.
 
 No measurable gain, from three answers per question in each arm:
 
-| deepseek-v4-flash-0731, 12 questions | bare | with SKILL.md | change |
-| --- | --- | --- | --- |
-| first answer | +0.608 | +0.746 | +0.137 |
-| second answer | +0.648 | +0.641 | -0.007 |
-| third answer | +0.674 | +0.614 | -0.060 |
-| mean | +0.643 | +0.667 | +0.023, sd 0.102 |
+| deepseek-v4-flash-0731, 12 questions | bare | with SKILL.md |
+| --- | --- | --- |
+| mean score | +0.643 | +0.667 |
+| the three runs | +0.608, +0.648, +0.674 | +0.746, +0.641, +0.614 |
 
-The same model answering the same question again moves its score by about this much, so +0.023 is
-not distinguishable from zero. Pairing by question rather than by answer gives the same +0.023, with
-a standard error of 0.031 over the 12 questions.
+The difference is +0.023 with a standard error of 0.044, so it is not distinguishable from zero.
+Pairing by question rather than by run gives the same +0.023 with a standard error of 0.031, t of
+0.76. The runs themselves scatter by more than the difference between the two columns.
 
-An earlier version of this section reported +0.135, or 59% of the distance to gpt-5.6-sol. That
-number was one answer per arm, and it is the first row of the table above. It did not survive the
-other two answers.
+An earlier version of this section reported +0.135, or 59% of the distance to gpt-5.6-sol. That was
+one run of each arm, and it happens to be the first run in each column above. It did not survive the
+other two.
 
 Two other readings. With SKILL.md the model writes 31% more text for the same score, so any
 verbosity bias in the judges makes the true effect smaller than +0.023, not larger. And only 1 answer
