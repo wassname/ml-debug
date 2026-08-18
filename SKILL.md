@@ -98,6 +98,16 @@ The cheapest antidote he gives: "Read your data ... Often, the quality of the da
 
 I'll add. for LLM's I suggest assuming every negative results is a bug, and 1) reviewing associated code and output logs to find the top 5 reasons/probabilities why the results might be invalid 2) to avoid skimming this report should involve quoting and interpreting to the user about everything, which should include at least: config, weird code / engineering, data, eval and importantly the log and metrics behaviour and demos in it. It should often include looking at a random sample of output and comparing it to the expected output. - wassname
 
+### A null needs positive controls; a PASS needs a mechanism check (LUCID v8)
+
+Lessons from a 7-run negative result (LUCID docs/audits/job_341..357.md), written by CLAUDE:
+
+> A negative result is only believable if the SAME instrument shows it can detect a real effect (a positive-control contrast in the same table) and passes an injection test: feed the model the label it is supposed to infer, confirm the metric fires. A null from an eval that fails injection is a broken eval, not a finding.
+
+> Symmetrically, do not trust a barely-significant PASS until you check the mechanism: in v8 the one passing run had identical intervention vectors for both experimental arms (cos = +1.0000), so the "effect" was magnitude noise, and dropping 2 of 24 eval rows flipped the CI. Cheap kills: cosine between the things that must differ, drop-k sensitivity, and reading the decoded outputs side by side (they were verbatim identical).
+
+> Also: ceiling-probe the representation before training anything on top of it. A leave-one-out linear probe on the raw features is minutes of compute and bounds everything downstream; v8 spent five GPU runs on losses when the read's LOO ceiling (0.74) already said no loss could work. And contrast/hinge losses over small pair counts memorize the pairs: the tell is eval items that improve under the WRONG condition's state.
+
 ### Understand the system to shrink the search (Ulisse Mini)
 
 > When good programmers debug hard problems fast, it's usually because they understand the system well enough to *track the important internal state* in their head, letting them drastically *reduce the solution space they're searching over.*[^ulisse]
