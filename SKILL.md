@@ -21,6 +21,18 @@ english. Use these words for every credence, from the
 |---|---|---|---|---|---|---|
 | 86-99% | 71-85% | 56-70% | 46-55% | 31-45% | 16-30% | 1-15% |
 
+## 0. You have a bug. The trigger is the all-clear
+
+This one has no phase, so watch your own draft instead. The moment you are about to write
+"everything checks out", "nothing looks unresolved", "no open questions", "looks good", or "the
+metrics look fine", stop and pay ritual 6 first: three diagnoses with credences, five ways this is
+invalid, and random raw samples.
+
+An all-clear is a claim, and it is the claim least likely to have been checked. A machine learning
+system has many adaptive parts, so a broken one is often hidden by the others compensating, and the
+output still looks reasonable. Raise the bar at which you say "I think this is correct". Most
+research results are false, and an exciting result is more likely false than a boring one.
+
 ## 1. Frame the project, once, before the first real run
 
 Write this into the project's `AGENTS.md` and keep it there. Without it, a null result later gets
@@ -38,10 +50,11 @@ EVIDENCE B, quantitative: beats a named baseline on a named metric, not chance.
 ELSE: if A and B disagree, or either fails, say now what that means about the method.
 ```
 
-## 2. Keep a training guide, under 400 lines, living
+## 2. Keep a training guide, two pages, living
 
-`TRAINING_GUIDE.md` in the project. The worker maintains it. It holds the current model of the
-system, not a run history, so it stays small by replacing claims that went stale.
+`TRAINING_GUIDE.md` in the project, under 180 lines. The worker maintains it. It holds the current
+model of the system, not a run history, so it stays small by replacing claims that went stale. Past
+180 lines you are appending history, and nobody will read it, which defeats the file.
 
 Frontmatter carries only what a program can check:
 
