@@ -22,6 +22,15 @@ Write plain english. Give every credence a word and a number from the
 Nothing here tells you what to fix. The steps make you look before you decide, and the decision
 stays yours, because this system is probably not in your training data.
 
+Unknown is a permitted answer, and often the correct one. Write "unknown" in any cell you cannot
+fill from evidence, and say what would fill it. A named cause you cannot separate from two others
+is not knowledge, and it is the usual reason an agent stops early with a confident story.
+
+You may change several things at once. Long runs make one-tweak-at-a-time too slow, so the rule is
+attribution, not restraint: name each change, say which direction you expect it to push and why,
+and say which readout would separate it from the others. Changes you cannot separate afterwards are
+one change with three names.
+
 ## P1. A run finished or crashed
 
 Steps 1 to 4 are what reading a run means, so do them even when you were asked only to read a log.
