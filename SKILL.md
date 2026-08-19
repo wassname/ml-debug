@@ -57,6 +57,7 @@ One markdown entry per stage, and each entry says what should become observable,
 ```markdown
 ## Writer
 Purpose: use the inferred user state to change decoder behavior.
+Trained: writer. Frozen: decoder, encoder. Input: state at t. Loss: reply NLL.
 Theory of change: state difference -> write difference -> logit difference -> behavior difference.
 Expected sequence: 1. write leaves its initial scale. 2. write beats zero-write.
   3. swapping the state changes the logits. 4. generations differ. 5. they differ in the
@@ -64,6 +65,7 @@ Expected sequence: 1. write leaves its initial scale. 2. write beats zero-write.
 Required observations: writer loss curve, update norm, zero-write arm, shuffled-state arm,
   first-token logits, long free generations.
 Current evidence: quote a job and a number for each link you claim.
+Missing evidence: the observations nobody has made yet.
 Status: partial, likely, 60%.
 Earliest unsupported link: step 5. Swaps move the logits, the direction is not established.
 Main question: ...
@@ -91,16 +93,25 @@ Run `/auditlog`, which owns the full procedure. It requires the whole log, the r
 actual data, complete raw outputs from every arm, a stage table, and hypotheses that each carry a
 quote, a credence, contrary evidence, and a discriminating test.
 
-Three things this skill adds to that audit:
+Four things this skill adds to that audit:
 
-1. A quote-centered narrative. For each technically risky part, write what you expected to see, then
-   quote the log line, metric row, or sample that shows what you did see. A summary without a quote
-   does not show that you opened the log. A needed metric that is missing is a valid outcome: add it
-   and run again.
+1. A measurement pass before any diagnosis, written under the heading "do not interpret yet". Quote
+   the log line, metric row, or sample for each technically risky part, next to what you expected to
+   see there. Give every curve its value at the start, early, middle and end, because the shape
+   carries the diagnosis and the final number does not. A summary without a quote does not show that
+   you opened the log. A needed metric that is missing is a valid outcome: add it and run again.
 2. A prediction check against the form from ritual 3, row by row, marked supported, contradicted, or
    unresolved.
 3. The earliest unsupported link in the training guide, updated. Then edit the affected stage entry.
    If the guide grew, you appended run history instead of replacing a stale claim.
+4. The case for the next experiment, made against the current unresolved question. Say why it beats
+   finishing, repeating, or cancelling work already in the queue. Killing a queued sweep that no
+   longer answers the question is progress. Never stop applies to the research goal, never to one
+   experiment, architecture, sweep or hypothesis.
+
+A crash is a run and gets an audit too. Then use judgement: a typo or a missing import gets fixed
+and rerun immediately, while a broken idea earns no more compute until you have read the papers and
+the reference code.
 
 Anything weird gets a line in the audit, and every line ends explained or being investigated. An
 anomaly you found without looking for it is a large problem, so chase it rather than hoping it goes
@@ -131,6 +142,8 @@ Three artifacts, every time, for a positive result as much as a negative one:
 
 1. Three or more diagnoses with credences, including a code bug and an invalid evaluation whenever
    they are plausible. Leave probability on an unknown cause. Do not pad the list to reach three.
+   Every diagnosis carries the strongest evidence against it. If you cannot find any evidence
+   against your favourite, you have not tested it, so lower the credence and say so.
 2. The five most likely ways this result is invalid, each with the check that would settle it.
 3. Complete raw samples, chosen at random, quoted. Say how you chose them. Samples picked because
    they look clean prove nothing.
