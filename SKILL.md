@@ -33,8 +33,8 @@ one change with three names.
 
 ## P1. A run finished or crashed
 
-Steps 1 to 4 are what reading a run means, so do them even when you were asked only to read a log.
-They write nothing except your reply. Steps 5 to 7 change files, so they wait for a task that asks
+Steps 1 to 5 are what reading a run means, so do them even when you were asked only to read a log.
+They write nothing except your reply. Steps 6 to 8 change files, so they wait for a task that asks
 you to audit, decide, or act.
 
 1. Open the log and read it end to end. State its length and confirm you read all of it. A tail
@@ -47,16 +47,19 @@ you to audit, decide, or act.
    Read each curve at four points, because the shape carries the diagnosis and the last number does
    not. If a metric that would settle a row does not exist, say which one, and add it to the code
    before the next run. STOP here if any cell is empty.
-3. List every anomaly, including ones you would rather ignore. Each line ends explained, or being
+3. Open what the run produced, not only what it printed. Quote one complete generation, prediction
+   or output per arm, chosen at random, and say how you chose them. Metrics summarise, and a
+   collapsed, truncated or identical output is invisible in a mean.
+4. List every anomaly, including ones you would rather ignore. Each line ends explained, or being
    investigated now. An anomaly you found without looking for it is a big problem.
-4. Write the prediction check against the P2 table from before this run, one row per prediction,
+5. Write the prediction check against the P2 table from before this run, one row per prediction,
    marked supported, contradicted, or unresolved. Write "no predictions were recorded" if there
    were none, and then record them next time.
-5. Run `/auditlog`. It owns the full audit and writes the audit file.
-6. Open `TRAINING_GUIDE.md`, edit the stage this run touched, and write the earliest step of that
+6. Run `/auditlog`. It owns the full audit and writes the audit file.
+7. Open `TRAINING_GUIDE.md`, edit the stage this run touched, and write the earliest step of that
    stage's expected sequence that evidence does not yet support. If the file got longer, you
    appended history instead of replacing a stale claim.
-7. Say what to run next and why it beats finishing, repeating, or cancelling work already queued.
+8. Say what to run next and why it beats finishing, repeating, or cancelling work already queued.
    Cancel the queued work that no longer answers the question. Never stop applies to the research
    goal, never to one experiment, sweep or hypothesis.
 
@@ -81,6 +84,9 @@ the reference code.
 4. Add any metric whose row says no. A run that cannot separate success from failure is not worth
    the GPU time.
 5. Overfit about 20 samples and paste the final loss. Near zero, or stop and fix that first.
+6. Follow the job after you queue it, one background follow per job, so the finish wakes you and
+   you read that log. Use `pqf <id>` here, or `pueue wait <id>` through `pi-processes` under Pi. A
+   job nobody follows is a log nobody reads.
 
 ## P3. You are about to report a result, or to say it looks fine
 
@@ -97,7 +103,12 @@ are claims, and they are the claims least likely to have been checked.
 3. Write the five most likely ways this result is invalid, each with the check that would settle it.
 4. Quote complete raw samples chosen at random, and say how you chose them. Samples picked because
    they look clean prove nothing.
-5. Only now write your conclusion.
+5. To claim A beats B, name the baseline, name the chance level, and say how the gap compares with
+   the spread between seeds of one arm. One seed each means unresolved, which is a permitted answer.
+   [refs/sweeps.md](refs/sweeps.md) has the paired comparison.
+6. When the result matters or surprises you, send a fresh-eyes subagent the artifact with no story
+   attached, and ask what the evidence supports. Report what it says, including agreement.
+7. Only now write your conclusion.
 
 Start from a substantial probability that a surprising result is invalid, and lower it as checks
 rule out bugs, leakage and broken evaluation. An exciting result is more likely false than a boring
