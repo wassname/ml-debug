@@ -165,8 +165,22 @@ Earliest unsupported link: step 5. Swaps move the logits, the direction is not e
 Main question: ...
 ```
 
-Never put a list of possible failure causes in this file. Such a list gives an agent thirty excuses.
-The expected sequence gives it one question: which link should be visible by now, and is it?
+Never put a list of possible failure causes in this file. Such a list gives an agent thirty excuses,
+and it will pick one, call it certain, and stop. The expected sequence gives it one question
+instead: which link should be visible by now, and is it?
+
+What a stage entry may hold is an interpretation, written as evidence for or against a claim you
+already made, never as a cause. Copy this shape:
+
+> If posterior error falls and free generation does not change, that is evidence against "posterior
+> quality is the current constraint". By itself it does not show the writer is broken.
+
+> A high learning rate makes oscillation or divergence plausible. Neither their presence nor their
+> absence settles it. Compare update size, per-component losses, and the expected learning order.
+
+History does not belong here. Put the run-by-run record in `RESEARCH_JOURNAL.md`, keep the guide as
+the current model, and re-read the guide after a context reset or a compaction, because it is the
+memory that survives one.
 
 ## Reference
 
