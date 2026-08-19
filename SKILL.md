@@ -57,21 +57,28 @@ the reference code.
 
 ## P2. You are about to queue or launch a run
 
-1. Write which stage of `TRAINING_GUIDE.md` this run advances.
-2. Fill this table. Do not queue anything until it is filled.
+1. Read your data. Print the first training example, the first evaluation example, and one of each
+   contrastive arm, in full, with the chat template and the special tokens visible. Quote them in
+   your reply. Formatting and masking errors are invisible in aggregate metrics and obvious here,
+   and outliers are where the data bugs live.
+2. Write which stage of `TRAINING_GUIDE.md` this run advances, and what changed since the last run.
+   Several changes at once is fine when you are searching, but say so, because it decides what the
+   result can attribute.
+3. Fill this table. Do not queue anything until it is filled.
 
    | risky part | what I expect to see | what would falsify it | metric exists? |
    |---|---|---|---|
 
-3. Add any metric whose row says no. A run that cannot separate success from failure is not worth
+4. Add any metric whose row says no. A run that cannot separate success from failure is not worth
    the GPU time.
-4. Overfit about 20 samples and paste the final loss. Near zero, or stop and fix that first.
+5. Overfit about 20 samples and paste the final loss. Near zero, or stop and fix that first.
 
 ## P3. You are about to report a result, or to say it looks fine
 
-Do this for a positive result, a negative result, and an all-clear alike. "Everything checks out",
-"nothing looks unresolved", "no open questions" and "the metrics look fine" are claims, and they are
-the claims least likely to have been checked.
+Assume you have a bug. Everyone has at least one, and a wrong number reaches you looking exactly
+like a right one. Do this for a positive result, a negative result, and an all-clear alike.
+"Everything checks out", "nothing looks unresolved", "no open questions" and "the metrics look fine"
+are claims, and they are the claims least likely to have been checked.
 
 1. Write three or more diagnoses. Each one gets a credence, the strongest evidence for it, and the
    strongest evidence against it. Include a code bug and an invalid evaluation whenever they are
@@ -166,6 +173,7 @@ The expected sequence gives it one question: which link should be visible by now
 Open the one the situation calls for. These widen a hypothesis space and are not authoritative for
 your system. The practitioner folklore behind this procedure is in [README.md](README.md).
 
+- [README.md](README.md) -- Folklore qoutes and advice
 - [PLAYBOOK.md](PLAYBOOK.md) -- mental models, component isolation, baseline ladder, what to log, symptom tables, triage, anti-patterns.
 - [refs/checklist.md](refs/checklist.md) -- Lones's 36 do/don'ts across data, training, evaluation, comparison, reporting.
 - [refs/diagnostics.md](refs/diagnostics.md) -- copy-paste snippets: init loss, overfit one batch, gradient flow, NaN hooks, leakage tracer, backprop-to-input dependency check.
