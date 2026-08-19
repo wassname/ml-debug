@@ -24,23 +24,26 @@ stays yours, because this system is probably not in your training data.
 
 ## P1. A run finished or crashed
 
-1. Run `/auditlog`. It owns the full audit and writes the file. Steps 2 to 6 are what it does not
-   cover, so do them too.
-2. Open the log and read it end to end. State its length and confirm you read all of it. A tail
+Steps 1 to 4 are what reading a run means, so do them even when you were asked only to read a log.
+They write nothing except your reply. Steps 5 to 7 change files, so they wait for a task that asks
+you to audit, decide, or act.
+
+1. Open the log and read it end to end. State its length and confirm you read all of it. A tail
    once made three audits call a working method broken.
-3. Write the measurement table. Fill it before you write one word of diagnosis.
+2. Write the measurement table. Fill it before you write one word of diagnosis.
 
    | risky part | expected | start | early | middle | end | quoted line |
    |---|---|---|---|---|---|---|
 
    Read each curve at four points, because the shape carries the diagnosis and the last number does
-   not. If a metric that would settle a row does not exist, add it to the code and run again. STOP
-   here if any cell is empty.
+   not. If a metric that would settle a row does not exist, say which one, and add it to the code
+   before the next run. STOP here if any cell is empty.
+3. List every anomaly, including ones you would rather ignore. Each line ends explained, or being
+   investigated now. An anomaly you found without looking for it is a big problem.
 4. Write the prediction check against the P2 table from before this run, one row per prediction,
    marked supported, contradicted, or unresolved. Write "no predictions were recorded" if there
    were none, and then record them next time.
-5. List every anomaly, including ones you would rather ignore. Each line ends explained, or being
-   investigated now. An anomaly you found without looking for it is a big problem.
+5. Run `/auditlog`. It owns the full audit and writes the audit file.
 6. Open `TRAINING_GUIDE.md`, edit the stage this run touched, and write the earliest step of that
    stage's expected sequence that evidence does not yet support. If the file got longer, you
    appended history instead of replacing a stale claim.
