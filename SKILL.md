@@ -1,6 +1,6 @@
 ---
 name: ml-debug
-description: "Procedure for machine learning development and debugging. Execute the numbered steps and paste the filled templates into your reply. Use before queueing a run, after a run finishes or crashes, when stuck, before reporting any result, and before writing that a result looks fine. Makes 'read your data', 'assume you have a bug' and 'compare to reference code' produce artifacts the user can check."
+description: "Procedure for machine learning development and debugging. Execute the numbered steps and paste the filled templates into your reply. Invoke it yourself, do not wait to be asked. Triggers: read the log, read the last pueue job, check the run, what did that job show, the training run finished, it crashed, queue a run, the loss is not going down, the metric will not move, is this result real, does A beat B, and any moment you are about to write that a result looks fine. Makes 'read your data', 'assume you have a bug' and 'compare to reference code' produce artifacts the user can check."
 ---
 
 # ML procedure: execute, do not summarise
