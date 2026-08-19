@@ -1,19 +1,33 @@
 ---
 name: ml-debug
-description: "Rituals for machine learning development and debugging: forms to fill and show the user at each trigger point, so evidence gets read instead of assumed. Use when framing an ML project's success evidence, before launching a run, after a run finishes or crashes, when stuck after two diagnostic cycles, and before reporting any result. Turns 'read your data', 'assume you have a bug', and 'compare to reference code' into artifacts the user can check."
+description: "Instructions for machine learning development and debugging: at each trigger point, fill a short form and show it to the user, so the evidence gets read instead of assumed. Use when writing a project's success evidence, before launching a run, after a run finishes or crashes, when stuck after two diagnostic cycles, and before reporting any result. Turns 'read your data', 'assume you have a bug', and 'compare to reference code' into artifacts the user can check."
 ---
 
-# Rituals for ML development
+# ML development: do the block that matches
 
-The practitioner folklore behind every ritual here is in [README.md](README.md), written for humans.
+The practitioner folklore behind these blocks is in [README.md](README.md), written for humans.
 Agents read that prose, agree with it, and then skip it: measured on ml-bench, loading the folklore
 changed a model's score by +0.023 +/- 0.044, which is nothing.
 
-So each principle below is a ritual instead: a trigger, a form, and an artifact you show the user.
-A skipped ritual is then visible. The forms ask questions and never prescribe the fix, because the
-judgement is yours and the system is probably not in your training data.
+So each principle here is an instruction instead: something to write now, and to show the user, so
+that skipping it is visible. Every block asks questions and none of them tells you what to fix. The
+work is to make you look before you decide. The decision stays yours, because this system is
+probably not in your training data.
 
-Fill the forms in the chat, in the audit file, or in the guide, as each ritual says. Write plain
+Do not summarise this file back to anyone. Find the line below that matches what just happened, go
+to that block, and do it in your next message.
+
+| what just happened | do this now |
+|---|---|
+| you are about to write "everything checks out" | block 0 |
+| a new project, no evidence criteria written yet | block 1 |
+| a run finished and a stage changed | block 2 |
+| you are about to queue or launch a run | block 3 |
+| a run finished or crashed | block 4 |
+| two diagnostic cycles with no progress, or a metric will not move | block 5 |
+| you are about to report a result | block 6 |
+
+Fill the forms in the chat, in the audit file, or in the guide, as each block says. Write plain
 english. Use these words for every credence, from the
 [Kesselman list](https://gwern.net/doc/statistics/bayes/2008-kesselman.pdf#p71):
 
@@ -21,22 +35,26 @@ english. Use these words for every credence, from the
 |---|---|---|---|---|---|---|
 | 86-99% | 71-85% | 56-70% | 46-55% | 31-45% | 16-30% | 1-15% |
 
-## 0. You have a bug. The trigger is the all-clear
+## 0. You have a bug. Check before you say the result is fine
 
-This one has no phase, so watch your own draft instead. The moment you are about to write
-"everything checks out", "nothing looks unresolved", "no open questions", "looks good", or "the
-metrics look fine", stop and pay ritual 6 first: three diagnoses with credences, five ways this is
-invalid, and random raw samples.
+Watch your own draft. When you are about to write "everything checks out", "nothing looks
+unresolved", "no open questions", "looks good", or "the metrics look fine", stop and do block 6
+first: three diagnoses with credences, five ways this is invalid, and random raw samples.
 
 An all-clear is a claim, and it is the claim least likely to have been checked. A machine learning
 system has many adaptive parts, so a broken one is often hidden by the others compensating, and the
 output still looks reasonable. Raise the bar at which you say "I think this is correct". Most
 research results are false, and an exciting result is more likely false than a boring one.
 
-## 1. Frame the project, once, before the first real run
+## 1. Write down what would convince you, then rewrite it as you learn
 
-Write this into the project's `AGENTS.md` and keep it there. Without it, a null result later gets
-explained away, because nobody wrote down what a null would mean.
+This lives in the project's `AGENTS.md`. Write the first draft early, while you still know almost
+nothing, and expect it to be wrong. Its job at that point is to stop a null result from being
+explained away later, because nobody wrote down what a null would mean.
+
+Revise it whenever evidence changes what you believe, and say in the audit what you changed and
+why. A frame you never revised is a frame you never tested. A frame you revised after seeing the
+result, without saying so, is how a null becomes a success.
 
 ```markdown
 GOAL: one paragraph, plain english. What is learned, and what is the contribution.
@@ -50,11 +68,13 @@ EVIDENCE B, quantitative: beats a named baseline on a named metric, not chance.
 ELSE: if A and B disagree, or either fails, say now what that means about the method.
 ```
 
-## 2. Keep a training guide, two pages, living
+## 2. Build the training guide as you go, two pages
 
-`TRAINING_GUIDE.md` in the project, under 180 lines. The worker maintains it. It holds the current
-model of the system, not a run history, so it stays small by replacing claims that went stale. Past
-180 lines you are appending history, and nobody will read it, which defeats the file.
+If `TRAINING_GUIDE.md` does not exist, create it now with the stages you can already name, and mark
+every one of them unknown. It grows one observation at a time, after each run, and it holds your
+current model of the system rather than a run history. Keep it under 180 lines by replacing claims
+that went stale. Past 180 lines you are appending history, nobody will read it, and the file is
+dead.
 
 Frontmatter carries only what a program can check:
 
@@ -87,7 +107,7 @@ Main question: ...
 Do not put a failure-mode list in this file. A list of possible causes gives an agent thirty
 excuses. The expected sequence gives it one question: which link should be visible by now, and is it?
 
-## 3. Before a run
+## 3. Predict the run before you queue it
 
 Show the user this form. Queue nothing until it is filled.
 
@@ -100,7 +120,7 @@ distinguish success from failure is not worth the GPU time.
 Also state which stage of the training guide this run advances, and paste the loss from overfitting
 about 20 samples. Near zero, or something is wrong before the real run starts.
 
-## 4. After every run, including a crash
+## 4. Audit the run, crash included, and quote the log
 
 Run `/auditlog`, which owns the full procedure. It requires the whole log, the resolved config, the
 actual data, complete raw outputs from every arm, a stage table, and hypotheses that each carry a
@@ -113,7 +133,7 @@ Four things this skill adds to that audit:
    see there. Give every curve its value at the start, early, middle and end, because the shape
    carries the diagnosis and the final number does not. A summary without a quote does not show that
    you opened the log. A needed metric that is missing is a valid outcome: add it and run again.
-2. A prediction check against the form from ritual 3, row by row, marked supported, contradicted, or
+2. A prediction check against the form from block 3, row by row, marked supported, contradicted, or
    unresolved.
 3. The earliest unsupported link in the training guide, updated. Then edit the affected stage entry.
    If the guide grew, you appended run history instead of replacing a stale claim.
@@ -130,7 +150,7 @@ Anything weird gets a line in the audit, and every line ends explained or being 
 anomaly you found without looking for it is a large problem, so chase it rather than hoping it goes
 away.
 
-## 5. When stuck, after two diagnostic cycles or a metric that will not move
+## 5. When stuck, diff against reference code and send a bug hunt
 
 Both of these, not one:
 
@@ -149,7 +169,7 @@ Subagent bug hunt. Send a fresh-eyes subagent at the module or the diff with the
 at least one bug, we all have at least one. Report what it found, including nothing. You cannot see
 your own typos because you know what the code was supposed to say.
 
-## 6. Before reporting any result
+## 6. Test the result before you report it
 
 Three artifacts, every time, for a positive result as much as a negative one:
 
