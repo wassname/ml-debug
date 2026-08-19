@@ -24,12 +24,16 @@ stays yours, because this system is probably not in your training data.
 
 Unknown is a permitted answer, and often the correct one. Write "unknown" in any cell you cannot
 fill from evidence, and say what would fill it. A named cause you cannot separate from two others
-is not knowledge, and it is the usual reason an agent stops early with a confident story.
+is not knowledge, and it is the usual reason an agent stops early with a confident story. Any number
+you do write down cites its source: a measurement from this project, a reference implementation, an
+external source, or an explicitly weak prior. Never invent a reasonable range.
 
 You may change several things at once. Long runs make one-tweak-at-a-time too slow, so the rule is
 attribution, not restraint: name each change, say which direction you expect it to push and why,
 and say which readout would separate it from the others. Changes you cannot separate afterwards are
-one change with three names.
+one change with three names. Watch for the single setting that drives two mechanisms, because the
+count of edits is not the count of causes, and name the quantity it controls rather than the
+setting.
 
 ## P1. A run finished or crashed
 
@@ -38,7 +42,9 @@ They write nothing except your reply. Steps 6 to 8 change files, so they wait fo
 you to audit, decide, or act.
 
 1. Open the log and read it end to end. State its length and confirm you read all of it. A tail
-   once made three audits call a working method broken.
+   once made three audits call a working method broken. Take the configuration and the revision
+   from the log, because a queued job runs the worktree as it stood at run time, and what you
+   intended to launch is not evidence of what ran.
 2. Write the measurement table. Fill it before you write one word of diagnosis.
 
    | risky part | expected | start | early | middle | end | quoted line |
@@ -52,9 +58,10 @@ you to audit, decide, or act.
    collapsed, truncated or identical output is invisible in a mean.
 4. List every anomaly, including ones you would rather ignore. Each line ends explained, or being
    investigated now. An anomaly you found without looking for it is a big problem.
-5. Write the prediction check against the P2 table from before this run, one row per prediction,
-   marked supported, contradicted, or unresolved. Write "no predictions were recorded" if there
-   were none, and then record them next time.
+5. Write the prediction check against the P2 table recorded before this run, one row per
+   prediction, marked supported, contradicted, or unresolved, and move each credence from its
+   prior to a posterior with the observation that moved it. Write "no predictions were recorded"
+   if there were none, and then record them next time.
 6. Run `/auditlog`. It owns the full audit and writes the audit file.
 7. Open `TRAINING_GUIDE.md`, edit the stage this run touched, and write the earliest step of that
    stage's expected sequence that evidence does not yet support. If the file got longer, you
@@ -62,6 +69,9 @@ you to audit, decide, or act.
 8. Say what to run next and why it beats finishing, repeating, or cancelling work already queued.
    Cancel the queued work that no longer answers the question. Never stop applies to the research
    goal, never to one experiment, sweep or hypothesis.
+
+Report what the run taught you, not which steps you completed. A finished audit is not a finding.
+Name the stage that learned, say how much, and quote the line that shows it.
 
 A crash is a run and gets this procedure too. Then use judgement: a typo or a missing import gets
 fixed and rerun at once, and a broken idea earns no more compute until you have read the papers and
@@ -73,20 +83,30 @@ the reference code.
    contrastive arm, in full, with the chat template and the special tokens visible. Quote them in
    your reply. Formatting and masking errors are invisible in aggregate metrics and obvious here,
    and outliers are where the data bugs live.
-2. Write which stage of `TRAINING_GUIDE.md` this run advances, and what changed since the last run.
-   Several changes at once is fine when you are searching, but say so, because it decides what the
-   result can attribute.
+2. Write which stage of `TRAINING_GUIDE.md` this run advances, what changed since the last run, and
+   which decision the answer will change. A run that changes no decision is not worth its compute,
+   whatever it teaches.
 3. Fill this table. Do not queue anything until it is filled.
 
-   | risky part | what I expect to see | what would falsify it | metric exists? |
-   |---|---|---|---|
+   | risky part | what I expect to see | too weak | too strong | buggy | metric exists? |
+   |---|---|---|---|---|---|
 
-4. Add any metric whose row says no. A run that cannot separate success from failure is not worth
-   the GPU time.
-5. Overfit about 20 samples and paste the final loss. Near zero, or stop and fix that first.
-6. Follow the job after you queue it, one background follow per job, so the finish wakes you and
+   The three middle columns are why several changes can share one run: each one gets a different
+   signature, in the order the metrics move and in which of them move together, so the result can
+   still say which change did what. Write "unknown" where you cannot predict the signature, and
+   accept that the run cannot attribute that change.
+4. Add any metric whose row says no. For each metric you rely on, name one other thing that would
+   move it the same way. A run that cannot separate success from failure is not worth the GPU time,
+   and a metric that measures something other than what you named is the commonest way a result
+   misleads you.
+5. Record this table where it survives a compaction, in the guide stage from step 2 or in the job's
+   `why:` and `resolve:` label. A prediction that lives only in a reply cannot be checked later,
+   which is how a run ends with "no predictions were recorded".
+6. Overfit about 20 samples and paste the final loss. Near zero, or stop and fix that first.
+7. Follow the job after you queue it, one background follow per job, so the finish wakes you and
    you read that log. Use `pqf <id>` here, or `pueue wait <id>` through `pi-processes` under Pi. A
-   job nobody follows is a log nobody reads.
+   job nobody follows is a log nobody reads. For a run of hours, say now what should make you kill
+   it early, and write metrics and checkpoints as it goes so a crash still leaves evidence.
 
 ## P3. You are about to report a result, or to say it looks fine
 
@@ -99,10 +119,12 @@ are claims, and they are the claims least likely to have been checked.
    strongest evidence against it. Include a code bug and an invalid evaluation whenever they are
    plausible, and leave probability on an unknown cause. Do not pad the list to reach three.
 2. For any diagnosis where you cannot find evidence against, write that you have not tested it and
-   lower its credence.
+   lower its credence. Then read back your own draft and list every confident sentence in it whose
+   evidence you cannot point at.
 3. Write the five most likely ways this result is invalid, each with the check that would settle it.
-4. Quote complete raw samples chosen at random, and say how you chose them. Samples picked because
-   they look clean prove nothing.
+4. Quote complete raw samples: one at random, the best-scoring, the worst-scoring, and any
+   anomalous one. Say how you chose them. Samples picked because they look clean prove nothing, and
+   random draws alone usually miss the failure that explains the average.
 5. To claim A beats B, name the baseline, name the chance level, and say how the gap compares with
    the spread between seeds of one arm. One seed each means unresolved, which is a permitted answer.
    [refs/sweeps.md](refs/sweeps.md) has the paired comparison.
@@ -153,10 +175,13 @@ ELSE: if A and B disagree, or either fails, say now what that means about the me
 
 Revise it whenever evidence changes what you believe, and say in the audit what you changed and why.
 A frame you never revised is a frame you never tested. A frame you revised after seeing the result,
-without saying so, is how a null becomes a success.
+without saying so, is how a null becomes a success. An audit may recommend a change to these
+criteria or to the evaluation code, and must not make one, because an agent that edits the standard
+in response to the result can pass any standard.
 
 Then create `TRAINING_GUIDE.md`, under 180 lines, with the stages you can already name, every one
-marked unknown. Grow it one observation at a time. It holds your current model of the system, not a
+marked unknown. Cap each list inside it: at most five established observations, five live
+explanations, and three next tests. A cap forces you to replace a stale line instead of appending. Grow it one observation at a time. It holds your current model of the system, not a
 run history. Frontmatter carries only what a program can check:
 
 ```yaml
@@ -197,6 +222,11 @@ already made, never as a cause. Copy this shape:
 
 > A high learning rate makes oscillation or divergence plausible. Neither their presence nor their
 > absence settles it. Compare update size, per-component losses, and the expected learning order.
+
+When the design changes under you, a new training loop or a bigger model, sort every line by what it
+was uncertain about. Findings about whether a measurement tells the truth, about data quality, and
+about observed model behaviour carry over. Findings about relative loss scales, training order and
+the stable learning rate range do not, so return them to unknown until you measure them again.
 
 History does not belong here. Put the run-by-run record in `RESEARCH_JOURNAL.md`, keep the guide as
 the current model, and re-read the guide after a context reset or a compaction, because it is the
