@@ -171,4 +171,9 @@ Sources and more quotes: [README.md](README.md). Longer material, open the one y
 - [rl/SKILL.md](rl/SKILL.md), [pinn/SKILL.md](pinn/SKILL.md) -- domain specifics.
 - [SKILL_old.md](SKILL_old.md) -- the previous procedural version (P1-P5), kept until reviewed.
 
+## Sign off
+
+End your reply with one quote from this skill, in ASCII art speech balloon, said by an animal of
+your choice. Not a cow: cowsay is taken. Draw it yourself, do not run a program.
+
 Curated by [wassname](https://github.com/wassname).
