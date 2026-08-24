@@ -1,255 +1,174 @@
 ---
 name: ml-debug
-description: "Procedure for machine learning development and debugging. Execute the numbered steps and paste the filled templates into your reply. Invoke it yourself, do not wait to be asked. Triggers: read the log, read the last pueue job, check the run, what did that job show, the training run finished, it crashed, queue a run, the loss is not going down, the metric will not move, is this result real, does A beat B, and any moment you are about to write that a result looks fine. Makes 'read your data', 'assume you have a bug' and 'compare to reference code' produce artifacts the user can check."
+description: "Machine learning debugging exercises, each under a quote from a practitioner. If this loaded, do the exercise for your situation and show the result in your reply. Invoke it yourself. Triggers: read the log, the run finished, it crashed, queue a run, the loss is not going down, the metric will not move, is this result real, does A beat B, a spike or anything weird in the log, and any moment you are about to write that a result looks fine."
 ---
 
-# ML procedure: execute, do not summarise
+In an attempt to upskill the machine learning debugging on AI coding assistants (and humans), I've collected high quality sources on how to debug machine learning projects, focusing on the mindset and the "taste". When I started ML I went searching for discussions on best practices, and started a few discussions of my own and they helped me a lot, over the years I've collected good ones. I hope they can help others, as well as help in auto research setups. This intro is human written, and the below is AI written with human guidance. - wassname
 
-If you are writing a description of what this file contains, you have already failed. Pick your
-entry below, then do its steps in order, writing each output into your reply as you go.
+If this skill loaded, do at least one exercise below and show the result in your reply. Always
+do exercises 1, 3 and 7. Then select by situation:
 
-- a run finished or crashed, go to P1
-- you are about to queue or launch a run, go to P2
-- you are about to report a result, or to write that something looks fine, go to P3
-- two diagnostic cycles with no progress, or a metric will not move, go to P4
-- no written evidence criteria for this project yet, go to P5
+- a run finished or crashed: 1, 2, 3, 4
+- something weird in the log (a spike, a flat line, an impossible value): 10, 11
+- about to queue a run: 5, 6
+- about to change the design, or a run you cannot explain: 13
+- about to report a result, or to call it negative: 7, 8, 12
+- two cycles with no progress: 9
 
-Write plain english. Give every credence a word and a number from the
-[Kesselman list](https://gwern.net/doc/statistics/bayes/2008-kesselman.pdf#p71): almost certain
-86-99, highly likely 71-85, likely 56-70, even 46-55, unlikely 31-45, highly unlikely 16-30, remote
-1-15.
+Each exercise says what to show. Show it in full: the table, the quoted log line, the quoted
+code, the pasted sample. Write "unknown" in a cell you cannot fill, and say what would fill it.
+Give the source of each number.
 
-Nothing here tells you what to fix. The steps make you look before you decide, and the decision
-stays yours, because this system is probably not in your training data.
+## 1. "Experimenting a little and thinking a lot"
 
-Unknown is a permitted answer, and often the correct one. Write "unknown" in any cell you cannot
-fill from evidence, and say what would fill it. A named cause you cannot separate from two others
-is not knowledge, and it is the usual reason an agent stops early with a confident story. Any number
-you do write down cites its source: a measurement from this project, a reference implementation, an
-external source, or an explicitly weak prior. Never invent a reasonable range.
+> Switching from experimenting a lot and thinking a little to experimenting a little and thinking a lot was a key turnaround in productivity. When debugging with long iteration times, you really need to *pour* time into the hypothesis-forming step - thinking about what all the possibilities are, how likely they seem on their own, and how likely they seem in light of everything you've seen so far. -- Rahtz
 
-You may change several things at once. Long runs make one-tweak-at-a-time too slow, so the rule is
-attribution, not restraint: name each change, say which direction you expect it to push and why,
-and say which readout would separate it from the others. Changes you cannot separate afterwards are
-one change with three names. Watch for the single setting that drives two mechanisms, because the
-count of edits is not the count of causes, and name the quantity it controls rather than the
-setting.
+Read the whole log before the hypothesis-forming step. State its length. Take the config from
+the log, not from the command you meant to run. Read each metric at four points. Quote the log
+line for each cell. Show:
 
-## P1. A run finished or crashed
+| metric | expected | start | early | middle | end | quoted line |
+|---|---|---|---|---|---|---|
 
-Steps 1 to 5 are what reading a run means, so do them even when you were asked only to read a log.
-They write nothing except your reply. Steps 6 to 8 change files, so they wait for a task that asks
-you to audit, decide, or act.
+An empty cell is a metric that does not exist. Add the metric before the next run.
 
-1. Open the log and read it end to end. State its length and confirm you read all of it. A tail
-   once made three audits call a working method broken. Take the configuration and the revision
-   from the log, because a queued job runs the worktree as it stood at run time, and what you
-   intended to launch is not evidence of what ran.
-2. Write the measurement table. Fill it before you write one word of diagnosis.
+## 2. "Raising the threshold at which you start thinking 'OK, I think this is correct'"
 
-   | risky part | expected | start | early | middle | end | quoted line |
-   |---|---|---|---|---|---|---|
+> What I'm advocating for here is not a blind faith in the buginess of your code, but for dramatically raising the threshold at which you start thinking 'OK, I think this is correct.' -- Jones
 
-   Read each curve at four points, because the shape carries the diagnosis and the last number does
-   not. If a metric that would settle a row does not exist, say which one, and add it to the code
-   before the next run. STOP here if any cell is empty.
-3. Open what the run produced, not only what it printed. Quote one complete generation, prediction
-   or output per arm, chosen at random, and say how you chose them. Metrics summarise, and a
-   collapsed, truncated or identical output is invisible in a mean.
-4. List every anomaly, including ones you would rather ignore. Each line ends explained, or being
-   investigated now. An anomaly you found without looking for it is a big problem.
-5. Write the prediction check against the P2 table recorded before this run, one row per
-   prediction, marked supported, contradicted, or unresolved, and move each credence from its
-   prior to a posterior with the observation that moved it. Write "no predictions were recorded"
-   if there were none, and then record them next time.
-6. Run `/auditlog`. It owns the full audit and writes the audit file.
-7. Open `TRAINING_GUIDE.md`, edit the stage this run touched, and write the earliest step of that
-   stage's expected sequence that evidence does not yet support. If the file got longer, you
-   appended history instead of replacing a stale claim.
-8. Say what to run next and why it beats finishing, repeating, or cancelling work already queued.
-   Cancel the queued work that no longer answers the question. Never stop applies to the research
-   goal, never to one experiment, sweep or hypothesis.
+Take the one number your diagnosis depends on. Quote the code that computes it. Name one other
+cause that gives the same number. Show both. Example: a cosine near 1 can be a shared mean or
+a collapsed latent. A second metric is needed to tell which.
 
-Report what the run taught you, not which steps you completed. A finished audit is not a finding.
-Name the stage that learned, say how much, and quote the line that shows it.
+## 3. "Manually examining 100 examples does not take long"
 
-A crash is a run and gets this procedure too. Then use judgement: a typo or a missing import gets
-fixed and rerun at once, and a broken idea earns no more compute until you have read the papers and
-the reference code.
+> Manually examining 100 examples does not take long. Even if you take one minute per image, you'd be done in under two hours. These two hours could save you a month of wasted effort. -- Ng
 
-## P2. You are about to queue or launch a run
+> Read your data. Often, the quality of the data is a crucial driver of the results of your experiments. Often, it is quite bad. -- Nanda
 
-1. Read your data. Print the first training example, the first evaluation example, and one of each
-   contrastive arm, in full, with the chat template and the special tokens visible. Quote them in
-   your reply. Formatting and masking errors are invisible in aggregate metrics and obvious here,
-   and outliers are where the data bugs live.
-2. Write which stage of `TRAINING_GUIDE.md` this run advances, what changed since the last run, and
-   which decision the answer will change. A run that changes no decision is not worth its compute,
-   whatever it teaches.
-3. Fill this table. Do not queue anything until it is filled.
+Show the first training example and the first evaluation example as the model sees them, with
+special tokens and the loss mask visible. Then show one complete output per arm, side by side,
+and the first token where they differ. Select the examples at random and say how. Add the best
+example, the worst example, and any example that looks wrong.
 
-   | risky part | what I expect to see | too weak | too strong | buggy | metric exists? |
-   |---|---|---|---|---|---|
+## 4. "Chase right after it"
 
-   The three middle columns are why several changes can share one run: each one gets a different
-   signature, in the order the metrics move and in which of them move together, so the result can
-   still say which change did what. Write "unknown" where you cannot predict the signature, and
-   accept that the run cannot attribute that change.
-4. Add any metric whose row says no. For each metric you rely on, name one other thing that would
-   move it the same way. A run that cannot separate success from failure is not worth the GPU time,
-   and a metric that measures something other than what you named is the commonest way a result
-   misleads you.
-5. Record this table where it survives a compaction, in the guide stage from step 2 or in the job's
-   `why:` and `resolve:` label. A prediction that lives only in a reply cannot be checked later,
-   which is how a run ends with "no predictions were recorded".
-6. Overfit about 20 samples and paste the final loss. Near zero, or stop and fix that first.
-7. Follow the job after you queue it, one background follow per job, so the finish wakes you and
-   you read that log. Use `pqf <id>` here, or `pueue wait <id>` through `pi-processes` under Pi. A
-   job nobody follows is a log nobody reads. For a run of hours, say now what should make you kill
-   it early, and write metrics and checkpoints as it goes so a crash still leaves evidence.
+> If you ever see a plot or a behaviour that just *seems weird*, chase right after it! Do not - do *not* - just 'hope it goes away'. Chasing anomalies is one of the most powerful ways to debug your system, because if you've noticed a problem without having had to go look for it, that means it's a *really big problem*. -- Jones
 
-## P3. You are about to report a result, or to say it looks fine
+Show one row per prediction recorded before the run: supported, contradicted, or unresolved,
+with the observation that decided it. Then list each behaviour that seems weird, including the
+ones you would prefer to ignore. End each line with "explained: ..." or "chasing now".
 
-Assume you have a bug. Everyone has at least one, and a wrong number reaches you looking exactly
-like a right one. Do this for a positive result, a negative result, and an all-clear alike.
-"Everything checks out", "nothing looks unresolved", "no open questions" and "the metrics look fine"
-are claims, and they are the claims least likely to have been checked.
+## 5. "A strong mental model of what options you have"
 
-1. Write three or more diagnoses. Each one gets a credence, the strongest evidence for it, and the
-   strongest evidence against it. Include a code bug and an invalid evaluation whenever they are
-   plausible, and leave probability on an unknown cause. Do not pad the list to reach three.
-2. For any diagnosis where you cannot find evidence against, write that you have not tested it and
-   lower its credence. Then read back your own draft and list every confident sentence in it whose
-   evidence you cannot point at.
-3. Write the five most likely ways this result is invalid, each with the check that would settle it.
-4. Quote complete raw samples: one at random, the best-scoring, the worst-scoring, and any
-   anomalous one. Say how you chose them. Samples picked because they look clean prove nothing, and
-   random draws alone usually miss the failure that explains the average.
-5. To claim A beats B, name the baseline, name the chance level, and say how the gap compares with
-   the spread between seeds of one arm. One seed each means unresolved, which is a permitted answer.
-   [refs/sweeps.md](refs/sweeps.md) has the paired comparison.
-6. When the result matters or surprises you, send a fresh-eyes subagent the artifact with no story
-   attached, and ask what the evidence supports. Report what it says, including agreement.
-7. Only now write your conclusion.
+> Build it up as you go, don't think you can build it ahead of time. Be focused on a strong mental model of what options you have (including architectural changes and losses) that you think should affect what metrics in the logs. -- wassname
 
-Start from a substantial probability that a surprising result is invalid, and lower it as checks
-rule out bugs, leakage and broken evaluation. An exciting result is more likely false than a boring
-one. A machine learning system has many adaptive parts, so a broken one is often hidden by the
-others compensating while the output still looks reasonable.
+Keep one table in the repo. Add or correct rows before each run. Show the table:
 
-## P4. Stuck, after two cycles or a metric that will not move
+| option (architecture, loss, data, optimiser) | metric it should affect | direction and order | what separates it from the other options |
+|---|---|---|---|
 
-Do both, not one.
+Give at least three options, one architectural and one loss. Say which options you change in
+this run and why. You can change several options in one run if each option has its own metric.
+Show the config diff against the run you will compare to.
 
-1. Find the most-adopted implementation of the nearest method. Rank candidates by community
-   adoption, then papers citing it, then code that runs. Write "no reference exists" out loud if
-   that is the answer, rather than implying it by skipping this.
-2. Fill one row per feature, with their file and line in every row.
+## 6. "Write down what you expect to see differently"
 
-   | feature | theirs (file:line) | mine | same? |
-   |---|---|---|---|
+> Before acting plan by writing multiple competing hypotheses: consider the most likely failure but also some of: a subtle failure, a perverse failure, a possible bug, and an unknown. Put a rough credence on each. Finally write down what you expect to see differently for success vs each possibility and brainstorm the cheapest tests that may narrow them down. -- wassname
 
-   Cover algorithm tweaks, engineering tricks, hyperparameters, and which metrics they log. The
-   tricks are usually in the code and not in the paper.
-3. Send a fresh-eyes subagent at the module or the diff with this instruction: find at least one
-   bug, we all have at least one. Report what it found, including nothing. You cannot see your own
-   typos, because you know what the code was supposed to say.
+Show:
 
-## P5. No written evidence criteria yet
+| risky part | what I expect to see | too weak | too strong | buggy | metric exists? |
+|---|---|---|---|---|---|
 
-Write this into the project's `AGENTS.md`. Write the first draft while you still know almost
-nothing, and expect it to be wrong. Its job then is to stop a null result from being explained away
-later, because nobody wrote down what a null would mean.
+Add each metric whose last column says no. For each pass gate, show the ceiling the data allows
+and check that the gate is below the ceiling. Follow the job so that its finish wakes you.
 
-```markdown
-GOAL: one paragraph, plain english. What is learned, and what is the contribution.
-OPTIMISING: one sentence, no jargon, no symbols. What the loss actually rewards.
-PERVERSE SATISFACTIONS: 2-3 plain-english ways to score well while doing nothing
-  interesting (copy the input, learn the class prior, exploit the judge). Give each
-  the metric or control arm that would expose it.
-EVIDENCE A, qualitative: a full trace, out of sample, long enough to see it break.
-  Name the arms: bare, treatment, reversed treatment, and a placebo that should not move.
-EVIDENCE B, quantitative: beats a named baseline on a named metric, not chance.
-ELSE: if A and B disagree, or either fails, say now what that means about the method.
-```
+## 7. "Most often, it turns out they've got a bug"
 
-Revise it whenever evidence changes what you believe, and say in the audit what you changed and why.
-A frame you never revised is a frame you never tested. A frame you revised after seeing the result,
-without saying so, is how a null becomes a success. An audit may recommend a change to these
-criteria or to the evaluation code, and must not make one, because an agent that edits the standard
-in response to the result can pass any standard.
+> When their RL implementation doesn't work, people are often keen to either (a) adjust their network architecture or (b) adjust their hyperparameters. On the other hand, they're reluctant to say they've got a bug. Most often, it turns out they've got a bug. -- Jones
 
-Then create `TRAINING_GUIDE.md`, under 180 lines, with the stages you can already name, every one
-marked unknown. Cap each list inside it: at most five established observations, five live
-explanations, and three next tests. A cap forces you to replace a stale line instead of appending. Grow it one observation at a time. It holds your current model of the system, not a
-run history. Frontmatter carries only what a program can check:
+> The default state of the world is that your research is false, because doing research is hard. -- Nanda
 
-```yaml
----
-last_reviewed_job: 21
-stages: {init: uncertain, posterior: working, writer: failing, generation: failing}
----
-```
+Show three or more diagnoses. For each, give a credence, the strongest evidence for, and the
+strongest evidence against. One diagnosis is a bug in the code and one is a bug in the
+evaluation. Keep some credence on unknown. If a diagnosis has no evidence against it, mark it
+untested. Then give a fresh subagent the code and the log with no diagnosis attached, and ask
+for the top bugs and misconceptions. Show its list, including "found nothing".
 
-One entry per stage, saying what should become observable, in order:
+## 8. "Excitement is evidence of bullshit"
 
-```markdown
-## Writer
-Purpose: use the inferred user state to change decoder behavior.
-Trained: writer. Frozen: decoder, encoder. Input: state at t. Loss: reply NLL.
-Theory of change: state difference -> write difference -> logit difference -> behavior difference.
-Expected sequence: 1. write leaves its initial scale. 2. write beats zero-write.
-  3. swapping the state changes the logits. 4. generations differ. 5. they differ in the
-  intended direction. 6. the effect survives out of sample.
-Required observations: writer loss curve, update norm, zero-write arm, shuffled-state arm,
-  first-token logits, long free generations.
-Current evidence: quote a job and a number for each link you claim.
-Missing evidence: the observations nobody has made yet.
-Status: partial, likely, 60%.
-Earliest unsupported link: step 5. Swaps move the logits, the direction is not established.
-Main question: ...
-```
+> Excitement is evidence of bullshit: Generally, most true results are not exciting, but a fair amount of false results are. So from a Bayesian perspective, if a result is exciting and cool, it's even more likely to be false than normal! -- Nanda
 
-Never put a list of possible failure causes in this file. Such a list gives an agent thirty excuses,
-and it will pick one, call it certain, and stop. The expected sequence gives it one question
-instead: which link should be visible by now, and is it?
+Show three ways the result can be false, each with the check that decides it. To claim A beats
+B, give the baseline, the chance level, and the seed spread of one arm. One seed per arm is
+unresolved. Give a fresh subagent the artifact with no conclusion attached and show what it
+says. Apply the same to a negative result: a bad row is a bug until the log shows otherwise.
 
-What a stage entry may hold is an interpretation, written as evidence for or against a claim you
-already made, never as a cause. Copy this shape:
+## 9. "Implementation differences ... can have dramatic impacts"
 
-> If posterior error falls and free generation does not change, that is evidence against "posterior
-> quality is the current constraint". By itself it does not show the writer is broken.
+> We find that implementation differences which are often not reflected in publications can have dramatic impacts on performance. -- Henderson
 
-> A high learning rate makes oscillation or divergence plausible. Neither their presence nor their
-> absence settles it. Compare update size, per-component losses, and the expected learning order.
+> If you are stuck, find a working reference implementation and compare it to yours. If nothing jumps out, try a bisection search: adapt their code wholesale, then half their features, and so on. -- wassname
 
-When the design changes under you, a new training loop or a bigger model, sort every line by what it
-was uncertain about. Findings about whether a measurement tells the truth, about data quality, and
-about observed model behaviour carry over. Findings about relative loss scales, training order and
-the stable learning rate range do not, so return them to unknown until you measure them again.
+Search for reference implementations of the nearest method. Rank them by the GitHub signals:
+proof it runs (CI, a results table, a replication note), more than one human contributor, more
+than a few stars, a README with evaluation details, and links to other repos that use it. Take
+the top one, or write "no reference exists". Show:
 
-History does not belong here. Put the run-by-run record in `RESEARCH_JOURNAL.md`, keep the guide as
-the current model, and re-read the guide after a context reset or a compaction, because it is the
-memory that survives one.
+| feature | theirs (file:line) | mine | same? |
+|---|---|---|---|
+
+Include algorithm tweaks, engineering tricks, hyperparameters, and logged metrics. Give a fresh
+subagent the module and ask for at least one bug.
+
+## 10. "The shape of your loss curve ... doesn't localise errors"
+
+> The problem with using the loss curve as an indicator of correctness is somewhat that it's not reliable, but mostly because it doesn't localise errors. The shape of your loss curve says very little about where in your code you've messed up. -- Jones
+
+At the step that looks wrong, show the loss per term and the gradient norm per module. Name the
+module the error localises to.
+
+## 11. "It's the previous frames that we need to look into"
+
+> As you can see it's the previous frames that we need to look into when the numbers start going into very large for fp16 numbers. -- Bekman
+
+For each spike or collapse, show the log rows before it. Say which column moved first.
+
+## 12. "The NN had learned something useless like time of day"
+
+> Researchers training a neural network to detect tanks in photographs, succeeding, only to realize the photographs had been collected under specific conditions for tanks/non-tanks and the NN had learned something useless like time of day. -- gwern, who traced it back to 1992 and calls it an urban legend
+
+For the headline metric, name one useless thing the model can learn and still score well, for
+example a condition of data collection or the class prior. Show the control arm or the row that
+detects it.
+
+## 13. "Summarise your concept and pseudocode, then get it reviewed"
+
+> Summarise your concept and pseudocode and do an external review in scientist mode. Perhaps describe the forward and backward pass as mermaid too. -- wassname
+
+Before a design change, or for a run you cannot explain, write the concept in plain English,
+the pseudocode with tensor shapes and parameter counts per module, and a mermaid diagram of the
+forward pass and the backward pass. Show all three. Send them to `/external-review-v2` in
+scientist mode and show the verdict. The reviewer sees only the description, so make the
+description complete.
 
 ## Reference
 
-Open the one the situation calls for. These widen a hypothesis space and are not authoritative for
-your system. The practitioner folklore behind this procedure is in [README.md](README.md).
+Sources and more quotes: [README.md](README.md). Longer material, open the one you need:
 
-- [README.md](README.md) -- Folklore qoutes and advice
-- [PLAYBOOK.md](PLAYBOOK.md) -- mental models, component isolation, baseline ladder, what to log, symptom tables, triage, anti-patterns.
-- [refs/checklist.md](refs/checklist.md) -- Lones's 36 do/don'ts across data, training, evaluation, comparison, reporting.
-- [refs/diagnostics.md](refs/diagnostics.md) -- copy-paste snippets: init loss, overfit one batch, gradient flow, NaN hooks, leakage tracer, backprop-to-input dependency check.
+- [PLAYBOOK.md](PLAYBOOK.md) -- mental models, component isolation, baseline ladder, what to log, symptom tables.
+- [refs/checklist.md](refs/checklist.md) -- Lones's 36 do/don'ts.
+- [refs/diagnostics.md](refs/diagnostics.md) -- snippets: init loss, overfit one batch, gradient flow, NaN hooks, leakage tracer.
 - [refs/static_analysis.md](refs/static_analysis.md) -- grep patterns for silent bugs.
-- [refs/loss_surface.md](refs/loss_surface.md) -- visualize a custom loss and its gradient field with synthetic tensors.
-- [refs/metric_stuck.md](refs/metric_stuck.md) -- why a metric will not move, plus the structural ceiling check.
-- [refs/sweeps.md](refs/sweeps.md) -- paired comparison and cross-seed reliability, before claiming A beats B.
-- [refs/llm_judges.md](refs/llm_judges.md) -- judge biases, repeat draws, paired differences, when an LLM-judged eval looks too good.
-- [refs/time_series.md](refs/time_series.md) -- deployment-faithful temporal evaluation and causal missing values.
-- [refs/research_taste.md](refs/research_taste.md) -- patience, choosing what to try, information gain, de-risking.
-- [refs/transformers.md](refs/transformers.md) -- full traces, warmup and learning rate, train-deploy parity, scale priors, steering.
-- [rl/SKILL.md](rl/SKILL.md) -- probe environments, reward engineering, defaults, reference implementations.
-- [pinn/SKILL.md](pinn/SKILL.md) -- nondimensionalization, gradient pathologies, curriculum.
+- [refs/loss_surface.md](refs/loss_surface.md) -- visualise a custom loss and its gradient field.
+- [refs/metric_stuck.md](refs/metric_stuck.md) -- why a metric will not move, structural ceiling check.
+- [refs/sweeps.md](refs/sweeps.md) -- paired comparison and cross-seed reliability.
+- [refs/llm_judges.md](refs/llm_judges.md) -- judge biases, repeat draws, paired differences.
+- [refs/time_series.md](refs/time_series.md) -- temporal evaluation and causal missing values.
+- [refs/research_taste.md](refs/research_taste.md) -- patience, information gain, de-risking.
+- [refs/transformers.md](refs/transformers.md) -- full traces, warmup, train-deploy parity, steering.
+- [rl/SKILL.md](rl/SKILL.md), [pinn/SKILL.md](pinn/SKILL.md) -- domain specifics.
+- [SKILL_old.md](SKILL_old.md) -- the previous procedural version (P1-P5), kept until reviewed.
 
 Curated by [wassname](https://github.com/wassname).
