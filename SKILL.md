@@ -119,6 +119,21 @@ scale first, from a null arm and a shuffled control. Exercise 15.
 CLAUDE's, not from your message. Fine as illustration, but it is not your number. -->
 
 
+> `try/except` around training code. Training should crash loudly. A caught exception hides the bug and produces silently wrong results. The one exception is checkpoint-on-KeyboardInterrupt. -- from [PLAYBOOK.md](PLAYBOOK.md)
+
+Do not write code that carries on after it has already failed. A load that loaded nothing, a filter
+that matched nothing, a config key that was missing, all of these should stop the run rather than
+hand you a clean log and a wrong result. Assert that the thing you asked for is there. The cost of
+this one is measured in runs, not minutes: a `strict=False` that quietly loaded no weights hid a
+dead experiment arm for eight runs in my own repo. Exercises 2 and 7.
+
+A separate thing that shares the name "fail fast", and worth keeping separate in your head:
+
+> **Fail fast**. One of the largest time sinks possible is **investing weeks to months of effort into a failed research direction**. [...] It's often much better to have several quick and dirty experiments to attack different angles where you could fail fast than to put a lot of effort into one. -- Nanda
+
+That one is about killing a doomed direction early. The one above is about crashing on the error.
+Both are good and they are not the same rule.
+
 ## How this applies to LLM agents
 
 LLMs of 2026 are trained to compress speech and use folky or humanistic language, but it's better
