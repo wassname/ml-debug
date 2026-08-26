@@ -66,6 +66,10 @@ easy to make a mistake with cosine. It is not causal, and two different subspace
 even when they are correlated, so `cos(apple, orange) = 0` is not a null result. Building the real
 thing and running it takes longer and answers the question. Exercise 2.
 
+> *   How would a random predictor perform (especially in classification problems)? Dataset can be unbalanced...
+> *   What would the loss look like for a random predictor?
+> *   What are the limits of this metric? If it's perfect, what can I conclude? What can't I conclude? -- Sanh
+
 Do not fix on an arbitrary metric threshold before you have any idea what a fair or good threshold
 is. Saying the metric must clear 0.8 means nothing until you know what counts as good here. Get the
 scale first, from a null arm and a shuffled control. Exercise 15.
