@@ -25,6 +25,9 @@ code, the pasted sample. Write "unknown" in a cell you cannot fill, and say what
 Give the source of each number.
 
 Never stop a job or give up on an idea without doing all of these. One at a time, not all at once.
+<!-- annoy-less: [#9 negative framing + clipped fragment] "One at a time, not all at once." is an
+X-not-Y closer in the AI register. Written by CLAUDE, your call. -->
+
 
 ## Common mistakes
 
@@ -32,6 +35,14 @@ Everyone makes these, and I have made most of them myself. They come up so often
 long autoresearch runs that they are worth naming, so you can catch yourself early rather than after
 a week of work. Reading the log and hunting for your own bug are the two that do most of the damage,
 so start there when you are not sure where to start. - wassname
+<!-- annoy-less: [MOST IMPORTANT - confidence changed] this whole paragraph is signed wassname but
+was written by CLAUDE from your chat message. Your original last clause was:
+"reading the log and looking for bugs are the most comomn I guess"
+CLAUDE dropped "I guess" and changed "most common" to "do most of the damage", which is a different
+and stronger claim. Restore your hedge if you want your own confidence level back. -->
+<!-- annoy-less: [invented detail] "I have made most of them myself" and "rather than after a week
+of work" are CLAUDE's, not from your message. First person claims about you that you did not make. -->
+
 
 > Insufficient skepticism doesn't *feel* like insufficient skepticism from the inside. It just feels like doing research. -- Nanda
 
@@ -40,16 +51,28 @@ so start there when you are not sure where to start. - wassname
 Be careful about being overconfident. It is easy to write a diagnosis in the tone of a fact. Before
 you commit to one, ask what you saw that a competing explanation could not also explain. If nothing,
 then "I do not know, and here is what would tell me" is a good answer and not a failure. Exercise 7.
+<!-- annoy-less: [#9 negative framing] "is a good answer and not a failure" is the X-and-not-Y
+closer. Say the positive claim only. Written by CLAUDE. -->
+
 
 Do not quit after the first change and call the negative real. One failed attempt is much more
 likely to be a bug in your implementation than a refutation of the idea. This is the expensive
 mistake, because the idea gets thrown away and nobody goes back to it. Look for the bug first.
 Exercise 14.
+<!-- annoy-less: [confidence changed + significance narration] your original was "quit after the
+first change to misdiagnose a negative". CLAUDE added "much more likely to be a bug" (a probability
+you did not state) and "This is the expensive mistake", which tells the reader how to rate it. -->
+
 
 Try not to stop at the first idea you come up with. It arrives with no competition, so it wins by
 default rather than on merit. Write down two more, and say what observation would separate them. If
 you cannot name a test that distinguishes them, you have a preference and not a hypothesis.
 Exercises 6 and 7.
+<!-- annoy-less: [#9 negative framing] "you have a preference and not a hypothesis" is again the
+X-and-not-Y closer. Two of these in one section reads as a formula. Written by CLAUDE. -->
+<!-- annoy-less: [aphorism] "It arrives with no competition, so it wins by default rather than on
+merit." is CLAUDE's epigram, not in your message. Cut or say it plainly. -->
+
 
 > If it doesn't work, assume there's a bug. Spend a lot of effort searching for bugs before you resort to tweaking hyperparameters: usually it's a bug. Bad hyperparameters can significantly degrade RL performance, but if you're using hyperparameters similar to the ones in papers and standard implementations, those will probably not be the issue. -- Achiam
 
@@ -57,18 +80,31 @@ Watch out for getting obsessed with the legible hyperparameters. Learning rate, 
 warmup are easy to name and easy to change, so they attract more attention than they deserve. More
 often the cause is in the data, a sign, a mask, an index, or a metric that answers a different
 question from the one you asked. Exercises 5 and 10.
+<!-- annoy-less: [confidence changed] "More often the cause is in the data" is a frequency claim
+CLAUDE added; your message only listed the obsession, not a base rate. -->
+
 
 Please read the data. Print the first full training sample, chosen and rejected, with the special
 tokens and the loss mask showing. Look at it with your own eyes. Most formatting bugs are obvious in
 the first sample and invisible in every aggregate. Exercise 3.
+<!-- annoy-less: [antithesis formula] "obvious in the first sample and invisible in every aggregate"
+is a balanced-opposites flourish. CLAUDE's phrasing, and "Most" is an added frequency claim. -->
+
 
 Please read the log. Not the last twenty lines, the log. Find the first line where the run stopped
 matching what you expected, quote it, and start from there. Exercises 1 and 11.
+<!-- annoy-less: [#9 negative framing, clipped fragment] "Not the last twenty lines, the log." is a
+sentence fragment in the not-X-but-Y shape. It may still be the clearest way to say it, your call.
+Written by CLAUDE. -->
+
 
 Be wary of reaching for a cosine probe instead of building the training script with metrics. It is
 easy to make a mistake with cosine. It is not causal, and two different subspaces score near zero
 even when they are correlated, so `cos(apple, orange) = 0` is not a null result. Building the real
 thing and running it takes longer and answers the question. Exercise 2.
+<!-- annoy-less: [voice] the cos(apple, orange) line is yours from CLAUDE.md and reads as you. The
+surrounding sentences are CLAUDE's and are flatter; the seam is visible. -->
+
 
 > *   How would a random predictor perform (especially in classification problems)? Dataset can be unbalanced...
 > *   What would the loss look like for a random predictor?
@@ -77,6 +113,9 @@ thing and running it takes longer and answers the question. Exercise 2.
 Do not fix on an arbitrary metric threshold before you have any idea what a fair or good threshold
 is. Saying the metric must clear 0.8 means nothing until you know what counts as good here. Get the
 scale first, from a null arm and a shuffled control. Exercise 15.
+<!-- annoy-less: [invented example] "Saying the metric must clear 0.8 means nothing" - the 0.8 is
+CLAUDE's, not from your message. Fine as illustration, but it is not your number. -->
+
 
 ## How this applies to LLM agents
 
@@ -96,6 +135,9 @@ line for each cell. Show:
 |---|---|---|---|---|---|---|
 
 An empty cell is a metric that does not exist. Add the metric before the next run.
+<!-- annoy-less: [aphoristic definition] "An empty cell is a metric that does not exist." is the
+X-is-Y epigram shape that recurs in exercises 8, 14 and 15. Written by CLAUDE. -->
+
 
 ## 2. "Raising the threshold at which you start thinking 'OK, I think this is correct'" (small)
 
@@ -169,6 +211,9 @@ Show three ways the result can be false, each with the check that decides it. To
 B, give the baseline, the chance level, and the seed spread of one arm. One seed per arm is
 unresolved. Give a fresh subagent the artifact with no conclusion attached and show what it
 says. Apply the same to a negative result: a bad row is a bug until the log shows otherwise.
+<!-- annoy-less: [aphorism x2] "One seed per arm is unresolved." and "a bad row is a bug until the
+log shows otherwise" are both CLAUDE epigrams. Keep one at most. -->
+
 
 ## 9. "Implementation differences ... can have dramatic impacts" (large)
 
@@ -233,6 +278,10 @@ write the negative up.
 |---|---|---|---|
 
 One attempt is untested, not negative. Say which of the two this is.
+<!-- annoy-less: [#9 negative framing + aphorism] "One attempt is untested, not negative." is an
+X-not-Y one-line closer. It is the point of the exercise, so it may earn its place, but it is
+CLAUDE's line, not Steinhardt's. -->
+
 
 ## 15. "By default, all numbers are meaningless because we lack any scale" (large)
 
@@ -247,6 +296,9 @@ arm, a shuffled or permuted control, and the existing baseline, then set the bar
 |---|---|---|---|---|---|
 
 A gate chosen before this table is a number you made up. Say so if you have to use one anyway.
+<!-- annoy-less: [aphoristic closer] "A gate chosen before this table is a number you made up." is
+a punchy section-ending epigram, the third of its kind in the exercises. Written by CLAUDE. -->
+
 
 ## Reference
 
