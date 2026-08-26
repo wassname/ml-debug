@@ -12,7 +12,8 @@ do exercises 1, 3 and 7. Then select by situation:
 - something weird in the log (a spike, a flat line, an impossible value): 10, 11
 - about to queue a run: 5, 6
 - about to change the design, or a run you cannot explain: 13
-- about to report a result, or to call it negative: 7, 8, 12
+- about to report a result, or to call it negative: 7, 8, 12, 14
+- about to set a pass gate or quote a threshold: 15
 - two cycles with no progress: 9
 
 Each exercise says what to show. Show it in full: the table, the quoted log line, the quoted
@@ -152,6 +153,36 @@ the pseudocode with tensor shapes and parameter counts per module, and a mermaid
 forward pass and the backward pass. Show all three. Send them to `/external-review-v2` in
 scientist mode and show the verdict. The reviewer sees only the description, so make the
 description complete.
+
+## 14. "An implementation comprising 0.1% of the possible implementations of X"
+
+> Trying an experiment and seeing it fail gives little information by itself. When an experiment fails, it is tempting to conclude "I tried X and it didn't work". However, if X is a high-level conceptual approach, then a more correct conclusion is "I tried an implementation comprising 0.1% of the possible implementations of X, and observed that that particular implementation did not work". -- Steinhardt
+
+> It ended up taking me 6 weeks to reproduce results, thanks to several software bugs. The question is, why did it take so long to find these bugs? -- Rahtz
+
+Before you call an idea dead, show the implementation you actually ran and one other
+implementation of the same idea that you did not run. Say what would have to be true for the
+idea to be alive and your run to still fail. Then do exercise 7 on your own code before you
+write the negative up.
+
+| the idea | what I ran (file:line) | one other way to run it | what a bug here would look like |
+|---|---|---|---|
+
+One attempt is untested, not negative. Say which of the two this is.
+
+## 15. "By default, all numbers are meaningless because we lack any scale"
+
+> A valuable intuition to have in mind is that, by default, all numbers are meaningless because we lack any scale to compare them. E.g. if a probe gets 95% classification accuracy on some task, is this good? Is this bad? Hard to say without knowing more! Baselines are one way to get context to compare against. -- Nanda
+
+> In most cases, we do not know a priori what the intended behavior of the algorithm is. [...] If we train a neural network on a new classification task and it achieves 5 percent test error, we have no straightforward way of knowing if this is the expected behavior or suboptimal behavior. -- Goodfellow, Bengio and Courville
+
+Before you set a pass gate or quote a threshold, get the scale first. Run the metric on a null
+arm, a shuffled or permuted control, and the existing baseline, then set the bar against those.
+
+| metric | null arm | shuffled control | current baseline | ceiling the data allows | proposed gate |
+|---|---|---|---|---|---|
+
+A gate chosen before this table is a number you made up. Say so if you have to use one anyway.
 
 ## Reference
 
