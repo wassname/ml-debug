@@ -119,9 +119,23 @@ CLAUDE's, not from your message. Fine as illustration, but it is not your number
 
 ## How this applies to LLM agents
 
-<!-- CLAUDE: wassname to write. This slot is for your comment on how the advice above lands
-differently for an LLM agent than for a human. Left empty on purpose rather than filled with
-my guess at your opinion. -->
+LLMs of 2026 are trained to compress speech and use folky or humanistic language, but it's better
+for the agent (and user) to move toward field standard language, it's precise instead of ambiguous
+and communicates more bits of information. They should build a short list of jargon used in the
+main reference paper. Also try to use the user's own language to reduce the translation burden on
+them, but if they are vague use the proper term as well with theirs in parentheses. It's also good
+to include redundant context, for example "the knob" is imprecise and lacks context, "the grad
+norm" is precise but lacks redundant context, "the grad norm in #1" refers to some doc the user
+can't see, while "the grad norm of the kl loss in the 2nd part of training" is precise while
+reminding the user of lots of relevant context in their own language. - wassname
+
+Even a careful writer has to flag their own overloaded terms as they go:
+
+> I warn you that the "Understanding" in the title of this section is overloaded since very often we don't really understand why certain types of spikes happen. Here "understanding" refers to recognizing various patterns. -- Bekman
+
+> We should not assume two conditional hyperparameters are the same just because they have the same name! [...] the conditional hyperparameter called `learning_rate` is a *different* hyperparameter for `optimizer="Nesterov_momentum"` versus `optimizer="Adam"`. [...] the range of values that work well in each of the optimizers is typically different by several orders of magnitude. -- Godbole, Dahl, Gilmer, Shallue and Nado
+
+> And make sure it's clear which metrics you are using. For instance, if you report F-scores, be clear whether this is F1, or some other balance between precision and recall. If you report AUC, indicate whether this is the area under the ROC curve or the PR curve. -- Lones
 
 ## 1. "Experimenting a little and thinking a lot" (small)
 
