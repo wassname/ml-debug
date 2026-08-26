@@ -78,6 +78,12 @@ Do not fix on an arbitrary metric threshold before you have any idea what a fair
 is. Saying the metric must clear 0.8 means nothing until you know what counts as good here. Get the
 scale first, from a null arm and a shuffled control. Exercise 15.
 
+## How this applies to LLM agents
+
+<!-- CLAUDE: wassname to write. This slot is for your comment on how the advice above lands
+differently for an LLM agent than for a human. Left empty on purpose rather than filled with
+my guess at your opinion. -->
+
 ## 1. "Experimenting a little and thinking a lot" (small)
 
 > Switching from experimenting a lot and thinking a little to experimenting a little and thinking a lot was a key turnaround in productivity. When debugging with long iteration times, you really need to *pour* time into the hypothesis-forming step - thinking about what all the possibilities are, how likely they seem on their own, and how likely they seem in light of everything you've seen so far. -- Rahtz
