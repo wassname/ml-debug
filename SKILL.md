@@ -247,7 +247,9 @@ For each spike or collapse, show the log rows before it. Say which column moved 
 
 ## 12. "The NN had learned something useless like time of day" (small)
 
-> Researchers training a neural network to detect tanks in photographs, succeeding, only to realize the photographs had been collected under specific conditions for tanks/non-tanks and the NN had learned something useless like time of day. -- gwern, who traced it back to 1992 and calls it an urban legend
+> The CNN has learned to detect a metal token that radiology technicians place on the patient in the corner of the image field of view at the time they capture the image. -- Zech et al., whose pneumonia model scored AUC 0.931 in its own hospitals and 0.815 in someone else's
+
+> The model was able to correctly predict who would receive grants over 95% of the time. Apparently meaningless identifier columns were the most important predictors. [...] It turned out that in practice, the university only filled out much of this information *after* a grant application was accepted. -- Howard and Gugger
 
 For the headline metric, name one useless thing the model can learn and still score well, for
 example a condition of data collection or the class prior. Show the control arm or the row that
