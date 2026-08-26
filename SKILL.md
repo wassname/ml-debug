@@ -1,179 +1,334 @@
 ---
 name: ml-debug
-description: "Machine learning debugging exercises, each under a quote from a practitioner. If this loaded, do the exercise for your situation and show the result in your reply. Invoke it yourself. Triggers: read the log, the run finished, it crashed, queue a run, the loss is not going down, the metric will not move, is this result real, does A beat B, a spike or anything weird in the log, and any moment you are about to write that a result looks fine."
+description: "Use this when answering an ML diagnosis, research-design, objective-design, calibration, time-series, PINN, steering, evaluation, or training question. Solve the supplied problem. Do the two most relevant exercises below in full before answering."
 ---
 
-In an attempt to upskill the machine learning debugging on AI coding assistants (and humans), I've collected high quality sources on how to debug machine learning projects, focusing on the mindset and the "taste". When I started ML I went searching for discussions on best practices, and started a few discussions of my own and they helped me a lot, over the years I've collected good ones. I hope they can help others, as well as help in auto research setups. This intro is human written, and the below is AI written with human guidance. - wassname
+# ML research diagnosis
 
-If this skill loaded, do at least one exercise below and show the result in your reply. Always
-do exercises 1, 3 and 7. Then select by situation:
+Your task is to solve the user's specific ML question, not to perform a debugging ritual.
 
-- a run finished or crashed: 1, 2, 3, 4
-- something weird in the log (a spike, a flat line, an impossible value): 10, 11
-- about to queue a run: 5, 6
-- about to change the design, or a run you cannot explain: 13
-- about to report a result, or to call it negative: 7, 8, 12
-- two cycles with no progress: 9
+Use this guide to calibrate yourself and recover relevant context. Before writing the answer, do the two most relevant exercises below, one at a time. Use their results in the answer.
 
-Each exercise says what to show. Show it in full: the table, the quoted log line, the quoted
-code, the pasted sample. Write "unknown" in a cell you cannot fill, and say what would fill it.
-Give the source of each number.
+State the decisive diagnosis or recommendation early. Show the reasoning that rules out the tempting wrong answer. Do not pad the answer with a checklist.
 
-## 1. "Experimenting a little and thinking a lot"
+The benchmark setting may give only a prose question. In that setting, work only from material in the prompt and from standard knowledge you can state accurately. Do not pretend to have read a log, data, code, a paper, a generation trace, or an `/oracle` result that was not supplied.
 
-> Switching from experimenting a lot and thinking a little to experimenting a little and thinking a lot was a key turnaround in productivity. When debugging with long iteration times, you really need to *pour* time into the hypothesis-forming step - thinking about what all the possibilities are, how likely they seem on their own, and how likely they seem in light of everything you've seen so far. -- Rahtz
+For a live run with artifacts, do all seven exercises before declaring the run dead, giving up, or treating a negative result as real. Read logs and hunt for bugs first. Do one exercise, update the mental model, then choose the next. The immediate chat deliverable is the two most relevant completed exercises.
 
-Read the whole log before the hypothesis-forming step. State its length. Take the config from
-the log, not from the command you meant to run. Read each metric at four points. Quote the log
-line for each cell. Show:
+## First pass: find the discriminating fact
 
-| metric | expected | start | early | middle | end | quoted line |
-|---|---|---|---|---|---|---|
+Before selecting exercises, write these privately:
 
-An empty cell is a metric that does not exist. Add the metric before the next run.
+1. What exact claim must be true for the obvious answer to work?
+2. What quantity, index, sign, conditioning variable, or evaluation rule controls that claim?
+3. What observation in the prompt is surprising under the obvious answer?
+4. What cheap thought experiment would make the obvious answer fail?
 
-## 2. "Raising the threshold at which you start thinking 'OK, I think this is correct'"
+For an objective, trace what lowering it rewards. For a time series, mark which information exists at prediction time. For a physical model, check units, boundary conditions, conservation laws, and which terms can compensate for one another. For a metric or calibration gate, identify the population, conditioning event, threshold direction, and decision cost.
 
-> What I'm advocating for here is not a blind faith in the buginess of your code, but for dramatically raising the threshold at which you start thinking 'OK, I think this is correct.' -- Jones
+Use the answer to select two exercises.
 
-Take the one number your diagnosis depends on. Quote the code that computes it. Name one other
-cause that gives the same number. Show both. Example: a cosine near 1 can be a shared mean or
-a collapsed latent. A second metric is needed to tell which.
+## Common mistakes
 
-## 3. "Manually examining 100 examples does not take long"
+Everyone makes these, and I have made most of them myself. They come up so often with AI agents that they are worth naming, so you can catch yourself early rather than after a week of work.
 
-> Manually examining 100 examples does not take long. Even if you take one minute per image, you'd be done in under two hours. These two hours could save you a month of wasted effort. -- Ng
+Be careful about being overconfident. It is easy to write a diagnosis in the tone of a fact. Before you commit to one, ask what you saw that a competing explanation could not also explain. If nothing, then "I do not know, and here is what would tell me" is a good answer and not a failure.
 
-> Read your data. Often, the quality of the data is a crucial driver of the results of your experiments. Often, it is quite bad. -- Nanda
+> Insufficient skepticism doesn't *feel* like insufficient skepticism from the inside. It just feels like doing research.
+>
+> -- Neel Nanda, *My Research Process: Key Mindsets*, https://www.lesswrong.com/s/5GT3yoYM9gRmMEKqL/p/cbBwwm4jW6AZctymL
 
-Show the first training example and the first evaluation example as the model sees them, with
-special tokens and the loss mask visible. Then show one complete output per arm, side by side,
-and the first token where they differ. Select the examples at random and say how. Add the best
-example, the worst example, and any example that looks wrong.
+> 4. Think your algorithm is working but you're actually seeing random noise.
+>     - Example: Graph of 7 tasks with 3 algorithms and looks like 1 algorithm might be doing best on all problems, but turns out they're all the same algorithm with DIFFERENT random seeds.
+>
+> -- William Falcon, *DeepRLHacks*, https://github.com/williamFalcon/DeepRLHacks
 
-## 4. "Chase right after it"
+Do not quit after the first change and call the negative real. One failed attempt is much more likely to be a bug in your implementation than a refutation of the idea. This is the expensive mistake, because the idea gets thrown away and nobody goes back to it. Look for the bug first.
 
-> If you ever see a plot or a behaviour that just *seems weird*, chase right after it! Do not - do *not* - just 'hope it goes away'. Chasing anomalies is one of the most powerful ways to debug your system, because if you've noticed a problem without having had to go look for it, that means it's a *really big problem*. -- Jones
+> **Trying an experiment and seeing it fail gives little information by itself.** When an experiment fails, it is tempting to conclude "I tried X and it didn't work". However, if X is a high-level conceptual approach, then a more correct conclusion is "I tried an implementation comprising 0.1% of the possible implementations of X, and observed that that particular implementation did not work".
+>
+> -- Jacob Steinhardt, *Research as a Stochastic Decision Process*, https://cs.stanford.edu/~jsteinhardt/ResearchasaStochasticDecisionProcess.html
 
-Show one row per prediction recorded before the run: supported, contradicted, or unresolved,
-with the observation that decided it. Then list each behaviour that seems weird, including the
-ones you would prefer to ignore. End each line with "explained: ..." or "chasing now".
+> It ended up taking me 6 weeks to reproduce results, thanks to several software
+> bugs. The question is, why did it take so long to find these bugs?
+>
+> -- Alex Irpan, *Deep Reinforcement Learning Doesn't Work Yet*, https://www.alexirpan.com/2018/02/14/rl-hard.html
 
-## 5. "A strong mental model of what options you have"
+Try not to stop at the first idea you come up with. It arrives with no competition, so it wins by default rather than on merit. Write down two more, and say what observation would separate them. If you cannot name a test that distinguishes them, you have a preference and not a hypothesis.
 
-> Build it up as you go, don't think you can build it ahead of time. Be focused on a strong mental model of what options you have (including architectural changes and losses) that you think should affect what metrics in the logs. -- wassname
+> The standard hypothesis testing framework can be misleading here, because it has an implicit frame of being able to list all the hypotheses. But actually, most of your probability mass should normally be on “something I haven’t thought of yet”
+>
+> -- Neel Nanda, *My Research Process: Key Mindsets*, https://www.lesswrong.com/s/5GT3yoYM9gRmMEKqL/p/cbBwwm4jW6AZctymL
 
-Keep one table in the repo. Add or correct rows before each run. Show the table:
+> If trying to explain something mysterious, novice researchers often neglect simple, dumb hypotheses like “maybe MLP0 is incredibly important on *every* input, and there’s nothing special going on with my prompt”
+>
+> -- Neel Nanda, *How to Become a Mechanistic Interpretability Researcher*, https://www.alignmentforum.org/posts/jP9KDyMkchuv6tHwm/how-to-become-a-mechanistic-interpretability-researcher
 
-| option (architecture, loss, data, optimiser) | metric it should affect | direction and order | what separates it from the other options |
+Watch out for getting obsessed with the legible hyperparameters. Learning rate, batch size and warmup are easy to name and easy to change, so they attract more attention than they deserve. More often the cause is in the data, a sign, a mask, an index, or a metric that answers a different question from the one you asked.
+
+> **If it doesn’t work, assume there’s a bug.** Spend a lot of effort searching for bugs before you resort to tweaking hyperparameters: usually it’s a bug. Bad hyperparameters can significantly degrade RL performance, but if you’re using hyperparameters similar to the ones in papers and standard implementations, those will probably not be the issue.
+>
+> -- Joshua Achiam, *Spinning Up as a Deep RL Researcher*, https://spinningup.openai.com/en/latest/spinningup/spinningup.html
+
+> Once the algorithm was partially working, they would attain higher performance by looking for remaining bugs, both by reviewing the code carefully, and by collecting metrics such as average policy entropy to perform sanity-checks, rather than just tune hyperparameters.
+>
+> -- Catherine Olsson, *ML Engineering for AI Safety and Robustness*, https://80000hours.org/articles/ml-engineering-career-transition-guide/
+
+Please read the data. Print the first full training sample, chosen and rejected, with the special tokens and the loss mask showing. Look at it with your own eyes. Most formatting bugs are obvious in the first sample and invisible in every aggregate.
+
+> Pro-tip: when you work with language, have a serious **look at the outputs of the tokenizers**. I can’t count the number of lost hours I spent trying to reproduce results (and sometimes my own old results) because something went wrong with the tokenization.
+>
+> -- Victor Sanh, *Simple considerations for simple people building fancy neural networks*, https://huggingface.co/blog/simple-considerations
+
+> 2. Make sure observations usable:
+>     - See if YOU could control the system by using the same observations you give the agent.
+>       - Example: Look at preprocessed images yourself to make sure you don't remove necessary details or hinder the algorithm in a certain way.
+>
+> -- William Falcon, *DeepRLHacks*, https://github.com/williamFalcon/DeepRLHacks
+
+Please read the log. Not the last twenty lines, the log. Find the first line where the run stopped matching what you expected, quote it, and start from there.
+
+> (I missed
+> a multithreading bug for several months by ignoring a small but mysterious
+> decay in frames per second.)
+>
+> -- Matthew Rahtz, *Lessons Learned Reproducing a Deep RL Paper*, http://amid.fish/reproducing-deep-rl
+
+Be wary of reaching for a cosine probe instead of building the training script with metrics. A cosine similarity is quick to compute and hard to interpret, and across different subspaces or bases it is correlational at best. Building the real thing and running it takes longer and answers the question.
+
+> The only way to find out what needs work is to implement something quickly,
+>
+> and find out what parts break.
+>
+> -- Andrew Ng, *CS229 Advice for Applying Machine Learning*, https://cs229.stanford.edu/materials/ML-advice.pdf
+
+Do not fix on an arbitrary metric threshold before you have any idea what a fair or good threshold is. Saying the metric must clear 0.8 means nothing until you know what a null run, a shuffled control, or the existing baseline scores on the same metric. Get that number first, then set the bar.
+
+> In most cases, we do not know a priori what the intended behavior of the algorithm is. In fact, the entire point of using machine learning is that it will discover useful behavior that we were not able to specify ourselves. If we train a neural network on a new classification task and it achieves 5 percent test error, we have no straightforward way of knowing if this is the expected behavior or suboptimal behavior.
+>
+> -- Goodfellow, Bengio and Courville, *Deep Learning, ch. 11*, https://www.deeplearningbook.org/contents/guidelines.html
+
+> A valuable intuition to have in mind is that, by default, all numbers are meaningless because we lack any scale to compare them. E.g. if a probe gets 95% classification accuracy on some task, is this good? Is this bad? Hard to say without knowing more! Baselines are one way to get context to compare against.
+>
+> -- Neel Nanda, *My Model of the Research Process*, https://docs.google.com/document/d/1YMkeMrhqsWxZcNDD9CIUWEK_DAOegeufnbc79U2hycg/edit
+
+Two of these do most of the damage: not reading the log, and not looking for your own bug. Start there when you are not sure where to start.
+
+## 1. Read the evidence and audit the narrative
+
+Use this first whenever the prompt contains data, a log, a table, examples, outputs, code, a metric history, or a stated observation.
+
+Quote the exact supplied evidence that matters. Separate observation from inference.
+
+| supplied evidence | literal observation | what it rules in | what it does not establish |
 |---|---|---|---|
 
-Give at least three options, one architectural and one loss. Say which options you change in
-this run and why. You can change several options in one run if each option has its own metric.
-Show the config diff against the run you will compare to.
+Read the evidence in causal order:
 
-## 6. "Write down what you expect to see differently"
+`data or state -> preprocessing -> model or rule -> objective -> decision or metric`
 
-> Before acting plan by writing multiple competing hypotheses: consider the most likely failure but also some of: a subtle failure, a perverse failure, a possible bug, and an unknown. Put a rough credence on each. Finally write down what you expect to see differently for success vs each possibility and brainstorm the cheapest tests that may narrow them down. -- wassname
+Look for the first place where the stated result becomes surprising.
+
+Prompt-only form:
+- Quote two phrases, values, equations, or examples from the question.
+- Explain why each changes the diagnosis.
+- If the question supplies no direct artifact, say so internally and select another exercise.
+
+Live-run form:
+- Read the full relevant log, not only a summary.
+- Quote the config actually used and the rows before the anomaly.
+- Read complete input, output, judge, and student traces where they exist.
+- Inspect at least one representative example and one suspicious example as the system sees them.
+
+## 2. Assume a bug or misconception and hunt for it
+
+Use this first whenever a proposed explanation seems natural, a result seems clean, or the question asks why a method failed or succeeded.
+
+Treat the obvious answer as a hypothesis, not a conclusion. Name a concrete mechanism by which it could be wrong.
+
+Check the common silent failures that match the setting:
+
+- A sign, maximize/minimize, ratio direction, or threshold inequality is reversed.
+- A quantity is conditioned on the wrong event or averaged in the wrong order.
+- Information from the future, target, test set, or evaluation procedure leaks into the input.
+- The loss is optimized by a shortcut rather than the intended behavior.
+- A parameterization cannot represent the desired solution, or another component can compensate for a broken one.
+- The metric answers a different question from the user-facing decision.
+- A time, batch, token, spatial, or sequence index is off by one.
+- Units, scales, normalization, or coordinate systems are incompatible.
 
 Show:
 
-| risky part | what I expect to see | too weak | too strong | buggy | metric exists? |
-|---|---|---|---|---|---|
+| candidate bug or misconception | mechanism | evidence for | evidence against | decisive check |
+|---|---|---|---|---|
 
-Add each metric whose last column says no. For each pass gate, show the ceiling the data allows
-and check that the gate is below the ceiling. Follow the job so that its finish wakes you.
+Do not list generic bugs. Each row must predict the stated behavior.
 
-## 7. "Most often, it turns out they've got a bug"
+Prompt-only form:
+- Derive a one-step, one-example, limiting-case, or counterfactual consequence.
+- If the consequence contradicts the prompt, lower that hypothesis.
+- State the correction only after showing why the original mechanism fails.
 
-> When their RL implementation doesn't work, people are often keen to either (a) adjust their network architecture or (b) adjust their hyperparameters. On the other hand, they're reluctant to say they've got a bug. Most often, it turns out they've got a bug. -- Jones
+Live-run form:
+- Trace the value forward and its gradient or credit assignment backward.
+- Read the relevant code and its inputs. Quote the operation that implements the disputed mechanism.
 
-> The default state of the world is that your research is false, because doing research is hard. -- Nanda
+## 3. Generate competing diagnoses
 
-Show three or more diagnoses. For each, give a credence, the strongest evidence for, and the
-strongest evidence against. One diagnosis is a bug in the code and one is a bug in the
-evaluation. Keep some credence on unknown. If a diagnosis has no evidence against it, mark it
-untested. Then give a fresh subagent the code and the log with no diagnosis attached, and ask
-for the top bugs and misconceptions. Show its list, including "found nothing".
+Use this when the cause is ambiguous or when one diagnosis arrives too quickly.
 
-## 8. "Excitement is evidence of bullshit"
+Give at least three genuinely different hypotheses. Include an implementation or specification error when applicable, and retain an unknown hypothesis if the prompt lacks a discriminator.
 
-> Excitement is evidence of bullshit: Generally, most true results are not exciting, but a fair amount of false results are. So from a Bayesian perspective, if a result is exciting and cool, it's even more likely to be false than normal! -- Nanda
+| hypothesis | credence | predicts | evidence in prompt | cheapest discriminator |
+|---|---:|---|---|---|
 
-Show three ways the result can be false, each with the check that decides it. To claim A beats
-B, give the baseline, the chance level, and the seed spread of one arm. One seed per arm is
-unresolved. Give a fresh subagent the artifact with no conclusion attached and show what it
-says. Apply the same to a negative result: a bad row is a bug until the log shows otherwise.
+Then update the ranking. Do not stop at hypotheses. Commit to the best diagnosis and say what would change your mind.
 
-## 9. "Implementation differences ... can have dramatic impacts"
+A useful distinction:
+- Observation: a fact stated or derived from the prompt.
+- Inference: the mechanism proposed to explain it.
+- Test: an observation that differs across hypotheses.
 
-> We find that implementation differences which are often not reflected in publications can have dramatic impacts on performance. -- Henderson
+## 4. Refine the mental model
 
-> If you are stuck, find a working reference implementation and compare it to yours. If nothing jumps out, try a bisection search: adapt their code wholesale, then half their features, and so on. -- wassname
+Use this for objectives, architectures, dynamics, causal pipelines, calibration rules, and physics constraints.
 
-Search for reference implementations of the nearest method. Rank them by the GitHub signals:
-proof it runs (CI, a results table, a replication note), more than one human contributor, more
-than a few stars, a README with evaluation details, and links to other repos that use it. Take
-the top one, or write "no reference exists". Show:
+Write the mechanism in variables before relying on verbal intuition.
 
-| feature | theirs (file:line) | mine | same? |
+1. Define the input, state, target, decision, and metric.
+2. State what changes when a variable increases.
+3. Trace the forward computation or causal path.
+4. Trace the gradient, incentive, or credit assignment.
+5. Check a simple limiting case, null case, and adversarial case when they are relevant.
+
+For an objective, answer:
+
+- What output receives lower loss?
+- Can a degenerate output receive lower loss?
+- Does the denominator, normalization, or stop-gradient change the incentive?
+- Which directions are unidentifiable or unconstrained?
+- Is the proposed metric aligned with the behavior being requested?
+
+For time-series work, answer:
+
+- What timestamp is the prediction made at?
+- Which variables are known then?
+- Is each transform fit only on the available past?
+- Does the split preserve deployment order?
+
+For PINNs or physical models, answer:
+
+- Are variables nondimensionalized or comparably scaled?
+- Which boundary, initial, or conservation conditions identify the solution?
+- Can PDE residual, data fit, and boundary terms trade off to hide an error?
+
+Show the smallest derivation that decides the issue. Use a toy numerical example if it exposes the trap.
+
+## 5. Use an independent reviewer pass
+
+Use this before endorsing a design, pseudocode, diagnosis, or claimed result.
+
+Write the concept and pseudocode in a form another researcher could challenge:
+
+| stage | inputs and shape or units | operation | output | assumption that could fail |
+|---|---|---|---|---|
+
+Then review it as if it came from someone else. Ask:
+
+- What does this optimize in the easiest case?
+- Which variable could be accidentally detached, normalized away, leaked, or used at the wrong time?
+- What alternate interpretation of the objective also fits this description?
+- Which unstated implementation detail changes the result?
+
+Prompt-only form:
+- Perform the reviewer pass yourself and label it as an independent reread.
+- Do not claim an external `/oracle` was called.
+
+Tool-enabled form:
+- Ask `/oracle` or an independent reviewer for a diagnosis without leading it to your preferred answer.
+- Compare its objection against the actual pseudocode, code, or trace.
+- Report both a useful objection and any disagreement.
+
+## 6. Compare with the relevant reference
+
+Use this when a standard method, paper, baseline, theorem, or implementation is named or clearly implied.
+
+Compare the claim to the nearest established formulation. Focus on the difference that changes behavior, not surface similarity.
+
+| item | reference formulation or baseline | proposed formulation | consequence |
 |---|---|---|---|
 
-Include algorithm tweaks, engineering tricks, hyperparameters, and logged metrics. Give a fresh
-subagent the module and ask for at least one bug.
+Check details often omitted in prose:
 
-## 10. "The shape of your loss curve ... doesn't localise errors"
+- sign and optimization direction
+- normalization and reduction axis
+- train versus inference behavior
+- target construction and masking
+- temporal availability of inputs
+- default initialization, scaling, and boundary treatment
+- evaluation population and aggregation
 
-> The problem with using the loss curve as an indicator of correctness is somewhat that it's not reliable, but mostly because it doesn't localise errors. The shape of your loss curve says very little about where in your code you've messed up. -- Jones
+Prompt-only form:
+- Only cite or compare references you actually know.
+- If no reference is supplied and you cannot verify one, use a standard baseline or theoretical property rather than inventing a citation.
 
-At the step that looks wrong, show the loss per term and the gradient norm per module. Name the
-module the error localises to.
+Live-run form:
+- Read the paper and working implementation where available.
+- Compare equations, code path, hyperparameters, and evaluation protocol.
 
-## 11. "It's the previous frames that we need to look into"
+## 7. Read the actual examples and traces
 
-> As you can see it's the previous frames that we need to look into when the numbers start going into very large for fp16 numbers. -- Bekman
+Use this first when the question includes generation samples, labels, predictions, judgments, inputs, outputs, tables, or metrics that could conceal a shortcut.
 
-For each spike or collapse, show the log rows before it. Say which column moved first.
+Inspect complete examples, not only aggregates. Ask what the model, judge, or metric can exploit.
 
-## 12. "The NN had learned something useless like time of day"
+Show:
 
-> Researchers training a neural network to detect tanks in photographs, succeeding, only to realize the photographs had been collected under specific conditions for tanks/non-tanks and the NN had learned something useless like time of day. -- gwern, who traced it back to 1992 and calls it an urban legend
+| example or trace | expected behavior | actual behavior | first meaningful mismatch | implication |
+|---|---|---|---|---|
 
-For the headline metric, name one useless thing the model can learn and still score well, for
-example a condition of data collection or the class prior. Show the control arm or the row that
-detects it.
+Check whether the apparent success can come from:
 
-## 13. "Summarise your concept and pseudocode, then get it reviewed"
+- a label, template, position, class prior, source marker, or future variable
+- a judge preference unrelated to the intended quality
+- a formatting artifact or masked target
+- a saturated metric that cannot distinguish the methods
+- a selected subset that differs from deployment
 
-> Summarise your concept and pseudocode and do an external review in scientist mode. Perhaps describe the forward and backward pass as mermaid too. -- wassname
+Prompt-only form:
+- Work through the complete examples supplied in the question.
+- If only aggregate metrics are supplied, state the missing example-level evidence and avoid claiming it was checked.
 
-Before a design change, or for a run you cannot explain, write the concept in plain English,
-the pseudocode with tensor shapes and parameter counts per module, and a mermaid diagram of the
-forward pass and the backward pass. Show all three. Send them to `/external-review-v2` in
-scientist mode and show the verdict. The reviewer sees only the description, so make the
-description complete.
+Live-run form:
+- Read one full generation, judge trace, and student trace per relevant arm.
+- Read random, best, worst, and anomalous examples. State the sampling rule.
 
-## Reference
+## How to choose the two exercises
 
-Sources and more quotes: [README.md](README.md). Longer material, open the one you need:
+Choose by expected information gain for the exact question.
 
-- [PLAYBOOK.md](PLAYBOOK.md) -- mental models, component isolation, baseline ladder, what to log, symptom tables.
-- [refs/checklist.md](refs/checklist.md) -- Lones's 36 do/don'ts.
-- [refs/diagnostics.md](refs/diagnostics.md) -- snippets: init loss, overfit one batch, gradient flow, NaN hooks, leakage tracer.
-- [refs/static_analysis.md](refs/static_analysis.md) -- grep patterns for silent bugs.
-- [refs/loss_surface.md](refs/loss_surface.md) -- visualise a custom loss and its gradient field.
-- [refs/metric_stuck.md](refs/metric_stuck.md) -- why a metric will not move, structural ceiling check.
-- [refs/sweeps.md](refs/sweeps.md) -- paired comparison and cross-seed reliability.
-- [refs/llm_judges.md](refs/llm_judges.md) -- judge biases, repeat draws, paired differences.
-- [refs/time_series.md](refs/time_series.md) -- temporal evaluation and causal missing values.
-- [refs/research_taste.md](refs/research_taste.md) -- patience, information gain, de-risking.
-- [refs/transformers.md](refs/transformers.md) -- full traces, warmup, train-deploy parity, steering.
-- [rl/SKILL.md](rl/SKILL.md), [pinn/SKILL.md](pinn/SKILL.md) -- domain specifics.
-- [SKILL_old.md](SKILL_old.md) -- the previous procedural version (P1-P5), kept until reviewed.
+| Question feature | Start with |
+|---|---|
+| Log, table, example, output, or trace | 1, then 7 or 2 |
+| Objective, loss, steering direction, or calibration gate | 4, then 2 or 5 |
+| Ambiguous failure diagnosis | 3, then 2 |
+| Time series, split, forecast, or causal availability | 4, then 1 or 2 |
+| PINN, PDE, physical constraint, or scale issue | 4, then 2 or 6 |
+| Claimed result, baseline comparison, or evaluation | 6, then 7 or 3 |
+| Proposed algorithm or pseudocode | 5, then 4 or 2 |
 
-## Sign off
+If the question makes the diagnosis mechanically certain, do the relevant check once and answer directly. Do not manufacture alternative hypotheses or unavailable evidence.
 
-End your reply with one quote from this skill, in ASCII art speech balloon, said by an animal of
-your choice. Not a cow: cowsay is taken. Draw it yourself, do not run a program.
+## Answer format
 
-Curated by [wassname](https://github.com/wassname).
+Use this shape unless the user requests another:
+
+1. Diagnosis or recommendation.
+2. The two completed exercises, only as much detail as makes the conclusion checkable.
+3. The mechanism, derivation, counterexample, or discriminating evidence.
+4. The next test or implementation change, if the question calls for action.
+5. What would falsify the conclusion, when material uncertainty remains.
+
+Do not mention this skill unless the user asks. Do not quote its folklore back to the user. Do not give a vague list of things to try when the prompt supports a definite diagnosis.
+
+Curated by TERRA.
