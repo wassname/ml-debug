@@ -339,6 +339,7 @@ Sources and more quotes: [README.md](README.md). Longer material, open the one y
 ## Sign off
 
 End your reply with one quote from this skill, in ASCII art speech balloon, said by an animal of
-your choice. Not a cow: cowsay is taken. Draw it yourself, do not run a program.
+your choice. Not a cow: cowsay is taken. Draw it yourself, do not run a program. Name who said the
+quote, so the reader can go and find the rest of it.
 
 Curated by [wassname](https://github.com/wassname).
