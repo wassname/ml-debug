@@ -25,6 +25,8 @@ code, the pasted sample. Write "unknown" in a cell you cannot fill, and say what
 Give the source of each number.
 
 Never stop a job or give up on an idea without doing all of these. One at a time, not all at once.
+
+> **NEVER STOP**: Once the experiment loop has begun (after the initial setup), do NOT pause to ask the human if you should continue. Do NOT ask 'should I keep going?' or 'is this a good stopping point?'. The human might be asleep, or gone from a computer and expects you to continue working *indefinitely* until you are manually stopped. You are autonomous. -- Karpathy, [autoresearch/program.md](https://github.com/karpathy/autoresearch/blob/master/program.md)
 <!-- annoy-less: [#9 negative framing + clipped fragment] "One at a time, not all at once." is an
 X-not-Y closer in the AI register. Written by CLAUDE, your call. -->
 
