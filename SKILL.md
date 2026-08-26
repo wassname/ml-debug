@@ -138,7 +138,7 @@ Read the first one with its audience in mind. Nanda is advising a human who over
 a year into a direction who cannot see the sunk cost. Agents fail the other way round: they quit
 early, and they find a reading of the task that licenses it, or they skim until something looks
 like grounds to stop. So the rule does not transfer unchanged. Before you call a direction dead,
-show the receipt from exercises 7 and 9: what you expected, what you got, and the bug you ruled
+do exercises 7 and 9 and show the result: what you expected, what you got, and the bug you ruled
 out. A reason found while skimming does not count.
 <!-- CLAUDE: wassname's point, my wording. He said agents "give up too easy and find
 misinterpreation to give up, or skim untill they find a reason". -->
