@@ -20,6 +20,56 @@ Each exercise says what to show. Show it in full: the table, the quoted log line
 code, the pasted sample. Write "unknown" in a cell you cannot fill, and say what would fill it.
 Give the source of each number.
 
+Never stop a job or give up on an idea without doing all of these. One at a time, not all at once.
+
+## Common mistakes
+
+Everyone makes these, and I have made most of them myself. They come up so often with AI agents in
+long autoresearch runs that they are worth naming, so you can catch yourself early rather than after
+a week of work. Reading the log and hunting for your own bug are the two that do most of the damage,
+so start there when you are not sure where to start. - wassname
+
+> Insufficient skepticism doesn't *feel* like insufficient skepticism from the inside. It just feels like doing research. -- Nanda
+
+> The challenge lies in the fact that you can make these mistakes, train a model without it ever crashing, and still get a decent performance... -- Sanh
+
+Be careful about being overconfident. It is easy to write a diagnosis in the tone of a fact. Before
+you commit to one, ask what you saw that a competing explanation could not also explain. If nothing,
+then "I do not know, and here is what would tell me" is a good answer and not a failure. Exercise 7.
+
+Do not quit after the first change and call the negative real. One failed attempt is much more
+likely to be a bug in your implementation than a refutation of the idea. This is the expensive
+mistake, because the idea gets thrown away and nobody goes back to it. Look for the bug first.
+Exercise 14.
+
+Try not to stop at the first idea you come up with. It arrives with no competition, so it wins by
+default rather than on merit. Write down two more, and say what observation would separate them. If
+you cannot name a test that distinguishes them, you have a preference and not a hypothesis.
+Exercises 6 and 7.
+
+> If it doesn't work, assume there's a bug. Spend a lot of effort searching for bugs before you resort to tweaking hyperparameters: usually it's a bug. Bad hyperparameters can significantly degrade RL performance, but if you're using hyperparameters similar to the ones in papers and standard implementations, those will probably not be the issue. -- Achiam
+
+Watch out for getting obsessed with the legible hyperparameters. Learning rate, batch size and
+warmup are easy to name and easy to change, so they attract more attention than they deserve. More
+often the cause is in the data, a sign, a mask, an index, or a metric that answers a different
+question from the one you asked. Exercises 5 and 10.
+
+Please read the data. Print the first full training sample, chosen and rejected, with the special
+tokens and the loss mask showing. Look at it with your own eyes. Most formatting bugs are obvious in
+the first sample and invisible in every aggregate. Exercise 3.
+
+Please read the log. Not the last twenty lines, the log. Find the first line where the run stopped
+matching what you expected, quote it, and start from there. Exercises 1 and 11.
+
+Be wary of reaching for a cosine probe instead of building the training script with metrics. It is
+easy to make a mistake with cosine. It is not causal, and two different subspaces score near zero
+even when they are correlated, so `cos(apple, orange) = 0` is not a null result. Building the real
+thing and running it takes longer and answers the question. Exercise 2.
+
+Do not fix on an arbitrary metric threshold before you have any idea what a fair or good threshold
+is. Saying the metric must clear 0.8 means nothing until you know what counts as good here. Get the
+scale first, from a null arm and a shuffled control. Exercise 15.
+
 ## 1. "Experimenting a little and thinking a lot"
 
 > Switching from experimenting a lot and thinking a little to experimenting a little and thinking a lot was a key turnaround in productivity. When debugging with long iteration times, you really need to *pour* time into the hypothesis-forming step - thinking about what all the possibilities are, how likely they seem on their own, and how likely they seem in light of everything you've seen so far. -- Rahtz
