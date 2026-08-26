@@ -5,8 +5,12 @@ description: "Machine learning debugging exercises, each under a quote from a pr
 
 In an attempt to upskill the machine learning debugging on AI coding assistants (and humans), I've collected high quality sources on how to debug machine learning projects, focusing on the mindset and the "taste". When I started ML I went searching for discussions on best practices, and started a few discussions of my own and they helped me a lot, over the years I've collected good ones. I hope they can help others, as well as help in auto research setups. This intro is human written, and the below is AI written with human guidance. - wassname
 
-If this skill loaded, do at least one exercise below and show the result in your reply. Always
-do exercises 1, 3 and 7. Then select by situation:
+If this skill loaded, do at least one exercise below and show the result in your reply. Each
+exercise is marked (small) or (large). A small one takes less than a paragraph to answer; a large
+one is a lot of work, such as searching for a reference repo and comparing against it. Do all the
+small ones that apply, and pick one large one. Exercises 1 and 3 are always in scope.
+<!-- CLAUDE: 7 was mandatory but is large under the new small/large rule. Left as a pickable large one. wassname to confirm. -->
+Then select by situation:
 
 - a run finished or crashed: 1, 2, 3, 4
 - something weird in the log (a spike, a flat line, an impossible value): 10, 11
@@ -74,7 +78,7 @@ Do not fix on an arbitrary metric threshold before you have any idea what a fair
 is. Saying the metric must clear 0.8 means nothing until you know what counts as good here. Get the
 scale first, from a null arm and a shuffled control. Exercise 15.
 
-## 1. "Experimenting a little and thinking a lot"
+## 1. "Experimenting a little and thinking a lot" (small)
 
 > Switching from experimenting a lot and thinking a little to experimenting a little and thinking a lot was a key turnaround in productivity. When debugging with long iteration times, you really need to *pour* time into the hypothesis-forming step - thinking about what all the possibilities are, how likely they seem on their own, and how likely they seem in light of everything you've seen so far. -- Rahtz
 
@@ -87,7 +91,7 @@ line for each cell. Show:
 
 An empty cell is a metric that does not exist. Add the metric before the next run.
 
-## 2. "Raising the threshold at which you start thinking 'OK, I think this is correct'"
+## 2. "Raising the threshold at which you start thinking 'OK, I think this is correct'" (small)
 
 > What I'm advocating for here is not a blind faith in the buginess of your code, but for dramatically raising the threshold at which you start thinking 'OK, I think this is correct.' -- Jones
 
@@ -95,7 +99,7 @@ Take the one number your diagnosis depends on. Quote the code that computes it. 
 cause that gives the same number. Show both. Example: a cosine near 1 can be a shared mean or
 a collapsed latent. A second metric is needed to tell which.
 
-## 3. "Manually examining 100 examples does not take long"
+## 3. "Manually examining 100 examples does not take long" (small)
 
 > Manually examining 100 examples does not take long. Even if you take one minute per image, you'd be done in under two hours. These two hours could save you a month of wasted effort. -- Ng
 
@@ -106,7 +110,7 @@ special tokens and the loss mask visible. Then show one complete output per arm,
 and the first token where they differ. Select the examples at random and say how. Add the best
 example, the worst example, and any example that looks wrong.
 
-## 4. "Chase right after it"
+## 4. "Chase right after it" (small)
 
 > If you ever see a plot or a behaviour that just *seems weird*, chase right after it! Do not - do *not* - just 'hope it goes away'. Chasing anomalies is one of the most powerful ways to debug your system, because if you've noticed a problem without having had to go look for it, that means it's a *really big problem*. -- Jones
 
@@ -114,7 +118,7 @@ Show one row per prediction recorded before the run: supported, contradicted, or
 with the observation that decided it. Then list each behaviour that seems weird, including the
 ones you would prefer to ignore. End each line with "explained: ..." or "chasing now".
 
-## 5. "A strong mental model of what options you have"
+## 5. "A strong mental model of what options you have" (small)
 
 > Build it up as you go, don't think you can build it ahead of time. Be focused on a strong mental model of what options you have (including architectural changes and losses) that you think should affect what metrics in the logs. -- wassname
 
@@ -127,7 +131,7 @@ Give at least three options, one architectural and one loss. Say which options y
 this run and why. You can change several options in one run if each option has its own metric.
 Show the config diff against the run you will compare to.
 
-## 6. "Write down what you expect to see differently"
+## 6. "Write down what you expect to see differently" (small)
 
 > Before acting plan by writing multiple competing hypotheses: consider the most likely failure but also some of: a subtle failure, a perverse failure, a possible bug, and an unknown. Put a rough credence on each. Finally write down what you expect to see differently for success vs each possibility and brainstorm the cheapest tests that may narrow them down. -- wassname
 
@@ -139,7 +143,7 @@ Show:
 Add each metric whose last column says no. For each pass gate, show the ceiling the data allows
 and check that the gate is below the ceiling. Follow the job so that its finish wakes you.
 
-## 7. "Most often, it turns out they've got a bug"
+## 7. "Most often, it turns out they've got a bug" (large)
 
 > When their RL implementation doesn't work, people are often keen to either (a) adjust their network architecture or (b) adjust their hyperparameters. On the other hand, they're reluctant to say they've got a bug. Most often, it turns out they've got a bug. -- Jones
 
@@ -151,7 +155,7 @@ evaluation. Keep some credence on unknown. If a diagnosis has no evidence agains
 untested. Then give a fresh subagent the code and the log with no diagnosis attached, and ask
 for the top bugs and misconceptions. Show its list, including "found nothing".
 
-## 8. "Excitement is evidence of bullshit"
+## 8. "Excitement is evidence of bullshit" (large)
 
 > Excitement is evidence of bullshit: Generally, most true results are not exciting, but a fair amount of false results are. So from a Bayesian perspective, if a result is exciting and cool, it's even more likely to be false than normal! -- Nanda
 
@@ -160,7 +164,7 @@ B, give the baseline, the chance level, and the seed spread of one arm. One seed
 unresolved. Give a fresh subagent the artifact with no conclusion attached and show what it
 says. Apply the same to a negative result: a bad row is a bug until the log shows otherwise.
 
-## 9. "Implementation differences ... can have dramatic impacts"
+## 9. "Implementation differences ... can have dramatic impacts" (large)
 
 > We find that implementation differences which are often not reflected in publications can have dramatic impacts on performance. -- Henderson
 
@@ -177,20 +181,20 @@ the top one, or write "no reference exists". Show:
 Include algorithm tweaks, engineering tricks, hyperparameters, and logged metrics. Give a fresh
 subagent the module and ask for at least one bug.
 
-## 10. "The shape of your loss curve ... doesn't localise errors"
+## 10. "The shape of your loss curve ... doesn't localise errors" (small)
 
 > The problem with using the loss curve as an indicator of correctness is somewhat that it's not reliable, but mostly because it doesn't localise errors. The shape of your loss curve says very little about where in your code you've messed up. -- Jones
 
 At the step that looks wrong, show the loss per term and the gradient norm per module. Name the
 module the error localises to.
 
-## 11. "It's the previous frames that we need to look into"
+## 11. "It's the previous frames that we need to look into" (small)
 
 > As you can see it's the previous frames that we need to look into when the numbers start going into very large for fp16 numbers. -- Bekman
 
 For each spike or collapse, show the log rows before it. Say which column moved first.
 
-## 12. "The NN had learned something useless like time of day"
+## 12. "The NN had learned something useless like time of day" (small)
 
 > Researchers training a neural network to detect tanks in photographs, succeeding, only to realize the photographs had been collected under specific conditions for tanks/non-tanks and the NN had learned something useless like time of day. -- gwern, who traced it back to 1992 and calls it an urban legend
 
@@ -198,7 +202,7 @@ For the headline metric, name one useless thing the model can learn and still sc
 example a condition of data collection or the class prior. Show the control arm or the row that
 detects it.
 
-## 13. "Summarise your concept and pseudocode, then get it reviewed"
+## 13. "Summarise your concept and pseudocode, then get it reviewed" (large)
 
 > Summarise your concept and pseudocode and do an external review in scientist mode. Perhaps describe the forward and backward pass as mermaid too. -- wassname
 
@@ -208,7 +212,7 @@ forward pass and the backward pass. Show all three. Send them to `/external-revi
 scientist mode and show the verdict. The reviewer sees only the description, so make the
 description complete.
 
-## 14. "An implementation comprising 0.1% of the possible implementations of X"
+## 14. "An implementation comprising 0.1% of the possible implementations of X" (small)
 
 > Trying an experiment and seeing it fail gives little information by itself. When an experiment fails, it is tempting to conclude "I tried X and it didn't work". However, if X is a high-level conceptual approach, then a more correct conclusion is "I tried an implementation comprising 0.1% of the possible implementations of X, and observed that that particular implementation did not work". -- Steinhardt
 
@@ -224,7 +228,7 @@ write the negative up.
 
 One attempt is untested, not negative. Say which of the two this is.
 
-## 15. "By default, all numbers are meaningless because we lack any scale"
+## 15. "By default, all numbers are meaningless because we lack any scale" (large)
 
 > A valuable intuition to have in mind is that, by default, all numbers are meaningless because we lack any scale to compare them. E.g. if a probe gets 95% classification accuracy on some task, is this good? Is this bad? Hard to say without knowing more! Baselines are one way to get context to compare against. -- Nanda
 
