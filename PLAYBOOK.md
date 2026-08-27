@@ -16,7 +16,7 @@ How to *think* when generating hypotheses or deciding what to investigate next. 
 
 **4. Bias-variance via learning curves.**[^cs229][^fsdl] Plot train and val error vs dataset size (or steps). Both high and converging together = high bias (too simple, wrong features, or a capacity-reducing bug). Train low, val high = high variance (overfitting). Val flat even with 10x more data = not a data problem, fix the model.
 
-**5. Structural ceiling: can the parameterization even express what you want?** Sometimes a metric is stuck not because the optimizer fails but because the architecture literally cannot represent the target. Quick check: disable the loss term entirely; if the metric reaches the same value, the loss never moved it. Worked example in [refs/metric_stuck.md](refs/metric_stuck.md).
+**5. Structural ceiling: can the parameterization even express what you want?** Sometimes a metric is stuck not because the optimizer fails but because the architecture literally cannot represent the target. Quick check: disable the loss term entirely; if the metric reaches the same value, the loss never moved it. Worked example in [references/metric_stuck.md](references/metric_stuck.md).
 
 ### Where to look first
 
@@ -36,7 +36,7 @@ For RL, add reward scale/sign as a top-3 issue, and episode-boundary handling (d
 
 | Signal | Likely meaning | Check |
 |--------|----------------|-------|
-| Init loss << expected (e.g. 0.01 vs 2.3) | Leakage or a shortcut: the model "knows" the answer at init | Are labels in the input? Is test data in train? A trivial feature? Localize with Wassname's NaN-poisoning tracer or backprop-to-input check ([refs/diagnostics.md](refs/diagnostics.md)) |
+| Init loss << expected (e.g. 0.01 vs 2.3) | Leakage or a shortcut: the model "knows" the answer at init | Are labels in the input? Is test data in train? A trivial feature? Localize with Wassname's NaN-poisoning tracer or backprop-to-input check ([references/diagnostics.md](references/diagnostics.md)) |
 | After training, replacing real inputs with shuffled or random inputs barely changes predictions or the metric | The model may not use the intended input signal; this does not identify the cause | Inspect preprocessing, model wiring, label leakage, and task bias |
 | Predicts the same class for everything | Class imbalance (100:1 -> "always predict majority") | Label-count check; weighted loss or resample |
 | Val much worse than train from the start | Distribution shift between splits | Same preprocessing? Same time period? Same source? |
@@ -131,7 +131,7 @@ Unfortunately, agents need these procedural mindset-shifts spelled out. This is 
 
 Roughly in this order, though the point is the underlying mindset:
 
-**Collect clues before theorizing.** Read the traceback and logs. Run static analysis ([refs/static_analysis.md](refs/static_analysis.md)) and the cheap diagnostics ([refs/diagnostics.md](refs/diagnostics.md): data sanity check, init-loss check, overfit-one-batch). If you catch yourself proposing a fix before you've looked at anything, stop.
+**Collect clues before theorizing.** Read the traceback and logs. Run static analysis ([references/static_analysis.md](references/static_analysis.md)) and the cheap diagnostics ([references/diagnostics.md](references/diagnostics.md): data sanity check, init-loss check, overfit-one-batch). If you catch yourself proposing a fix before you've looked at anything, stop.
 
 **Hold several hypotheses at once; resist converging early.** Unless the cause is already obvious (a traceback usually points right at it), generate at least three genuinely different hypotheses before ranking any, so you don't marry the first one. Use the five lenses in Mental models. Put a rough credence/prior on each, including an explicit unknown bucket when useful. Then sanity-check yourself with:
 - *Bug*: a boring implementation/data/loss bug, with high prior until checked.
@@ -172,13 +172,13 @@ def debug(symptom):
 Rough order to consider, not authoritative; it may not fit your project. Stop when a question fits.
 
 1. Exception/traceback? Read it, fix it, done.
-2. Loss NaN/Inf? Attach NaN hooks ([refs/diagnostics.md](refs/diagnostics.md)) or insert `assert torch.isfinite(x).all()` after successive stages. Find the first invalid value before changing the math. Common causes include log(0), 0/0, and exp(large).
+2. Loss NaN/Inf? Attach NaN hooks ([references/diagnostics.md](references/diagnostics.md)) or insert `assert torch.isfinite(x).all()` after successive stages. Find the first invalid value before changing the math. Common causes include log(0), 0/0, and exp(large).
 3. Init loss wrong? Check the data pipeline and loss; check for double softmax; check labels match the output format. A low init loss makes leakage or a shortcut plausible; localize it before changing the model.
 4. Can't overfit one batch? Gradient-flow check: None grads -> disconnected layer; all-zero grads -> dead layer / detach. Check autograd breakers and optimizer step order.
 5. Loss stuck from step 0 but you *can* overfit one batch? LR too low (try 10x), frozen params (check `requires_grad`), wrong loss.
 6. Loss decreases then explodes? LR too high (try 0.1x), log the pre-clip grad norm, hunt numerical instability.
 7. Training performance good but validation performance poor? First check for a train/validation mismatch or an evaluation bug. If those checks pass, overfitting is likely.
-8. Train loss fine but the metric is bad? Loss-metric misalignment ([refs/metric_stuck.md](refs/metric_stuck.md)).
+8. Train loss fine but the metric is bad? Loss-metric misalignment ([references/metric_stuck.md](references/metric_stuck.md)).
 9. Outputs constant? Mode collapse: class imbalance, all-zero init, dead ReLUs, look at confidence-sorted errors.
 10. Slow but not stuck? Not a bug. Consider batch size, depth/width, data quality.
 
@@ -201,12 +201,12 @@ These are the overconfident reflexes the "calibrate" section warns about, made c
 
 Look these up when the symptom calls for them; they're kept out of the main flow on purpose.
 
-- [refs/loss_surface.md](refs/loss_surface.md) — visualize a loss surface and its gradient field with synthetic tensors, no model or GPU. For when a custom loss misbehaves.
-- [refs/metric_stuck.md](refs/metric_stuck.md) — "why won't this metric move?" plus the structural-ceiling check (is the optimizer failing, or can the parameterization not express it?).
-- [refs/sweeps.md](refs/sweeps.md) — same-seed paired comparison and cross-seed t-stat reliability, so a result is "reliably better" not "a lucky seed."
-- [refs/llm_judges.md](refs/llm_judges.md) — LLM-as-a-judge biases (position, verbosity, self-preference) and the mitigation checklist.
-- [refs/static_analysis.md](refs/static_analysis.md) — grep patterns for silent bugs (shape mismatches, autograd breakers, double softmax, step ordering, leakage).
-- [refs/diagnostics.md](refs/diagnostics.md) — copy-paste diagnostic snippets (init-loss check, overfit-one-batch, gradient-flow check, NaN hooks, NaN-poisoning leakage tracer, backprop-to-input dependency check, class-imbalance check).
+- [references/loss_surface.md](references/loss_surface.md) — visualize a loss surface and its gradient field with synthetic tensors, no model or GPU. For when a custom loss misbehaves.
+- [references/metric_stuck.md](references/metric_stuck.md) — "why won't this metric move?" plus the structural-ceiling check (is the optimizer failing, or can the parameterization not express it?).
+- [references/sweeps.md](references/sweeps.md) — same-seed paired comparison and cross-seed t-stat reliability, so a result is "reliably better" not "a lucky seed."
+- [references/llm_judges.md](references/llm_judges.md) — LLM-as-a-judge biases (position, verbosity, self-preference) and the mitigation checklist.
+- [references/static_analysis.md](references/static_analysis.md) — grep patterns for silent bugs (shape mismatches, autograd breakers, double softmax, step ordering, leakage).
+- [references/diagnostics.md](references/diagnostics.md) — copy-paste diagnostic snippets (init-loss check, overfit-one-batch, gradient-flow check, NaN hooks, NaN-poisoning leakage tracer, backprop-to-input dependency check, class-imbalance check).
 - [rl/SKILL.md](rl/SKILL.md) — RL-specific debugging: probe environments, reward engineering, HP defaults, reference implementations.
 - [pinn/SKILL.md](pinn/SKILL.md) — physics-informed-network debugging: nondimensionalization, gradient pathologies, curriculum.
 

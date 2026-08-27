@@ -1,7 +1,7 @@
 # Unused quotes from the ml-debug evidence cache
 
 Mined from `/home/wassname/.agents/skills/ml-debug/docs/evidence/` (about 40 cached sources) and
-`/home/wassname/.agents/skills/ml-debug/refs/`. Every quote here was checked against
+`/home/wassname/.agents/skills/ml-debug/references/`. Every quote here was checked against
 `/home/wassname/.agents/skills/ml-debug/README.md` and is not used there. Line numbers were
 verified by grep on a distinctive substring; long source lines are single wrapped paragraphs, so
 one line number can hold a long quote.
@@ -82,7 +82,7 @@ Why it lands: seed noise alone can clear a significance bar. So one A-versus-B g
 Why it lands: turns "am I overconfident" into one answerable question with a calibration target, and points the next action at the least reliable step rather than the most interesting one.
 
 ## My Model of the Research Process (shared draft), as quoted in the skill's own topic note -- Neel Nanda
-- file: /home/wassname/.agents/skills/ml-debug/refs/research_taste.md:134
+- file: /home/wassname/.agents/skills/ml-debug/references/research_taste.md:134
 - failure modes: 1, 3
 - epistemic context: quoted from an unpublished Google Doc draft, so weaker provenance than the published posts by the same author.
 
@@ -224,7 +224,7 @@ Why it lands: two modes at once. Hypotheses 2 and 3 can be hypothesis 1 wearing 
 Why it lands: a symptom-to-cause table where every symptom has two or three candidates and only one of them is a learning rate. It is a ready-made hypothesis-2-and-3 generator for the moment the agent reaches for the knob.
 
 ## My Model of the Research Process (shared draft), as quoted in the skill's own topic note -- Neel Nanda
-- file: /home/wassname/.agents/skills/ml-debug/refs/research_taste.md:120
+- file: /home/wassname/.agents/skills/ml-debug/references/research_taste.md:120
 - failure modes: 3
 - epistemic context: unpublished draft quoted in a local topic note; weaker provenance than the published posts.
 

@@ -16,7 +16,7 @@ Or paste `SKILL.md` into your system prompt / context when debugging.
 
 - **[SKILL.md](SKILL.md)** -- what an agent loads: the folklore turned into instructions, each with a trigger, a form to fill, and an artifact to show the user. "Assume you have a bug" becomes "send a subagent to find one and report what it found". This is a bet that a form gets filled where a principle gets skipped, and it is untested. The bet is worth making because the folklore version measured no gain (below), and because forms have their own failure mode: they get filled with plausible content that nobody checked.
 
-- **[PLAYBOOK.md](PLAYBOOK.md)** -- the synthesized long-form: mental models, practitioner priors, step catalogs, symptom tables, the agent debugging loop, triage, and anti-patterns. Menus of hypotheses distilled from the same sources, not quotes. Deeper one-off tricks (loss-surface analysis, stuck-metric diagnosis, sweep reliability) live in [refs/](refs/).
+- **[PLAYBOOK.md](PLAYBOOK.md)** -- the synthesized long-form: mental models, practitioner priors, step catalogs, symptom tables, the agent debugging loop, triage, and anti-patterns. Menus of hypotheses distilled from the same sources, not quotes. Deeper one-off tricks (loss-surface analysis, stuck-metric diagnosis, sweep reliability) live in [references/](references/).
 
 - **[docs/evidence/](docs/evidence/)** -- frozen local copies of source material (blog posts, talks, papers, reddit threads). Claims here link back to exact quotes.
 
@@ -164,7 +164,7 @@ The 2018 tweet thread that seeded the recipe post. Every item is a silent failur
 
 > 6) thinking view() and permute() are the same thing (& incorrectly using view)[^karpathy-mistakes]
 
-Number 6 is the bug the backprop-to-input dependency check catches mechanically ([refs/diagnostics.md](refs/diagnostics.md)).
+Number 6 is the bug the backprop-to-input dependency check catches mechanically ([references/diagnostics.md](references/diagnostics.md)).
 
 ### Seed variance: you can't tell a bug from bad luck
 
@@ -172,7 +172,7 @@ Number 6 is the bug the backprop-to-input dependency check catches mechanically 
 
 > Instability to random seed is like a canary in a coal mine. If pure randomness is enough to lead to this much variance between runs, imagine how much an actual difference in the code could make.[^irpan]
 
-Henderson confirmed it quantitatively: splitting 10 same-config runs (differing only in seed) into two groups of five produces "statistically different distributions just from varying random seeds."[^henderson] This is why one good run proves nothing ([refs/sweeps.md](refs/sweeps.md)).
+Henderson confirmed it quantitatively: splitting 10 same-config runs (differing only in seed) into two groups of five produces "statistically different distributions just from varying random seeds."[^henderson] This is why one good run proves nothing ([references/sweeps.md](references/sweeps.md)).
 
 ### Normalize and scale everything
 
@@ -327,7 +327,7 @@ The one question that turns "am I overconfident" into something answerable:
 
 > **How reliable is my experiment?** Ask yourself: "How surprised would I be if it turned out to be complete bullshit due to a bug, error, noise, misunderstanding, etc.?" Investigate the most uncertain bits[^nanda-papers]
 
-And from an unpublished Nanda draft quoted in [refs/research_taste.md](refs/research_taste.md), so
+And from an unpublished Nanda draft quoted in [references/research_taste.md](references/research_taste.md), so
 weaker provenance than his published posts:
 
 > Insufficient Skepticism: Missing simple alternative explanations, methodological flaws, or bugs. Explicitly list alternatives. Get others (especially mentors) to red team your plans before you run them. Actively try to break your hypothesis. Ask "What observation would make me abandon this?"[^nanda-taste]
@@ -570,10 +570,10 @@ validation set is measuring overfitting to errors:
 
 Start here rather than treating the bibliography as flat:
 
-- **Beginner / broad checklist:** Lones, ["How to avoid machine learning pitfalls"](https://arxiv.org/pdf/2108.02497), with its full do/don't list extracted in [refs/checklist.md](refs/checklist.md).
+- **Beginner / broad checklist:** Lones, ["How to avoid machine learning pitfalls"](https://arxiv.org/pdf/2108.02497), with its full do/don't list extracted in [references/checklist.md](references/checklist.md).
 - **Debugging a neural net:** Karpathy, ["A Recipe for Training Neural Networks"](https://karpathy.github.io/2019/04/25/recipe/).
 - **Designing tuning experiments:** Google, [Deep Learning Tuning Playbook](https://developers.google.com/machine-learning/guides/deep-learning-tuning-playbook).
-- **Transformer and LLM runs:** [refs/transformers.md](refs/transformers.md), then the HF, Axolotl, Unsloth, nanochat, and Bekman sources below.
+- **Transformer and LLM runs:** [references/transformers.md](references/transformers.md), then the HF, Axolotl, Unsloth, nanochat, and Bekman sources below.
 
 Folklore sources (the quotes above trace to these):
 
@@ -612,7 +612,7 @@ Folklore sources (the quotes above trace to these):
 [^deeprlhacks]: William Falcon, "DeepRLHacks", attendee notes on Schulman's "Nuts and Bolts of Deep RL Research" -- https://github.com/williamFalcon/DeepRLHacks ([cache](docs/evidence/williamfalcon_deeprl_hacks.md): random-noise-not-signal, observations-usable). Secondary source; the primary slide deck is `[^schulman]`.
 [^nanda-mindsets]: Neel Nanda, "My Research Process: Key Mindsets" -- https://www.lesswrong.com/s/5GT3yoYM9gRmMEKqL/p/cbBwwm4jW6AZctymL ([cache](docs/evidence/nanda_research_process_key_mindsets.md): insufficient-skepticism-feels-like-research, mass-on-unlisted-hypotheses)
 [^nanda-papers]: Neel Nanda, "Highly Opinionated Advice on How to Write ML Papers" -- https://www.lesswrong.com/posts/eJGptPbbFPZGLpjsp/highly-opinionated-advice-on-how-to-write-ml-papers ([cache](docs/evidence/nanda_highly_opinionated_ml_paper_writing.md): how-reliable-is-my-experiment)
-[^nanda-taste]: Neel Nanda, "My Model of the Research Process", unpublished shared draft, as quoted in [refs/research_taste.md](refs/research_taste.md) (insufficient-skepticism, actively-seek-alternatives). Draft quality, weaker provenance than the published posts.
+[^nanda-taste]: Neel Nanda, "My Model of the Research Process", unpublished shared draft, as quoted in [references/research_taste.md](references/research_taste.md) (insufficient-skepticism, actively-seek-alternatives). Draft quality, weaker provenance than the published posts.
 [^nanda-draft]: Neel Nanda, "My Model of the Research Process", unpublished shared draft -- https://docs.google.com/document/d/1YMkeMrhqsWxZcNDD9CIUWEK_DAOegeufnbc79U2hycg/edit ([cache](docs/evidence/nanda_research_process_shared_draft.md): all-numbers-are-meaningless). This passage never made it into the published post.
 [^sanh]: Victor Sanh, "Simple considerations for simple people building fancy neural networks" (HF, 2021) -- https://huggingface.co/blog/simple-considerations ([cache](docs/evidence/sanh_simple_considerations_hf_2021.md): decent-performance-without-crashing, read-the-tokenizer-output, 4e2-is-a-symptom, pre-training questions)
 [^steinhardt]: Jacob Steinhardt, "Research as a Stochastic Decision Process" -- https://cs.stanford.edu/~jsteinhardt/ResearchasaStochasticDecisionProcess.html ([cache](docs/evidence/steinhardt_research_stochastic_decision_process.md): 0.1%-of-implementations, high-standard-for-ruling-out, months-of-approaches-one-cause)

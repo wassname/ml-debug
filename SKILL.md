@@ -1,6 +1,6 @@
 ---
 name: ml-debug
-description: "Machine learning debugging exercises, each under a quote from a practitioner. If this loaded, do the exercise for your situation and show the result in your reply. Invoke it yourself. Triggers: read the log, the run finished, it crashed, queue a run, the loss is not going down, the metric will not move, is this result real, does A beat B, a spike or anything weird in the log, and any moment you are about to write that a result looks fine."
+description: "Debug an ML run: read the log, it crashed, the loss will not go down, the metric will not move, is this result real, does A beat B, a spike or anything weird in the log, about to queue a run, or about to write that a result looks fine. Machine learning debugging exercises, each under a quote from a practitioner. Do the exercise for your situation and show the result in your reply. Invoke it yourself."
 ---
 
 In an attempt to upskill the machine learning debugging on AI coding assistants (and humans), I've collected high quality sources on how to debug machine learning projects, focusing on the mindset and the "taste". When I started ML I went searching for discussions on best practices, and started a few discussions of my own and they helped me a lot, over the years I've collected good ones. I hope they can help others, as well as help in auto research setups. This intro is human written, and the below is AI written with human guidance. - wassname
@@ -376,18 +376,20 @@ a punchy section-ending epigram, the third of its kind in the exercises. Written
 Sources and more quotes: [README.md](README.md). Longer material, open the one you need:
 
 - [PLAYBOOK.md](PLAYBOOK.md) -- mental models, component isolation, baseline ladder, what to log, symptom tables.
-- [refs/checklist.md](refs/checklist.md) -- Lones's 36 do/don'ts.
-- [refs/diagnostics.md](refs/diagnostics.md) -- snippets: init loss, overfit one batch, gradient flow, NaN hooks, leakage tracer.
-- [refs/static_analysis.md](refs/static_analysis.md) -- grep patterns for silent bugs.
-- [refs/loss_surface.md](refs/loss_surface.md) -- visualise a custom loss and its gradient field.
-- [refs/metric_stuck.md](refs/metric_stuck.md) -- why a metric will not move, structural ceiling check.
-- [refs/sweeps.md](refs/sweeps.md) -- paired comparison and cross-seed reliability.
-- [refs/llm_judges.md](refs/llm_judges.md) -- judge biases, repeat draws, paired differences.
-- [refs/time_series.md](refs/time_series.md) -- temporal evaluation and causal missing values.
-- [refs/research_taste.md](refs/research_taste.md) -- patience, information gain, de-risking.
-- [refs/transformers.md](refs/transformers.md) -- full traces, warmup, train-deploy parity, steering.
-- [rl/SKILL.md](rl/SKILL.md), [pinn/SKILL.md](pinn/SKILL.md) -- domain specifics.
-- [SKILL_old.md](SKILL_old.md) -- the previous procedural version (P1-P5), kept until reviewed.
+- [references/checklist.md](references/checklist.md) -- Lones's 36 do/don'ts.
+- [references/diagnostics.md](references/diagnostics.md) -- snippets: init loss, overfit one batch, gradient flow, NaN hooks, leakage tracer.
+- [references/static_analysis.md](references/static_analysis.md) -- grep patterns for silent bugs.
+- [references/loss_surface.md](references/loss_surface.md) -- visualise a custom loss and its gradient field.
+- [references/metric_stuck.md](references/metric_stuck.md) -- why a metric will not move, structural ceiling check.
+- [references/sweeps.md](references/sweeps.md) -- paired comparison and cross-seed reliability.
+- [references/llm_judges.md](references/llm_judges.md) -- judge biases, repeat draws, paired differences.
+- [references/llm_judge_litreview.md](references/llm_judge_litreview.md) -- the papers behind the judge advice.
+- [references/time_series.md](references/time_series.md) -- temporal evaluation and causal missing values.
+- [references/research_taste.md](references/research_taste.md) -- patience, information gain, de-risking.
+- [references/transformers.md](references/transformers.md) -- full traces, warmup, train-deploy parity, steering.
+- [rl/SKILL.md](rl/SKILL.md), [pinn/SKILL.md](pinn/SKILL.md) -- domain specifics. These two are
+  also skills in their own right, `ml-debug-rl` and `ml-debug-pinn`, so an agent that scans
+  subdirectories can load one on its own.
 
 ## Sign off
 

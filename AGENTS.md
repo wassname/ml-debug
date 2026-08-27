@@ -17,5 +17,5 @@ Quoting them is grounding data; rewording them injects assistant bias.
   block preserves the author's reasoning.
 - Put lower-relevance sources in "See also" rather than forcing a synthetic
   narrative around them.
-- In `SKILL.md`, link to reference docs like `refs/research_taste.md` instead
+- In `SKILL.md`, link to reference docs like `references/research_taste.md` instead
   of copying a long assistant-written summary.
