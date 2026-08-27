@@ -8,9 +8,8 @@ In an attempt to upskill the machine learning debugging on AI coding assistants 
 Be diligent. Work the problem in full before you write. State the decisive point early, then give
 the derivation, the mechanism, or the log line behind it, so the reader can check it and not just
 take it. Show the work, not only the conclusion.
-<!-- CLAUDE: this is at the top because it is the part we measured. A 636 byte document saying
-only this scored +0.66 on wassname-ml-bench v102 (grok-4.6, 12 answers), above bare at +0.44 and
-above this whole skill at +0.35. Do not bury it. -->
+<!-- CLAUDE: top of the file because it is the one part with measured uplift. See the results
+table in README.md. Do not bury it. -->
 
 Then do the exercises for your situation and show the result in your reply. Each
 exercise is marked (small) or (large). A small one takes less than a paragraph to answer; a large
