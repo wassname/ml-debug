@@ -5,20 +5,25 @@ description: "Machine learning debugging exercises, each under a quote from a pr
 
 In an attempt to upskill the machine learning debugging on AI coding assistants (and humans), I've collected high quality sources on how to debug machine learning projects, focusing on the mindset and the "taste". When I started ML I went searching for discussions on best practices, and started a few discussions of my own and they helped me a lot, over the years I've collected good ones. I hope they can help others, as well as help in auto research setups. This intro is human written, and the below is AI written with human guidance. - wassname
 
-If this skill loaded, do at least one exercise below and show the result in your reply. Each
+If this skill loaded, do the exercises for your situation and show the result in your reply. Each
 exercise is marked (small) or (large). A small one takes less than a paragraph to answer; a large
-one is a lot of work, such as searching for a reference repo and comparing against it. Do all the
-small ones that apply, and pick one large one. Exercises 1 and 3 are always in scope.
-<!-- CLAUDE: 7 was mandatory but is large under the new small/large rule. Left as a pickable large one. wassname to confirm. -->
-Then select by situation:
+one is a lot of work, such as searching for a reference repo and comparing against it.
 
-- a run finished or crashed: 1, 2, 3, 4
-- something weird in the log (a spike, a flat line, an impossible value): 10, 11
-- about to queue a run: 5, 6
-- about to change the design, or a run you cannot explain: 13
-- about to report a result, or to call it negative: 7, 8, 12, 14
-- about to set a pass gate or quote a threshold: 15
-- two cycles with no progress: 9
+Always do 1 and 3. Then run the list and do every line whose condition is true. Do all the small
+ones you match, and one large one.
+
+| if | then do | size |
+|---|---|---|
+| always | 1, 3 | small |
+| a run finished or crashed | 2, 4 | small |
+| something in the log looks weird: a spike, a flat line, an impossible value | 10, 11 | small |
+| about to queue a run | 5, 6 | small |
+| about to report a result, or to call it negative | 12, 14 | small |
+| about to set a pass gate or quote a threshold | 15 | large |
+| about to change the design, or a run you cannot explain | 13 | large |
+| about to say you found the cause | 7 | large |
+| about to say A beats B | 8 | large |
+| two cycles with no progress | 9 | large |
 
 Each exercise says what to show. Show it in full: the table, the quoted log line, the quoted
 code, the pasted sample. Write "unknown" in a cell you cannot fill, and say what would fill it.
@@ -100,12 +105,19 @@ sentence fragment in the not-X-but-Y shape. It may still be the clearest way to 
 Written by CLAUDE. -->
 
 
-Be wary of reaching for a cosine probe instead of building the training script with metrics. It is
-easy to make a mistake with cosine. It is not causal, and two different subspaces score near zero
-even when they are correlated, so `cos(apple, orange) = 0` is not a null result. Building the real
-thing and running it takes longer and answers the question. Exercise 2.
-<!-- annoy-less: [voice] the cos(apple, orange) line is yours from CLAUDE.md and reads as you. The
-surrounding sentences are CLAUDE's and are flatter; the seam is visible. -->
+Do not write a side-car probe script. Build up the one training script so it has all the metrics
+you need inline as you go, with short interpretable demos at many stages: init, mid train, post
+train, eval, then one long unclipped demo at the end. Demos and probes should not be separate
+runs, they should be quick sanity checks inside the main train script, and the script should write
+`log.md` in markdown (see `token-efficient-logging` and `markdown-tables`) so the log diagnoses in
+situ instead of needing a second pass. That is how a lot of nights get wasted and agents go off
+track: they make side-cars with their own separate bugs and weird correlational measurements, and
+have nothing to show for it. If we work on the training script we watch it get better, we reuse
+the same code, we understand it better, and we squash the bugs. - wassname
+
+Cosine is the usual side-car. It is easy to get wrong, it is not causal, and two different
+subspaces score near zero even when they are correlated, so `cos(apple, orange) = 0` is not a null
+result. Exercise 2.
 
 
 > *   How would a random predictor perform (especially in classification problems)? Dataset can be unbalanced...
