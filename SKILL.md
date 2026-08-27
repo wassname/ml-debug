@@ -5,7 +5,14 @@ description: "Machine learning debugging exercises, each under a quote from a pr
 
 In an attempt to upskill the machine learning debugging on AI coding assistants (and humans), I've collected high quality sources on how to debug machine learning projects, focusing on the mindset and the "taste". When I started ML I went searching for discussions on best practices, and started a few discussions of my own and they helped me a lot, over the years I've collected good ones. I hope they can help others, as well as help in auto research setups. This intro is human written, and the below is AI written with human guidance. - wassname
 
-If this skill loaded, do the exercises for your situation and show the result in your reply. Each
+Be diligent. Work the problem in full before you write. State the decisive point early, then give
+the derivation, the mechanism, or the log line behind it, so the reader can check it and not just
+take it. Show the work, not only the conclusion.
+<!-- CLAUDE: this is at the top because it is the part we measured. A 636 byte document saying
+only this scored +0.66 on wassname-ml-bench v102 (grok-4.6, 12 answers), above bare at +0.44 and
+above this whole skill at +0.35. Do not bury it. -->
+
+Then do the exercises for your situation and show the result in your reply. Each
 exercise is marked (small) or (large). A small one takes less than a paragraph to answer; a large
 one is a lot of work, such as searching for a reference repo and comparing against it.
 
