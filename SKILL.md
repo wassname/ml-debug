@@ -9,21 +9,30 @@ If this skill loaded, do the exercises for your situation and show the result in
 exercise is marked (small) or (large). A small one takes less than a paragraph to answer; a large
 one is a lot of work, such as searching for a reference repo and comparing against it.
 
-Always do 1 and 3. Then run the list and do every line whose condition is true. Do all the small
-ones you match, and one large one.
+Always do ex #1 and ex #3. Then walk the list and do every branch whose condition is true. Do all
+the small ones you match, and one large one.
 
-| if | then do | size |
-|---|---|---|
-| always | 1, 3 | small |
-| a run finished or crashed | 2, 4 | small |
-| something in the log looks weird: a spike, a flat line, an impossible value | 10, 11 | small |
-| about to queue a run | 5, 6 | small |
-| about to report a result, or to call it negative | 12, 14 | small |
-| about to set a pass gate or quote a threshold | 15 | large |
-| about to change the design, or a run you cannot explain | 13 | large |
-| about to say you found the cause | 7 | large |
-| about to say A beats B | 8 | large |
-| two cycles with no progress | 9 | large |
+- always, whatever you are doing
+  - ex #1 read the log end to end (small)
+  - ex #3 read your data (small)
+- before a run
+  - if about to queue it: ex #5 list the options you have (small), ex #6 write down what you
+    expect to see (small)
+  - if about to change the design, or you cannot explain the last run: ex #13 pseudocode and
+    external review (large)
+- after a run
+  - if it finished or crashed: ex #2 name a second cause for the same number (small), ex #4 chase
+    the weird thing (small)
+  - if the log looks weird, a spike or a flat line or an impossible value: ex #11 read the rows
+    before the spike (small), then ex #10 localise the error (small)
+- before you report
+  - if about to set a pass gate or quote a threshold: ex #15 get the scale before the gate (large)
+  - if about to quote a headline metric: ex #12 name what else could score well (small)
+  - if about to say you found the cause: ex #7 multiple diagnoses with % bets (large)
+  - if about to say A beats B: ex #8 three ways the result is false (large)
+  - if about to call it negative: ex #14 one implementation is not the idea (small)
+- if two cycles have passed with no progress
+  - ex #9 compare against a reference implementation (large)
 
 Each exercise says what to show. Show it in full: the table, the quoted log line, the quoted
 code, the pasted sample. Write "unknown" in a cell you cannot fill, and say what would fill it.
@@ -57,7 +66,8 @@ of work" are CLAUDE's, not from your message. First person claims about you that
 
 Be careful about being overconfident. It is easy to write a diagnosis in the tone of a fact. Before
 you commit to one, ask what you saw that a competing explanation could not also explain. If nothing,
-then "I do not know, and here is what would tell me" is a good answer and not a failure. Exercise 7.
+then "I do not know, and here is what would tell me" is a good answer and not a failure.
+Ex #7 multiple diagnoses with % bets.
 <!-- annoy-less: [#9 negative framing] "is a good answer and not a failure" is the X-and-not-Y
 closer. Say the positive claim only. Written by CLAUDE. -->
 
@@ -65,7 +75,7 @@ closer. Say the positive claim only. Written by CLAUDE. -->
 Do not quit after the first change and call the negative real. One failed attempt is much more
 likely to be a bug in your implementation than a refutation of the idea. This is the expensive
 mistake, because the idea gets thrown away and nobody goes back to it. Look for the bug first.
-Exercise 14.
+Ex #14 one implementation is not the idea.
 <!-- annoy-less: [confidence changed + significance narration] your original was "quit after the
 first change to misdiagnose a negative". CLAUDE added "much more likely to be a bug" (a probability
 you did not state) and "This is the expensive mistake", which tells the reader how to rate it. -->
@@ -74,7 +84,7 @@ you did not state) and "This is the expensive mistake", which tells the reader h
 Try not to stop at the first idea you come up with. It arrives with no competition, so it wins by
 default rather than on merit. Write down two more, and say what observation would separate them. If
 you cannot name a test that distinguishes them, you have a preference and not a hypothesis.
-Exercises 6 and 7.
+Ex #6 write down what you expect to see, ex #7 multiple diagnoses with % bets.
 <!-- annoy-less: [#9 negative framing] "you have a preference and not a hypothesis" is again the
 X-and-not-Y closer. Two of these in one section reads as a formula. Written by CLAUDE. -->
 <!-- annoy-less: [aphorism] "It arrives with no competition, so it wins by default rather than on
@@ -86,20 +96,21 @@ merit." is CLAUDE's epigram, not in your message. Cut or say it plainly. -->
 Watch out for getting obsessed with the legible hyperparameters. Learning rate, batch size and
 warmup are easy to name and easy to change, so they attract more attention than they deserve. More
 often the cause is in the data, a sign, a mask, an index, or a metric that answers a different
-question from the one you asked. Exercises 5 and 10.
+question from the one you asked. Ex #5 list the options you have, ex #10 localise the error.
 <!-- annoy-less: [confidence changed] "More often the cause is in the data" is a frequency claim
 CLAUDE added; your message only listed the obsession, not a base rate. -->
 
 
 Please read the data. Print the first full training sample, chosen and rejected, with the special
 tokens and the loss mask showing. Look at it with your own eyes. Most formatting bugs are obvious in
-the first sample and invisible in every aggregate. Exercise 3.
+the first sample and invisible in every aggregate. Ex #3 read your data.
 <!-- annoy-less: [antithesis formula] "obvious in the first sample and invisible in every aggregate"
 is a balanced-opposites flourish. CLAUDE's phrasing, and "Most" is an added frequency claim. -->
 
 
 Please read the log. Not the last twenty lines, the log. Find the first line where the run stopped
-matching what you expected, quote it, and start from there. Exercises 1 and 11.
+matching what you expected, quote it, and start from there. Ex #1 read the log end to end,
+ex #11 read the rows before the spike.
 <!-- annoy-less: [#9 negative framing, clipped fragment] "Not the last twenty lines, the log." is a
 sentence fragment in the not-X-but-Y shape. It may still be the clearest way to say it, your call.
 Written by CLAUDE. -->
@@ -115,9 +126,7 @@ track: they make side-cars with their own separate bugs and weird correlational 
 have nothing to show for it. If we work on the training script we watch it get better, we reuse
 the same code, we understand it better, and we squash the bugs. - wassname
 
-Cosine is the usual side-car. It is easy to get wrong, it is not causal, and two different
-subspaces score near zero even when they are correlated, so `cos(apple, orange) = 0` is not a null
-result. Exercise 2.
+A cosine probe is the usual side-car, and `cos(apple, orange) = 0` is not a null result. Ex #2.
 
 
 > *   How would a random predictor perform (especially in classification problems)? Dataset can be unbalanced...
@@ -126,7 +135,7 @@ result. Exercise 2.
 
 Do not fix on an arbitrary metric threshold before you have any idea what a fair or good threshold
 is. Saying the metric must clear 0.8 means nothing until you know what counts as good here. Get the
-scale first, from a null arm and a shuffled control. Exercise 15.
+scale first, from a null arm and a shuffled control. Ex #15 get the scale before the gate.
 <!-- annoy-less: [invented example] "Saying the metric must clear 0.8 means nothing" - the 0.8 is
 CLAUDE's, not from your message. Fine as illustration, but it is not your number. -->
 
@@ -137,7 +146,8 @@ Do not write code that carries on after it has already failed. A load that loade
 that matched nothing, a config key that was missing, all of these should stop the run rather than
 hand you a clean log and a wrong result. Assert that the thing you asked for is there. The cost of
 this one is measured in runs, not minutes: a `strict=False` that quietly loaded no weights hid a
-dead experiment arm for eight runs in my own repo. Exercises 2 and 7.
+dead experiment arm for eight runs in my own repo. Ex #2 name a second cause for the same number,
+ex #7 multiple diagnoses with % bets.
 
 A separate thing that shares the name "fail fast", and worth keeping separate in your head:
 
@@ -150,7 +160,7 @@ Read the first one with its audience in mind. Nanda is advising a human who over
 a year into a direction who cannot see the sunk cost. Agents fail the other way round: they quit
 early, and they find a reading of the task that licenses it, or they skim until something looks
 like grounds to stop. So the rule does not transfer unchanged. Before you call a direction dead,
-do exercises 7 and 9 and show the result: what you expected, what you got, and the bug you ruled
+do ex #7 and ex #9 and show the result: what you expected, what you got, and the bug you ruled
 out. A reason found while skimming does not count.
 <!-- CLAUDE: wassname's point, my wording. He said agents "give up too easy and find
 misinterpreation to give up, or skim untill they find a reason". -->
@@ -176,7 +186,7 @@ Even a careful writer has to flag their own overloaded terms as they go:
 
 > And make sure it's clear which metrics you are using. For instance, if you report F-scores, be clear whether this is F1, or some other balance between precision and recall. If you report AUC, indicate whether this is the area under the ROC curve or the PR curve. -- Lones
 
-## 1. "Experimenting a little and thinking a lot" (small)
+## ex #1 read the log end to end (small)
 
 > Switching from experimenting a lot and thinking a little to experimenting a little and thinking a lot was a key turnaround in productivity. When debugging with long iteration times, you really need to *pour* time into the hypothesis-forming step - thinking about what all the possibilities are, how likely they seem on their own, and how likely they seem in light of everything you've seen so far. -- Rahtz
 
@@ -189,10 +199,10 @@ line for each cell. Show:
 
 An empty cell is a metric that does not exist. Add the metric before the next run.
 <!-- annoy-less: [aphoristic definition] "An empty cell is a metric that does not exist." is the
-X-is-Y epigram shape that recurs in exercises 8, 14 and 15. Written by CLAUDE. -->
+X-is-Y epigram shape that recurs in ex #8, #14 and #15. Written by CLAUDE. -->
 
 
-## 2. "Raising the threshold at which you start thinking 'OK, I think this is correct'" (small)
+## ex #2 name a second cause for the same number (small)
 
 > What I'm advocating for here is not a blind faith in the buginess of your code, but for dramatically raising the threshold at which you start thinking 'OK, I think this is correct.' -- Jones
 
@@ -200,7 +210,7 @@ Take the one number your diagnosis depends on. Quote the code that computes it. 
 cause that gives the same number. Show both. Example: a cosine near 1 can be a shared mean or
 a collapsed latent. A second metric is needed to tell which.
 
-## 3. "Manually examining 100 examples does not take long" (small)
+## ex #3 read your data (small)
 
 > Manually examining 100 examples does not take long. Even if you take one minute per image, you'd be done in under two hours. These two hours could save you a month of wasted effort. -- Ng
 
@@ -211,7 +221,7 @@ special tokens and the loss mask visible. Then show one complete output per arm,
 and the first token where they differ. Select the examples at random and say how. Add the best
 example, the worst example, and any example that looks wrong.
 
-## 4. "Chase right after it" (small)
+## ex #4 chase the weird thing (small)
 
 > If you ever see a plot or a behaviour that just *seems weird*, chase right after it! Do not - do *not* - just 'hope it goes away'. Chasing anomalies is one of the most powerful ways to debug your system, because if you've noticed a problem without having had to go look for it, that means it's a *really big problem*. -- Jones
 
@@ -219,7 +229,7 @@ Show one row per prediction recorded before the run: supported, contradicted, or
 with the observation that decided it. Then list each behaviour that seems weird, including the
 ones you would prefer to ignore. End each line with "explained: ..." or "chasing now".
 
-## 5. "A strong mental model of what options you have" (small)
+## ex #5 list the options you have (small)
 
 > Build it up as you go, don't think you can build it ahead of time. Be focused on a strong mental model of what options you have (including architectural changes and losses) that you think should affect what metrics in the logs. -- wassname
 
@@ -232,7 +242,7 @@ Give at least three options, one architectural and one loss. Say which options y
 this run and why. You can change several options in one run if each option has its own metric.
 Show the config diff against the run you will compare to.
 
-## 6. "Write down what you expect to see differently" (small)
+## ex #6 write down what you expect to see (small)
 
 > Before acting plan by writing multiple competing hypotheses: consider the most likely failure but also some of: a subtle failure, a perverse failure, a possible bug, and an unknown. Put a rough credence on each. Finally write down what you expect to see differently for success vs each possibility and brainstorm the cheapest tests that may narrow them down. -- wassname
 
@@ -244,7 +254,7 @@ Show:
 Add each metric whose last column says no. For each pass gate, show the ceiling the data allows
 and check that the gate is below the ceiling. Follow the job so that its finish wakes you.
 
-## 7. "Most often, it turns out they've got a bug" (large)
+## ex #7 multiple diagnoses with % bets (large)
 
 > When their RL implementation doesn't work, people are often keen to either (a) adjust their network architecture or (b) adjust their hyperparameters. On the other hand, they're reluctant to say they've got a bug. Most often, it turns out they've got a bug. -- Jones
 
@@ -256,7 +266,7 @@ evaluation. Keep some credence on unknown. If a diagnosis has no evidence agains
 untested. Then give a fresh subagent the code and the log with no diagnosis attached, and ask
 for the top bugs and misconceptions. Show its list, including "found nothing".
 
-## 8. "Excitement is evidence of bullshit" (large)
+## ex #8 three ways the result is false (large)
 
 > Excitement is evidence of bullshit: Generally, most true results are not exciting, but a fair amount of false results are. So from a Bayesian perspective, if a result is exciting and cool, it's even more likely to be false than normal! -- Nanda
 
@@ -268,7 +278,7 @@ says. Apply the same to a negative result: a bad row is a bug until the log show
 log shows otherwise" are both CLAUDE epigrams. Keep one at most. -->
 
 
-## 9. "Implementation differences ... can have dramatic impacts" (large)
+## ex #9 compare against a reference implementation (large)
 
 > We find that implementation differences which are often not reflected in publications can have dramatic impacts on performance. -- Henderson
 
@@ -285,20 +295,20 @@ the top one, or write "no reference exists". Show:
 Include algorithm tweaks, engineering tricks, hyperparameters, and logged metrics. Give a fresh
 subagent the module and ask for at least one bug.
 
-## 10. "The shape of your loss curve ... doesn't localise errors" (small)
+## ex #10 localise the error (small)
 
 > The problem with using the loss curve as an indicator of correctness is somewhat that it's not reliable, but mostly because it doesn't localise errors. The shape of your loss curve says very little about where in your code you've messed up. -- Jones
 
 At the step that looks wrong, show the loss per term and the gradient norm per module. Name the
 module the error localises to.
 
-## 11. "It's the previous frames that we need to look into" (small)
+## ex #11 read the rows before the spike (small)
 
 > As you can see it's the previous frames that we need to look into when the numbers start going into very large for fp16 numbers. -- Bekman
 
 For each spike or collapse, show the log rows before it. Say which column moved first.
 
-## 12. "The CNN has learned to detect a metal token" (small)
+## ex #12 name what else could score well (small)
 
 > The CNN has learned to detect a metal token that radiology technicians place on the patient in the corner of the image field of view at the time they capture the image. -- Zech et al., whose pneumonia model scored AUC 0.931 in its own hospitals and 0.815 in someone else's
 
@@ -308,7 +318,7 @@ For the headline metric, name one useless thing the model can learn and still sc
 example a condition of data collection or the class prior. Show the control arm or the row that
 detects it.
 
-## 13. "Summarise your concept and pseudocode, then get it reviewed" (large)
+## ex #13 pseudocode and external review (large)
 
 > Summarise your concept and pseudocode and do an external review in scientist mode. Perhaps describe the forward and backward pass as mermaid too. -- wassname
 
@@ -318,7 +328,7 @@ forward pass and the backward pass. Show all three. Send them to `/external-revi
 scientist mode and show the verdict. The reviewer sees only the description, so make the
 description complete.
 
-## 14. "An implementation comprising 0.1% of the possible implementations of X" (small)
+## ex #14 one implementation is not the idea (small)
 
 > Trying an experiment and seeing it fail gives little information by itself. When an experiment fails, it is tempting to conclude "I tried X and it didn't work". However, if X is a high-level conceptual approach, then a more correct conclusion is "I tried an implementation comprising 0.1% of the possible implementations of X, and observed that that particular implementation did not work". -- Steinhardt
 
@@ -326,7 +336,7 @@ description complete.
 
 Before you call an idea dead, show the implementation you actually ran and one other
 implementation of the same idea that you did not run. Say what would have to be true for the
-idea to be alive and your run to still fail. Then do exercise 7 on your own code before you
+idea to be alive and your run to still fail. Then do ex #7 on your own code before you
 write the negative up.
 
 | the idea | what I ran (file:line) | one other way to run it | what a bug here would look like |
@@ -338,7 +348,7 @@ X-not-Y one-line closer. It is the point of the exercise, so it may earn its pla
 CLAUDE's line, not Steinhardt's. -->
 
 
-## 15. "By default, all numbers are meaningless because we lack any scale" (large)
+## ex #15 get the scale before the gate (large)
 
 > A valuable intuition to have in mind is that, by default, all numbers are meaningless because we lack any scale to compare them. E.g. if a probe gets 95% classification accuracy on some task, is this good? Is this bad? Hard to say without knowing more! Baselines are one way to get context to compare against. -- Nanda
 
