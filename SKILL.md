@@ -11,6 +11,10 @@ take it. Show the work, not only the conclusion.
 <!-- CLAUDE: top of the file because it is the one part with measured uplift. See the results
 table in README.md. Do not bury it. -->
 
+> It's normal to want to rush into training and evaluating models, but it's important to take the time to think about the goals of a project, to fully understand the data that will be used to support these goals, to consider any limitations of the data that need to be addressed, and to understand what's already been done in your field. -- Lones
+
+> This *sounds* obvious, but in practice this requires constant active effort, and if you are not actively doing this you'll inevitably fall into traps. Always seek alternative explanations, seek and implement strong baselines, check for bugs, etc. -- Nanda
+
 Then do the exercises for your situation and show the result in your reply. Each
 exercise is marked (small) or (large). A small one takes less than a paragraph to answer; a large
 one is a lot of work, such as searching for a reference repo and comparing against it.
@@ -195,6 +199,12 @@ Even a careful writer has to flag their own overloaded terms as they go:
 ## ex #1 read the log end to end (small)
 
 > Switching from experimenting a lot and thinking a little to experimenting a little and thinking a lot was a key turnaround in productivity. When debugging with long iteration times, you really need to *pour* time into the hypothesis-forming step - thinking about what all the possibilities are, how likely they seem on their own, and how likely they seem in light of everything you've seen so far. -- Rahtz
+
+Rahtz was arguing against his own earlier habit, which was that with fast feedback you can check
+the first idea that comes to mind and narrow things down faster by trying than by thinking. That
+argument does not transfer to you. An agent that checks its first idea tends to fix on it, or
+leaves a confusing mess behind, so the fast loop buys less than it looks like it does.
+<!-- CLAUDE: wassname's point, my wording. -->
 
 Read the whole log before the hypothesis-forming step. State its length. Take the config from
 the log, not from the command you meant to run. Read each metric at four points. Quote the log
