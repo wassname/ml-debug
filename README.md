@@ -658,6 +658,44 @@ Caveats: one model, three answers per question, one judge panel, at bench versio
 that this document did not help this model on these questions. It is not evidence about a stronger
 model, a longer task, or an agent that can run code.
 
+### Which part of the document does the work?
+
+A later round swapped the document for cut-down versions of it, on three of the twelve questions,
+four answers per question, grok-4.6 at high reasoning effort. Both controls are documents that
+contain none of this material: `inert doc` gives no instruction at all, and `be thorough` is five
+lines telling the model to work the problem in full and show its work.
+
+*One row is one document loaded in place of SKILL.md. Controls are italic. `struggling` counts
+answers that narrate fetching evidence in a bench that offers no tools, and `mean clean` is the
+mean with those dropped.*
+
+| document | size | mean↑ | mean clean↑ | struggling↓ | version |
+| --- | ---: | ---: | ---: | ---: | --- |
+| *be thorough (control)* | 636 B | *+0.66* | *+0.66* | 0/12 | control |
+| exercises, almost no quotes | 19 K | +0.53 | +0.53 | 0/10 | ablation |
+| *inert doc (control)* | 771 B | *+0.53* | *+0.53* | 0/12 | control |
+| *bare, no document* | 0 | *+0.44* | *+0.44* | 0/12 | -- |
+| read the data, and give hypotheses | 3.0 K | +0.44 | +0.44 | 0/11 | ablation |
+| quotes and exercises | 26 K | +0.35 | +0.47 | 3/12 | [`efcac5c`](https://github.com/wassname/ml-debug/blob/efcac5c/SKILL.md) |
+| quotes only, no exercises | 40 K | +0.13 | -- | 10/12 | [`d5d725e`](https://github.com/wassname/ml-debug/blob/d5d725e/SKILL.md) |
+| be diligent first, named exercises | 28 K | not run yet | | | [`742dbe4`](https://github.com/wassname/ml-debug/blob/742dbe4/SKILL.md) |
+
+<sub>Table: 0.0 is the obvious answer each question rejects and 1.0 is my own answer, so a
+negative row is worse than the answer the question was built to reject. Judge `gpt-5.6-terra`,
+bench version v102. The ablation rows were built for the bench and were never committed here; each
+one is kept verbatim in the bench repo, listed in `docs/audits/skill_snapshots/MANIFEST.md`.</sub>
+
+Three readings, all from grok-4.6 alone. The exercises carry what lift there is and the quotes
+cost more than they pay: the exercises-only document is the best of the real ones, and the
+quotes-only document collapses, with 10 of its 12 answers going off to narrate tool calls instead
+of answering. A short instruction to be thorough beats every version of this document. And the
+quotes do move the specific point they encode, so the loss is elsewhere: on the question about a
+number repeated across windows, bare and the inert control both score 0.00 while every document
+carrying that quote scores 0.75 or better.
+
+The line at the top of SKILL.md telling you to be diligent and show your work is there because of
+the first row of this table.
+
 
 ## Other skills
 
