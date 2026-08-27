@@ -672,13 +672,13 @@ mean with those dropped.*
 | document | size | mean↑ | mean clean↑ | struggling↓ | version |
 | --- | ---: | ---: | ---: | ---: | --- |
 | *be thorough (control)* | 636 B | *+0.66* | *+0.66* | 0/12 | control |
+| be diligent first, named exercises | 29 K | +0.56 | +0.56 | 0/12 | [`3a58c54`](https://github.com/wassname/ml-debug/blob/3a58c54/SKILL.md) |
 | exercises, almost no quotes | 19 K | +0.53 | +0.53 | 0/10 | ablation |
 | *inert doc (control)* | 771 B | *+0.53* | *+0.53* | 0/12 | control |
 | *bare, no document* | 0 | *+0.44* | *+0.44* | 0/12 | -- |
 | read the data, and give hypotheses | 3.0 K | +0.44 | +0.44 | 0/11 | ablation |
 | quotes and exercises | 26 K | +0.35 | +0.47 | 3/12 | [`efcac5c`](https://github.com/wassname/ml-debug/blob/efcac5c/SKILL.md) |
 | quotes only, no exercises | 40 K | +0.13 | -- | 10/12 | [`d5d725e`](https://github.com/wassname/ml-debug/blob/d5d725e/SKILL.md) |
-| be diligent first, named exercises | 29 K | not run yet | | | [`3a58c54`](https://github.com/wassname/ml-debug/blob/3a58c54/SKILL.md) |
 
 <sub>Table: 0.0 is the obvious answer each question rejects and 1.0 is my own answer, so a
 negative row is worse than the answer the question was built to reject. Judge `gpt-5.6-terra`,
@@ -686,15 +686,18 @@ bench version v102. The ablation rows were built for the bench and were never co
 one is kept verbatim in the bench repo, listed in `docs/audits/skill_snapshots/MANIFEST.md`.</sub>
 
 Three readings, all from grok-4.6 alone. The exercises carry what lift there is and the quotes
-cost more than they pay: the exercises-only document is the best of the real ones, and the
-quotes-only document collapses, with 10 of its 12 answers going off to narrate tool calls instead
-of answering. A short instruction to be thorough beats every version of this document. And the
+cost more than they pay: the two best of the real documents are the ones that lead with the
+exercises, and the quotes-only document collapses, with 10 of its 12 answers going off to narrate
+tool calls instead of answering. A short instruction to be thorough beats every version of this
+document. And the
 quotes do move the specific point they encode, so the loss is elsewhere: on the question about a
 number repeated across windows, bare and the inert control both score 0.00 while every document
 carrying that quote scores 0.75 or better.
 
 The line at the top of SKILL.md telling you to be diligent and show your work is there because of
-the first row of this table.
+the first row of this table. Adding it, and naming the exercises, moved the current document from
+0.096 below bare to 0.115 above it, standard error 0.059, and it gained on all three questions.
+That is the difference of two arm means over 12 answers each, not a paired difference.
 
 
 ## Other skills
