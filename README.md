@@ -678,7 +678,7 @@ mean with those dropped.*
 | read the data, and give hypotheses | 3.0 K | +0.44 | +0.44 | 0/11 | ablation |
 | quotes and exercises | 26 K | +0.35 | +0.47 | 3/12 | [`efcac5c`](https://github.com/wassname/ml-debug/blob/efcac5c/SKILL.md) |
 | quotes only, no exercises | 40 K | +0.13 | -- | 10/12 | [`d5d725e`](https://github.com/wassname/ml-debug/blob/d5d725e/SKILL.md) |
-| be diligent first, named exercises | 28 K | not run yet | | | [`742dbe4`](https://github.com/wassname/ml-debug/blob/742dbe4/SKILL.md) |
+| be diligent first, named exercises | 29 K | not run yet | | | [`3a58c54`](https://github.com/wassname/ml-debug/blob/3a58c54/SKILL.md) |
 
 <sub>Table: 0.0 is the obvious answer each question rejects and 1.0 is my own answer, so a
 negative row is worse than the answer the question was built to reject. Judge `gpt-5.6-terra`,
