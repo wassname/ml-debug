@@ -26,13 +26,10 @@ Or paste `SKILL.md` into your system prompt / context when debugging.
 
 ## What's here
 
-- **This README** -- the folklore, for humans: verbatim sourced quotes from practitioners, general lessons first, modern transformers and LLM fine-tuning in their own section.
-
-- **[SKILL.md](SKILL.md)** -- what an agent loads: the folklore turned into instructions, each with a trigger, a form to fill, and an artifact to show the user. "Assume you have a bug" becomes "send a subagent to find one and report what it found". This is a bet that a form gets filled where a principle gets skipped, and it is untested. The bet is worth making because the folklore version measured no gain (below), and because forms have their own failure mode: they get filled with plausible content that nobody checked.
-
-- **[PLAYBOOK.md](PLAYBOOK.md)** -- the synthesized long-form: mental models, practitioner priors, step catalogs, symptom tables, the agent debugging loop, triage, and anti-patterns. Menus of hypotheses distilled from the same sources, not quotes. Deeper one-off tricks (loss-surface analysis, stuck-metric diagnosis, sweep reliability) live in [refs/](refs/).
-
-- **[docs/evidence/](docs/evidence/)** -- frozen local copies of source material (blog posts, talks, papers, reddit threads). Claims here link back to exact quotes.
+- **This README** -- the folklore, for humans: verbatim sourced quotes from practitioners
+- **[SKILL.md](SKILL.md)** -- the folklore turned into instructions
+- **[PLAYBOOK.md](PLAYBOOK.md)** -- the synthesized long-form live in [refs/](refs/).
+- **[docs/evidence/](docs/evidence/)** -- frozen local copies of source material (blog posts, talks, papers, reddit threads).
 
 ## Folklore
 
