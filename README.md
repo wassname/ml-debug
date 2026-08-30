@@ -1,5 +1,34 @@
 # wassname's ML Debugging Folklore
 
+```
+   ______________________________________________
+  / If you ever see a plot or a behaviour that   \
+  | just seems weird, chase right after it! Do   |
+  | not - do not - just 'hope it goes away'.     |
+  \                                   — Jones    /
+   ----------------------------------------------
+            \   ,___,
+             \  {o,o}
+                /)_)  🔧
+                 " "
+
+    / If it doesn't work, assume there's a bug. \
+    \                 — Achiam                  /
+                     (\_/)
+                     ( •_•)
+                     / >🔧
+
+   ___________________________________________
+  / Excitement is evidence of bullshit:       \
+  | most true results are not exciting, but a |
+  | fair amount of false results are.         |
+  \                              — Nanda      /
+   -------------------------------------------
+              \   (\__/)
+               \  (o.o )
+                  (")_(")🔍
+```
+
 In an attempt to upskill the machine learning debugging on AI coding assistants (and humans), I've collected high quality sources on how to debug machine learning projects, focusing on the mindset and the "taste". When I started ML I went searching for discussions on best practices, and started a few discussions of my own and they helped me a lot, over the years I've collected good ones. I hope they can help others, as well as help in auto research setups. This intro is human written, and the below is AI written with human guidance.
 
 ## Use as a Claude skill
