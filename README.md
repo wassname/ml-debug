@@ -12,21 +12,6 @@
                 /)_)  🔧
                  " "
 
-    / If it doesn't work, assume there's a bug. \
-    \                 — Achiam                  /
-                     (\_/)
-                     ( •_•)
-                     / >🔧
-
-   ___________________________________________
-  / Excitement is evidence of bullshit:       \
-  | most true results are not exciting, but a |
-  | fair amount of false results are.         |
-  \                              — Nanda      /
-   -------------------------------------------
-              \   (\__/)
-               \  (o.o )
-                  (")_(")🔍
 ```
 
 In an attempt to upskill the machine learning debugging on AI coding assistants (and humans), I've collected high quality sources on how to debug machine learning projects, focusing on the mindset and the "taste". When I started ML I went searching for discussions on best practices, and started a few discussions of my own and they helped me a lot, over the years I've collected good ones. I hope they can help others, as well as help in auto research setups. This intro is human written, and the below is AI written with human guidance.
@@ -75,6 +60,14 @@ When you're stuck after a diagnostic cycle or two, the generalization of this ad
 
 > What I'm advocating for here is not a blind faith in the buginess of your code, but for dramatically raising the threshold at which you start thinking 'OK, I think this is correct.'[^jones]
 
+```
+    / If it doesn't work, assume there's a bug. \
+    \                 — Achiam                  /
+                     (\_/)
+                     ( •_•)
+                     / >🔧
+```
+
 A bug can also hide, because most ML models have multiple adaptive parts: 
 
 > "If one part is broken, the other parts can adapt and still achieve roughly acceptable performance" [^goodfellow],
@@ -85,7 +78,17 @@ and it may not show in the output at all.
 > The default state of the world is that your research is false, because doing research is hard.[^nanda]
 
 > Excitement is evidence of bullshit: Generally, most true results are not exciting, but a fair amount of false results are. So from a Bayesian perspective, if a result is exciting and cool, it's even more likely to be false than normal![^nanda]
-
+```
+   ___________________________________________
+  / Excitement is evidence of bullshit:       \
+  | most true results are not exciting, but a |
+  | fair amount of false results are.         |
+  \                              — Nanda      /
+   -------------------------------------------
+              \   (\__/)
+               \  (o.o )
+                  (")_(")🔍
+```
 The cheapest antidote he gives: "Read your data ... Often, the quality of the data is a crucial driver of the results of your experiments. Often, it is quite bad."[^nanda]
 
 I'll add. for LLM's I suggest assuming every negative results is a bug, and 1) reviewing associated code and output logs to find the top 5 reasons/probabilities why the results might be invalid 2) to avoid skimming this report should involve quoting and interpreting to the user about everything, which should include at least: config, weird code / engineering, data, eval and importantly the log and metrics behaviour and demos in it. It should often include looking at a random sample of output and comparing it to the expected output. - wassname
@@ -364,38 +367,6 @@ Folklore sources (the quotes above trace to these):
 [^lones]: Michael A. Lones, "How to avoid machine learning pitfalls" (2021, updated annually) — https://arxiv.org/pdf/2108.02497 ([cache](docs/evidence/lones_2021_ml_pitfalls.md): full do/don't TOC, leakage, look-ahead bias). Aimed at beginners but the most exhaustive checklist here: 36 do/don'ts across data prep, training, evaluation, comparison, and reporting.
 
 For modern transformer pretraining specifically (most sources above predate it), see [Karpathy's recipe](https://karpathy.github.io/2019/04/25/recipe/) and the [nanochat experiment log](https://github.com/karpathy/nanochat/blob/master/dev/LOG.md) (320+ empirical HP sweeps for a GPT-2-scale run). For LLM-as-judge eval debugging workflow more broadly, Hamel Husain's ["Your AI Product Needs Evals"](https://hamel.dev/blog/posts/evals/) covers the error-analysis-first approach for LLM products. Most multi-source claims trace to quotes in [docs/ml_debug_folklore.argdown](docs/ml_debug_folklore.argdown) (vargdown); the full evidence set is in [docs/evidence/](docs/evidence/).
-
-## Does it help?
-
-Measured on [ml-bench](https://github.com/wassname/ml-bench): 12 hard machine learning research
-problems from my own work, none of them in any training set, each answer graded against my own
-answer by a panel of five LLM judges. A score of 1.00 means the model matched me. The test gives the
-model this SKILL.md and nothing else, so the only change is the document.
-
-No measurable gain, from three answers per question in each arm:
-
-| deepseek-v4-flash-0731, 12 questions | bare | with SKILL.md |
-| --- | --- | --- |
-| mean score | +0.643 | +0.667 |
-| the three runs | +0.608, +0.648, +0.674 | +0.746, +0.641, +0.614 |
-
-The difference is +0.023 with a standard error of 0.044, so it is not distinguishable from zero.
-Pairing by question rather than by run gives the same +0.023 with a standard error of 0.031, t of
-0.76. The runs themselves scatter by more than the difference between the two columns.
-
-An earlier version of this section reported +0.135, or 59% of the distance to gpt-5.6-sol. That was
-one run of each arm, and it happens to be the first run in each column above. It did not survive the
-other two.
-
-Two other readings. With SKILL.md the model writes 31% more text for the same score, so any
-verbosity bias in the judges makes the true effect smaller than +0.023, not larger. And only 1 answer
-in 36 uses the document's own vocabulary, so the document is in the context without changing much of
-what the model writes. The header does tell it not to quote the document back.
-
-Caveats: one model, three answers per question, one judge panel, at bench version v96. The result is
-that this document did not help this model on these questions. It is not evidence about a stronger
-model, a longer task, or an agent that can run code.
-
 
 ## Other skills
 
