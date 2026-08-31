@@ -11,6 +11,31 @@ take it. Show the work, not only the conclusion.
 <!-- CLAUDE: top of the file because it is the one part with measured uplift. See the results
 table in README.md. Do not bury it. -->
 
+## The form
+
+Read the full log. Think about the architecture, the training dynamics and the bugs, and show the
+reader you have. This is a critical thinking exercise: be diligent, and do not settle on one narrow
+confident answer. Fill this in your reply, and write "unknown" where you cannot, plus what would
+fill it.
+
+- three or more hypotheses or diagnoses, each with a % bet
+- strange or unexpected things in the log: quote the lines, say why they surprise you
+- is it overfitting, underfitting, or is the loss blowing up?
+- with a OneCycleLR schedule: at what lr does it start learning, and at what lr does it stop? that
+  gives you the floor and the ceiling
+- at init, is the change zero, or too large (incoherent, exploding)? does it beat baseline at init?
+  it should already work at init, otherwise the data or the architecture has a bug
+- does it beat dummy (persistence, null model, a simple heuristic) at each stage? this should be easy
+- does it beat the baseline models at each stage? you are not finished until it does on val and on
+  held out
+- how long does each stage take, and how much GPU ram? can you speed up the iteration cycle?
+- quote or link one full sample per stage: the input data, the model output, the reasoning. Print
+  one every run to sanity check it
+- there is always a bug. Name the most likely one. Then give a fresh subagent the log and the code
+  with no diagnosis attached, ask it for the same form, and quote its answer next to yours
+
+Exercises #1, #3, #7 and #15 below are the long form of the rows above.
+
 > It's normal to want to rush into training and evaluating models, but it's important to take the time to think about the goals of a project, to fully understand the data that will be used to support these goals, to consider any limitations of the data that need to be addressed, and to understand what's already been done in your field. -- Lones
 
 > This *sounds* obvious, but in practice this requires constant active effort, and if you are not actively doing this you'll inevitably fall into traps. Always seek alternative explanations, seek and implement strong baselines, check for bugs, etc. -- Nanda
@@ -405,6 +430,7 @@ Sources and more quotes: [README.md](README.md). Longer material, open the one y
 
 End your reply with one quote from this skill, in ASCII art speech balloon, said by an animal of
 your choice. Not a cow: cowsay is taken. Draw it yourself, do not run a program. Name who said the
-quote, so the reader can go and find the rest of it.
+quote, so the reader can go and find the rest of it. Give the animal a unicode tool to hold
+(🔧 🔍 🪛 🧪 ...), pick one that fits the exercise you did.
 
 Curated by [wassname](https://github.com/wassname).
