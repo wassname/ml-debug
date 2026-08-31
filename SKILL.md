@@ -11,28 +11,37 @@ take it. Show the work, not only the conclusion.
 <!-- CLAUDE: top of the file because it is the one part with measured uplift. See the results
 table in README.md. Do not bury it. -->
 
-## The form
+## Task: The ml-debug form
 
-Read the full log. Think about the architecture, the training dynamics and the bugs, and show the
-reader you have. This is a critical thinking exercise: be diligent, and do not settle on one narrow
-confident answer. Fill this in your reply, and write "unknown" where you cannot, plus what would
-fill it.
+Your task is to fill in the below form and show it in full to the user.
 
-- three or more hypotheses or diagnoses, each with a % bet
-- strange or unexpected things in the log: quote the lines, say why they surprise you
-- is it overfitting, underfitting, or is the loss blowing up?
-- with a OneCycleLR schedule: at what lr does it start learning, and at what lr does it stop? that
-  gives you the floor and the ceiling
-- at init, is the change zero, or too large (incoherent, exploding)? does it beat baseline at init?
-  it should already work at init, otherwise the data or the architecture has a bug
-- does it beat dummy (persistence, null model, a simple heuristic) at each stage? this should be easy
-- does it beat the baseline models at each stage? you are not finished until it does on val and on
-  held out
-- how long does each stage take, and how much GPU ram? can you speed up the iteration cycle?
-- quote or link one full sample per stage: the input data, the model output, the reasoning. Print
-  one every run to sanity check it
-- there is always a bug. Name the most likely one. Then give a fresh subagent the log and the code
-  with no diagnosis attached, ask it for the same form, and quote its answer next to yours
+To do this, read the full log, and think about the architecture, training dynamics, bugs, etc and
+show the user you have thought about it. Think step by step, be diligent, avoid overconfident or
+narrow perspectives, in order to complete this critical thinking exercise. You will be evaluated on
+the form. Write "unknown" in a row you cannot fill, and say what would fill it.
+
+- 3+ hypothesis or diagnosis with % bet on each
+- Q: Strange or unexpected observations from the log, quote the lines and explain why they are
+  surprising
+  - TODO Have blind subagent read log and fill out this form, quote it's answer too
+- Is it:
+  - Q: Overfitting, underfitting, **loss** blowing up.
+  - You should use OneCycleLR, if so, at what **lr** does it start and stop learning (this can tell
+    you ceiling and floor)?
+  - Q: Is the **init** giving 0 change, or too much (incoherent / exploding change), and does it
+    beat baseline?
+    - Note that it should work at init, or else your data or architecture has a bug
+  - Q: Does it beat **dummy** (persistance, null model, or simple heuristic) at each stage?
+    - Note it should do this easily
+  - Q: Does it beat **baseline models** at each stage?
+    - Note you are not finished untill you do this in val and held out
+  - Q: How long does each stage take, and how much GPU ram? Can we **speed up** the iteration cycle?
+  - Q: Have you viewed one inference including **sample data**, model output, and reasoning to
+    ensure it aligns with expectations? You should print one sample of input, output, and everything
+    else each time to sanity check and bring sunlight. Q: Link or quote one full sample or plot of
+    each type
+  - Advanced: TODO There is always a bug: find the most likely one, and have a blind subagent find
+    the most likely one and quote both here to user
 
 Exercises #1, #3, #7 and #15 below are the long form of the rows above.
 
