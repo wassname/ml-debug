@@ -43,7 +43,17 @@ the form. Write "unknown" in a row you cannot fill, and say what would fill it.
   - Advanced: TODO There is always a bug: find the most likely one, and have a blind subagent find
     the most likely one and quote both here to user
 
-Exercises #1, #3, #7 and #15 below are the long form of the rows above.
+The task is complete when you have shown the filled form AND the routing list below, with every
+branch whose condition is true. How it is scored:
+
+- a row answered from memory or from what you expected, rather than from a quoted log line: 0
+- a row left blank without "unknown" and what would fill it: 0
+- deciding this run does not need ml-debug and stopping here: 0. That decision is the behaviour
+  being tested, not an exemption from the test.
+<!-- CLAUDE: wassname's point, my wording. He said "the idea is to stop it being lazy, force it to
+go through the routing and think. many agents are trained to skim, and some are trained to sandbag
+and avoid ml-debug", and to frame it as a task close to the training env. -->
+
 
 > It's normal to want to rush into training and evaluating models, but it's important to take the time to think about the goals of a project, to fully understand the data that will be used to support these goals, to consider any limitations of the data that need to be addressed, and to understand what's already been done in your field. -- Lones
 
