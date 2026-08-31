@@ -80,7 +80,7 @@ the small ones you match, and one large one.
   - if the log looks weird, a spike or a flat line or an impossible value: ex #11 read the rows
     before the spike (small), then ex #10 localise the error (small)
 - before you report
-  - if about to set a pass gate or quote a threshold: ex #15 get the scale before the gate (large)
+  - if about to set a pass threshold: ex #15 get the scale before the threshold (large)
   - if about to quote a headline metric: ex #12 name what else could score well (small)
   - if about to say you found the cause: ex #7 multiple diagnoses with % bets (large)
   - if about to say A beats B: ex #8 three ways the result is false (large)
@@ -189,7 +189,7 @@ A cosine probe is the usual side-car, and `cos(apple, orange) = 0` is not a null
 
 Do not fix on an arbitrary metric threshold before you have any idea what a fair or good threshold
 is. Saying the metric must clear 0.8 means nothing until you know what counts as good here. Get the
-scale first, from a null arm and a shuffled control. Ex #15 get the scale before the gate.
+scale first, from a null arm and a shuffled control. Ex #15 get the scale before the threshold.
 <!-- annoy-less: [invented example] "Saying the metric must clear 0.8 means nothing" - the 0.8 is
 CLAUDE's, not from your message. Fine as illustration, but it is not your number. -->
 
@@ -198,7 +198,7 @@ CLAUDE's, not from your message. Fine as illustration, but it is not your number
 
 Do not write code that carries on after it has already failed. A load that loaded nothing, a filter
 that matched nothing, a config key that was missing, all of these should stop the run rather than
-hand you a clean log and a wrong result. Assert that the thing you asked for is there. The cost of
+hand you an error-free log and a wrong result. Assert that the thing you asked for is there. The cost of
 this one is measured in runs, not minutes: a `strict=False` that quietly loaded no weights hid a
 dead experiment arm for eight runs in my own repo. Ex #2 name a second cause for the same number,
 ex #7 multiple diagnoses with % bets.
@@ -311,8 +311,8 @@ Show:
 | risky part | what I expect to see | too weak | too strong | buggy | metric exists? |
 |---|---|---|---|---|---|
 
-Add each metric whose last column says no. For each pass gate, show the ceiling the data allows
-and check that the gate is below the ceiling. Follow the job so that its finish wakes you.
+Add each metric whose last column says no. For each pass threshold, show the ceiling the data allows
+and check that the threshold is below the ceiling. Follow the job so that its finish wakes you.
 
 ## ex #7 multiple diagnoses with % bets (large)
 
@@ -408,20 +408,20 @@ X-not-Y one-line closer. It is the point of the exercise, so it may earn its pla
 CLAUDE's line, not Steinhardt's. -->
 
 
-## ex #15 get the scale before the gate (large)
+## ex #15 get the scale before the threshold (large)
 
 > A valuable intuition to have in mind is that, by default, all numbers are meaningless because we lack any scale to compare them. E.g. if a probe gets 95% classification accuracy on some task, is this good? Is this bad? Hard to say without knowing more! Baselines are one way to get context to compare against. -- Nanda
 
 > In most cases, we do not know a priori what the intended behavior of the algorithm is. [...] If we train a neural network on a new classification task and it achieves 5 percent test error, we have no straightforward way of knowing if this is the expected behavior or suboptimal behavior. -- Goodfellow, Bengio and Courville
 
-Before you set a pass gate or quote a threshold, get the scale first. Run the metric on a null
+Before you set a pass threshold, get the scale first. Run the metric on a null
 arm, a shuffled or permuted control, and the existing baseline, then set the bar against those.
 
 | metric | null arm | shuffled control | current baseline | ceiling the data allows | proposed gate |
 |---|---|---|---|---|---|
 
-A gate chosen before this table is a number you made up. Say so if you have to use one anyway.
-<!-- annoy-less: [aphoristic closer] "A gate chosen before this table is a number you made up." is
+A threshold chosen before this table is a number you made up. Say so if you have to use one anyway.
+<!-- annoy-less: [aphoristic closer] "A threshold chosen before this table is a number you made up." is
 a punchy section-ending epigram, the third of its kind in the exercises. Written by CLAUDE. -->
 
 

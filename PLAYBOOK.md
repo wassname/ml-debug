@@ -51,7 +51,7 @@ For RL, add reward scale/sign as a top-3 issue, and episode-boundary handling (d
 A catalog of small, well-worn checks, in rough dependency order (each assumes the one before). Pull from it; don't run it end-to-end as a ritual.
 
 **Step 1: Verify components in isolation.**[^goodfellow][^cs229] Most bugs are "doing the wrong calculation." Test each piece independently.
-- Forward pass: feed known inputs, check output shapes and ranges. `assert` shapes everywhere, since `(None,)` vs `(None, 1)` silently broadcasts into `(None, None)`. (Or make the shapes runtime-checked contracts with jaxtyping[^jaxtyping] + beartype, which turns the #1 silent bug loud.)
+- Forward pass: feed known inputs, check output shapes and ranges. `assert` shapes everywhere, since `(None,)` vs `(None, 1)` silently broadcasts into `(None, None)`. (Or make the shapes runtime-checked annotations with jaxtyping[^jaxtyping] + beartype, which turns the #1 silent bug loud.)
 - Loss: hand-compute a few targets and compare to code output.
 - Data pipeline: sample a batch, print it, eyeball it. Are labels aligned with inputs? Transforms applied correctly?
 - Preprocessing: look at processed inputs as a human. Can *you* solve the task from them?

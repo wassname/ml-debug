@@ -14,7 +14,7 @@ Or paste `SKILL.md` into your system prompt / context when debugging.
 
 - **This README** -- the folklore, for humans: verbatim sourced quotes from practitioners, general lessons first, modern transformers and LLM fine-tuning in their own section.
 
-- **[SKILL.md](SKILL.md)** -- what an agent loads: the folklore turned into instructions, each with a trigger, a form to fill, and an artifact to show the user. "Assume you have a bug" becomes "send a subagent to find one and report what it found". This is a bet that a form gets filled where a principle gets skipped, and it is untested. The bet is worth making because the folklore version measured no gain (below), and because forms have their own failure mode: they get filled with plausible content that nobody checked.
+- **[SKILL.md](SKILL.md)** -- what an agent loads: the folklore turned into instructions, each with a trigger, a form to fill, and output to show the user. "Assume you have a bug" becomes "send a subagent to find one and report what it found". This is a bet that a form gets filled where a principle gets skipped, and it is untested. The bet is worth making because the folklore version measured no gain (below), and because forms have their own failure mode: they get filled with plausible content that nobody checked.
 
 - **[PLAYBOOK.md](PLAYBOOK.md)** -- the synthesized long-form: mental models, practitioner priors, step catalogs, symptom tables, the agent debugging loop, triage, and anti-patterns. Menus of hypotheses distilled from the same sources, not quotes. Deeper one-off tricks (loss-surface analysis, stuck-metric diagnosis, sweep reliability) live in [references/](references/).
 
@@ -424,12 +424,12 @@ Daniel Ziegler's self-study, reported second-hand by an 80,000 Hours career guid
 
 > Once the algorithm was partially working, they would attain higher performance by looking for remaining bugs, both by reviewing the code carefully, and by collecting metrics such as average policy entropy to perform sanity-checks, rather than just tune hyperparameters.[^olsson]
 
-Sweeping the legible knobs is brute-force search wearing a lab coat:
+Sweeping the obvious hyperparameters is brute-force search wearing a lab coat:
 
 > Third, and perhaps most important for building skill,[[1]](https://www.lesswrong.com/posts/LTypqBMTSmRrrhb2v/how-to-get-good-at-programming#fn289bs9hi65b)you must **notice** when you're going into brute-force search mode, and then **take action** by investing time in understanding the underlying system, until both the problem and solution make sense.[^ulisse]
 
 Last, a specimen rather than advice. An anonymous reddit self-report from a self-described
-non-expert, nine legible knobs turned and the agent still does not learn. In the same thread he
+non-expert, nine hyperparameters turned and the agent still does not learn. In the same thread he
 reports his two real bugs on that environment were a terminal-flag masking error and a shape
 broadcast, neither of which any of these can reach[^reddit-rl]:
 
