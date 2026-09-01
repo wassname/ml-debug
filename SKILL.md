@@ -384,9 +384,9 @@ detects it.
 
 Before a design change, or for a run you cannot explain, write the concept in plain English,
 the pseudocode with tensor shapes and parameter counts per module, and a mermaid diagram of the
-forward pass and the backward pass. Show all three. Send them to `/external-review-v2` in
-scientist mode and show the verdict. The reviewer sees only the description, so make the
-description complete.
+forward pass and the backward pass. Show all three. Use an available review skill or a blind
+subagent from another model family. Give it only the complete description, not your diagnosis,
+and show its verdict. If neither is available, state that in the report.
 
 ## ex #14 one implementation is not the idea (small)
 
