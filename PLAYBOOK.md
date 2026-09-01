@@ -50,6 +50,18 @@ For RL, add reward scale/sign as a top-3 issue, and episode-boundary handling (d
 
 A catalog of small, well-worn checks, in rough dependency order (each assumes the one before). Pull from it; don't run it end-to-end as a ritual.
 
+### Tobin's initial sequence
+
+Use this to choose the next kind of check, not to diagnose from a symptom. Evidence from the
+current model and problem overrides the routing.
+
+1. Set the target metric and a baseline or known result.
+2. Simplify the model, data, and task.
+3. Get the model running, then overfit one batch.
+4. Compare against a known result or simple baseline.
+5. Separate underfitting, overfitting, distribution shift, and validation overfit.
+6. Tune hyperparameters after the earlier checks pass.[^fsdl]
+
 **Step 1: Verify components in isolation.**[^goodfellow][^cs229] Most bugs are "doing the wrong calculation." Test each piece independently.
 - Forward pass: feed known inputs, check output shapes and ranges. `assert` shapes everywhere, since `(None,)` vs `(None, 1)` silently broadcasts into `(None, None)`. (Or make the shapes runtime-checked annotations with jaxtyping[^jaxtyping] + beartype, which turns the #1 silent bug loud.)
 - Loss: hand-compute a few targets and compare to code output.
@@ -75,7 +87,10 @@ Make complexity pay rent: every added component (physics, dimensions, losses) sh
 
 **Sanity-check the loss at init**[^cs231n]: verify chance-level loss before training. For 10-class softmax the initial loss should be `-ln(0.1) = 2.302` with small random weights. Wrong init loss means a bad initialization or a broken loss. Then check that increasing regularization increases the loss.
 
-| Symptom | Likely cause |
+These are candidate causes to distinguish, not diagnoses. Use the model's data, code, and log to
+choose the check.
+
+| Symptom | Candidate causes |
 |---|---|
 | Loss stuck from the start | LR too low, bad init, data pipeline broken, wrong loss function |
 | Loss decreases then explodes | LR too high, numerical instability (log(0), div by 0), gradient-accumulation bug |
