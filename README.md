@@ -5,7 +5,7 @@ In an attempt to upskill the machine learning debugging on AI coding assistants 
 ## Use as a Claude skill
 
 ```
-/skills add https://github.com/wassname/ml_debug
+/skills add https://github.com/wassname/ml-debug
 ```
 
 Or paste `SKILL.md` into your system prompt / context when debugging.
@@ -712,6 +712,6 @@ That is the difference of two arm means over 12 answers each, not a paired diffe
   title = {ML Debugging Folklore: A Practitioner Debugging Skill for LLM Agents},
   author = {Michael J. Clark},
   year = {2026},
-  url = {https://github.com/wassname/ml_debug/}
+  url = {https://github.com/wassname/ml-debug/}
 }
 ```

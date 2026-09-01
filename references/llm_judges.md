@@ -42,7 +42,7 @@ From Wang's calibration framework and verdict's best-practices page:
 - Score both orderings and aggregate (Wang's Balanced Position Calibration); at minimum, randomize position and check the flip rate.
 - Use a different model family for the judge (and for any verifier-of-the-judge) than the one being evaluated. Same-model verification produces a positive skew "that may not discriminate faithfully".[^verdict]
 - Inspect the raw score distribution before trusting means: mode collapse or skew means the scale isn't being used.
-- Spot-check judge verdicts against your own reading of ~20 transcripts (the [Ng error-analysis move](../SKILL.md#inspect-the-data-first), applied to the judge).
+- Spot-check judge verdicts against your own reading of ~20 transcripts (the [Ng error-analysis move](../README.md#inspect-the-data-first), applied to the judge).
 - Judge quality is benchmarkable: [JudgeBench](https://huggingface.co/spaces/ScalerLab/JudgeBench) ranks judges on objective-correctness pairs.
 
 ## Choosing the judge model
@@ -68,9 +68,9 @@ Earn the rubric's ink:
 
 Read a whole trace, not the aggregate:
 
-- Read one complete judge trace end to end: system prompt, user prompt, the exact chat template and special tokens, the judge's saved reasoning, and its reply. Formatting bugs corrupt a judge the way they corrupt any model (see the [template/BOS-mismatch failure](../SKILL.md#chat-template-and-bos-handling-must-match-across-train-and-deploy-unsloth)). Hamel Husain: "You cannot write a good judge prompt until you've seen the data."[^hamel]
+- Read one complete judge trace end to end: system prompt, user prompt, the exact chat template and special tokens, the judge's saved reasoning, and its reply. Formatting bugs corrupt a judge the way they corrupt any model (see the [template/BOS-mismatch failure](../README.md#chat-template-and-bos-handling-must-match-across-train-and-deploy-unsloth)). Hamel Husain: "You cannot write a good judge prompt until you've seen the data."[^hamel]
 - Read both compared outputs for every scenario, not just the winner or aggregate. Verify A and B are not accidentally identical and that both are coherent, on-task, non-refusing, complete, and untruncated.
-- Could you reproduce the verdict from only what the judge sees? If you can't judge it, neither can the model. This is the [Ng error-analysis move](../SKILL.md#inspect-the-data-first) applied to the judge.
+- Could you reproduce the verdict from only what the judge sees? If you can't judge it, neither can the model. This is the [Ng error-analysis move](../README.md#inspect-the-data-first) applied to the judge.
 
 Setup-repair principle: confusion is evidence against the evaluation setup before it is evidence against the model. Use this checklist:
 
@@ -102,7 +102,7 @@ Before plotting or ranking, classify every missing score. A model refusal or tas
 Check stability across order and repeats:
 
 - Position: score both orderings, map back to arm identity, report strict reversals (mechanics in the mitigation checklist above). Watch for a judge that always picks A, sometimes a model does this in protest.
-- Repeat variance: run N>=3-4 identical judgements and check the spread. If repeats disagree wildly the signal is noise, the same warning as [seed variance](../SKILL.md#seed-variance-you-cant-tell-a-bug-from-bad-luck): "Instability to random seed is like a canary in a coal mine."
+- Repeat variance: run N>=3-4 identical judgements and check the spread. If repeats disagree wildly the signal is noise, the same warning as [seed variance](../README.md#seed-variance-you-cant-tell-a-bug-from-bad-luck): "Instability to random seed is like a canary in a coal mine."
 
 ## Repeat draws, temperature, and paired differences
 
