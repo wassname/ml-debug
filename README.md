@@ -23,6 +23,58 @@ Or paste `SKILL.md` into your system prompt / context when debugging.
 ## Folklore
 
 
+### The rules, before the rules (Agans)
+
+Most of this folklore's lineage goes back to a 2002 debugging book for general
+electronics and software. Its nine rules, in full, from chapter 2:[^agans]
+
+> UNDERSTAND THE SYSTEM
+> MAKE IT FAIL
+> QUIT THINKING AND LOOK
+> DIVIDE AND CONQUER
+> CHANGE ONE THING AT A TIME
+> KEEP AN AUDIT TRAIL
+> CHECK THE PLUG
+> GET A FRESH VIEW
+> IF YOU DIDN'T FIX IT, IT AIN'T FIXED
+
+Each rule is worth the full Remember summary at the end of its chapter. The
+ones that map most directly onto agent debugging:
+
+> **Quit Thinking and Look**: You can think up thousands of possible reasons
+> for a failure. You can see only the actual cause.
+>
+> See the failure. The senior engineer saw the real failure and was able to find the cause. The junior guys thought they knew what the failure was and fixed something that wasn't broken.
+> See the details. Don't stop when you hear the pump. Go down to the basement and find out which pump.
+> Build instrumentation in. Use source code debuggers, debug logs, status messages, flashing lights, and rotten egg odors.
+> Add instrumentation on. Use analyzers, scopes, meters, metal detectors, electrocardiography machines, and soap bubbles.
+> Don't be afraid to dive in. So it's production software. It's broken, and you'll have to open it up to fix it.
+> Watch out for Heisenberg. Don't let your instruments overwhelm your system.
+> Guess only to focus the search. Go ahead and guess that the memory timing is bad, but look at it before you build a timing fixer.
+
+> **Change One Thing at a Time**: You need some predictability in your life.
+> Remove the changes that didn't do what you expected. They probably did
+> something you didn't expect.
+>
+> Isolate the key factor. Don't change the watering schedule if you're looking for the effect of the sunlight.
+> Grab the brass bar with both hands. If you try to fix the nuke without knowing what's wrong first, you may have an underwater Chernobyl on your hands.
+> Change one test at a time. I knew my VGA capture phase was broken because nothing else was changing.
+> Compare it with a good one. If the bad ones all have something that the good ones don't, you're onto the problem.
+> Determine what you changed since the last time it worked. My friend had changed the cartridge on the turntable, so that was a good place to start.
+
+> **If You Didn't Fix It, It Ain't Fixed**: And now that you have all these
+> techniques, there's no excuse for leaving it unfixed.
+>
+> Check that it's really fixed. Don't assume that it was the wires and send that dirty fuel filter back onto the road.
+> Check that it's really your fix that fixed it. "Wubba!" might not be the thing that did the trick.
+> Know that it never just goes away by itself. Make it come back by using the original Make It Fail methods. If you have to ship it, ship it with a trap to catch it when it happens in the field.
+> Fix the cause. Tear out the useless eight-track deck before you burn out another transformer.
+> Fix the process. Don't settle for just cleaning up the oil. Fix the way you design machines.
+
+Full verbatim chapter summaries are in the [evidence notes](docs/evidence/agans_debugging_9_rules.md);
+the complete book text lives in the dlbook repo.
+
+
 ### Think more, experiment less
 
 > before acting plan by writing multiple competing hypotheses: consider the most likely failure but also some of: a subtle failure, a perverse failure, a possible bug, and an unknown. Put a rough credence on each. Finally write down what you expect to see differently for success vs each possiblity and brainstorm the cheapest tests that may narrow them down. - wassname
@@ -617,6 +669,7 @@ Folklore sources (the quotes above trace to these):
 [^sanh]: Victor Sanh, "Simple considerations for simple people building fancy neural networks" (HF, 2021) -- https://huggingface.co/blog/simple-considerations ([cache](docs/evidence/sanh_simple_considerations_hf_2021.md): decent-performance-without-crashing, read-the-tokenizer-output, 4e2-is-a-symptom, pre-training questions)
 [^steinhardt]: Jacob Steinhardt, "Research as a Stochastic Decision Process" -- https://cs.stanford.edu/~jsteinhardt/ResearchasaStochasticDecisionProcess.html ([cache](docs/evidence/steinhardt_research_stochastic_decision_process.md): 0.1%-of-implementations, high-standard-for-ruling-out, months-of-approaches-one-cause)
 [^miller]: Evan Miller (Anthropic), "Adding Error Bars to Evals" (2024) -- https://arxiv.org/pdf/2411.00640 ([cache](docs/evidence/miller_2024_error_bars_evals.md): five recommendations, question-level pairing, power analysis). arXiv preprint, not peer reviewed.
+[^agans]: David J. Agans, *Debugging: The 9 Indispensable Rules for Finding Even the Most Elusive Software and Hardware Problems*, AMACOM, 2002 ([notes](docs/evidence/agans_debugging_9_rules.md): nine rules and Remember summaries verbatim; complete book text in the private dlbook repo)
 [^fsdl]: Josh Tobin, Full Stack Deep Learning Spring 2021 lecture 7, "Troubleshooting Deep Neural Networks", notes by James Le and Vishnu Rachakonda -- https://fullstackdeeplearning.com/spring2021/lecture-7/ ([cache](docs/evidence/fsdl_spring2021_lecture7.md): error up/explodes/oscillates/plateaus table)
 [^olsson]: Catherine Olsson and the 80,000 Hours team, "ML Engineering for AI Safety and Robustness" -- https://80000hours.org/articles/ml-engineering-career-transition-guide/ ([cache](docs/evidence/olsson_80000hours_ml_engineering_ai_safety.md): bug-hunting-with-diagnostics-over-tuning). Reports Daniel Ziegler's self-study second-hand.
 [^reddit-rl]: u/GrundleMoof, "How to more intelligently debug RL roadblocks?" -- https://old.reddit.com/r/reinforcementlearning/comments/bzg3l2/ ([cache](docs/evidence/reddit_rl_roadblocks_bzg3l2.md): nine-knobs list, terminal-flag and broadcast bugs in the replies). Anonymous self-report from a self-described non-expert; quoted as a specimen of the failure mode, not as authority.
