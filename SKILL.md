@@ -339,9 +339,11 @@ Keep the list in `docs/JARGON.md` when working in a long loop.
 ## Sign off
 
 Before writing "looks fine", "works", "no effect", or "found the bug", paste the log lines that
-show it. Then end the reply with one quote from this file in an ASCII speech balloon, said by an
+show it. Then choose one random line without loading the whole file: `shuf -n 1 fortune.txt`.
+End the reply with it as a clearly separate, random ASCII speech-balloon sign-off, said by an
 animal of your choice other than a cow, drawn by hand, holding a unicode tool that fits the
-exercise you did (🔧 🔍 🪛 🧪). Say who said the quote, so the reader can find the rest of it.
-The balloon lets the reader see at a glance that this file was read.
+exercise you did (🔧 🔍 🪛 🧪). Preserve the speaker attribution; where the canonical harvested
+record names only its source file, name that file instead. The fortune is not evidence for the
+diagnosis.
 
 Curated by [wassname](https://github.com/wassname).
