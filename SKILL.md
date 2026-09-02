@@ -20,25 +20,19 @@ take it. Show the work, not only the conclusion.
 
 > The challenge lies in the fact that you can make these mistakes, train a model without it ever crashing, and still get a decent performance... -- Sanh
 
-So a crash-free log is not evidence that the code is right, and a metric that moved is not
-evidence that it moved for the reason you think. The checks that would catch this in ordinary
-software (a breakpoint, a unit test on the output) do not exist for a model; they have to be
-printed by the training script, as expectations written before the run and compared after it.
-<!-- CLAUDE: synthesis of the three quotes above. -->
+The training script has to print the checks, as SHOULD lines written before the run and
+compared after it.
+<!-- CLAUDE: one line from the three quotes above. -->
 
 ### Expensive runs
 
-> Changing Anything Changes Everything. CACE applies not only to input signals, but also to hyper-parameters, learning settings, sampling methods, convergence thresholds, data selection, and essentially every other possible tweak. -- Sculley et al.
+> Although one might think we would spend most of our time trying to maximize performance on the validation set, in practice we spend the majority of our time trying to gain insight into the problem -- Godbole, Dahl, Gilmer, Shallue and Nado
 
-> Always Be Ablating. Different tricks may substitute. -- Schulman
-
-Ablating one change per run is the clean way to attribute an effect, and CACE is the reason. When
-a run takes five hours you get four runs a day, so a sweep or a full ablation is not available and
-each run has to move several beliefs at once. The condition that makes that legitimate: each
-change has its own predicted effect on a logged metric or control, so the log can tell the changes
-apart. If two changes would show up in the same metric, they go in separate runs.
-<!-- CLAUDE: wassname's point (four runs a day, make each informative); my wording; the condition
-is my resolution of it against CACE. -->
+If it takes 5 hours to run, we might only get 4 runs a day, so we need to make them as
+informative as possible. We can't schedule a sweep or ablation of 100+ runs, so we make multiple
+changes that will have separate and distinguishable effects on the metrics. What you learn is the
+effect of each change given the others, so record it that way in the mental model. - wassname
+<!-- CLAUDE: last sentence is mine (Sculley's CACE, in README). -->
 
 ### How agents fail
 
@@ -71,26 +65,29 @@ and weird correlational measurements, and have nothing to show for it. If we wor
 script we watch it get better, we reuse the same code, we understand it better, and we squash the
 bugs. - wassname
 
-The training entry point (often `train.py`). Keep the novel part readable top to bottom, with
-tensor shapes at module boundaries, so a reviewer can follow it without opening unrelated files.
+`train.py`. One file. The novel part is written as a readable narrative with tensor shapes in
+comments, so a reviewer can follow it top to bottom without opening other files.
 
-`log.md`, written by the training entry point. Include the resolved config; a decimated metrics
-table; the first train and evaluation examples in raw form and as the model consumes them (for a
-transformer, include special tokens and the loss mask); and qualitative output where the task has
-it. Save full traces separately and link them from the log. Write `SHOULD:` only for a prediction
-backed by a mechanism, derivation, paper, or prior run; otherwise write `TODO validate:`. Set a
-number only after the scale exercise (ex H).
+`log.md`, written by `train.py`. Contents, in order: the config as run; a training table of fewer
+than 40 rows; the first train example and the first eval example in raw form and as the model
+consumes them (for a transformer, with special tokens and the loss mask visible); a short
+qualitative demo at init, mid-train, and eval; one long unclipped demo at the end; a full trace
+per generation. Every metric and demo has a `SHOULD:` line written before the run, describing
+what it should look like and how it might fail, in words you can check by eye. It carries a number
+only after the scale exercise (ex H) has been done.
 
-The table is a readable view, not the source of truth. Keep rectangular metrics in one table and
-link each row or section to the raw event trace. Put the headline result and the output path at the
-end of the log, so a detached reader can find them without reading every step.
+Tables in `log.md`: units in the header, fixed decimals per column, one row per logged step, and
+the `SHOULD:` line directly above the table it describes. Put the headline result and output path
+at the end. The result table orders rows by its headline metric and links each result to its source.
 
-A smoke test before every costly run: execute the real pipeline end to end with scale reduced to a
-tiny random model and small train/eval slices. Use `jaxtyping` and `beartype` at function
-boundaries. It catches shape and runtime errors, not scientific failures such as a flipped sign,
-leakage, or a bad loss mask.
-<!-- CLAUDE: compact contracts from token-efficient-logging, markdown-tables, setup-repo, and
-jaxtyping. -->
+The raw event trace is the source of truth. Keep it verbatim and link to it from `log.md`; do not
+summarize away a failed, truncated, incoherent, or refusing output.
+
+A smoke test: the real pipeline end to end on a tiny random model and small train/eval slices,
+with real data loading and evaluation but reduced scale. Add `jaxtyping` annotations at function
+boundaries and enable `beartype` for the smoke test. It finds shape and runtime errors. A flipped
+sign, a leaked label, a mask that is all `-100`, and a mean shift posing as a direction all pass it.
+<!-- CLAUDE: inline contracts from wassname's logging, table, setup-repo, and jaxtyping skills. -->
 
 `MENTAL_MODEL.md`, under two pages. What you believe about this system: which changes
 (regularisation, architecture, a bottleneck, loss balance, more data, init scale, optimiser)
@@ -127,7 +124,7 @@ Fill this in and show it in full. Read the whole log first. Scoring:
 | lines in the log that surprised you, quoted, with why. Each ends "explained: ..." or "chasing now" | |
 | what is not in this log that you would need in order to trust it | |
 | three or more diagnoses with a % on each: one bug in the training code, one bug in the eval, one confound or shortcut, some % on unknown. For each, the strongest evidence for and against, from the log. No evidence against means untested | |
-| a fresh subagent, given the training entry point and `log.md` with no diagnosis attached, asked for the top bugs and misconceptions. Its list, quoted, including "found nothing" | |
+| a fresh subagent, given `train.py` and `log.md` with no diagnosis attached, asked for the top bugs and misconceptions. Its list, quoted, including "found nothing" | |
 | the cheapest test separating the top two diagnoses, and what each predicts | |
 | wall-clock and GPU memory per stage; what would shorten the loop | |
 
@@ -136,8 +133,8 @@ at depth when the routing says so.
 
 ## Routing
 
-Three moments. At each, do every small item whose condition is true and one large item. A small
-item takes less than a paragraph. A large one is real work.
+Before a run, after a run, before you report. At each, do every small item that applies and one
+large item. A small item is under a paragraph. A large one is real work.
 
 Before a run:
 - always: options table (ex A, small), predictions (ex B, small), smoke test
@@ -146,9 +143,8 @@ Before a run:
 
 After a run (finished or crashed):
 - always: the form; second cause for the same number (ex C, small)
-- if the failure could plausibly be stochastic and rerunning is cheaper than a discriminating
-  probe: reproduce it with the same seed, then a different seed. Otherwise freeze the seed and
-  localize it with a deterministic probe.
+- if it failed: reproduce it, same seed then a different seed, before diagnosing. A failure
+  that does not reproduce is a different problem; write that down
 - if the log has a spike, a flat line, or an impossible value: rows before the spike (ex D, small)
 - if two cycles have passed with no progress: reference implementation (ex E, large)
 
@@ -159,9 +155,9 @@ Before you report:
 - if about to call it negative: one implementation is not the idea (ex J, small), then ex I on
   your own code
 
-After a change to the training entry point improves a metric: quote the line that moved and give
-the mechanism by which the change moved it. If you cannot, the causal attribution is unverified;
-consider compensation, seed variation, or another side effect.
+After a change to `train.py` improves a metric: quote the line that moved and give the mechanism
+by which the change moved it. Agans' ninth rule, "if you didn't fix it, it ain't fixed": an
+improvement you cannot explain means something else is compensating.
 <!-- CLAUDE: Agans (docs/evidence/agans_debugging_9_rules.md); the compensation reading is mine,
 via Goodfellow's "other parts can adapt" above. -->
 
@@ -203,7 +199,7 @@ idea, and which part is the novel part (everything else is a control). Then:
 | risky part | what I expect to see | too weak | too strong | buggy | metric exists? |
 |---|---|---|---|---|---|
 
-Add to the training entry point every metric whose last column says no. The controls: the base model on the same
+Add to `train.py` every metric whose last column says no. The controls: the base model on the same
 inputs; a random direction or shuffled labels through the same pipeline; the method with the novel
 part removed; the metric on data not used to build the intervention. Say how many seeds. Queue the
 run so its finish wakes you, and use the wait to sharpen the predictions.
