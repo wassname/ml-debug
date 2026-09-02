@@ -64,9 +64,8 @@ separate bugs and weird correlational measurements, and have nothing to show for
 the training script we watch it get better, we reuse the same code, we understand it better, and
 we squash the bugs. - wassname
 
-The training entry point (often `train.py`) owns the readable narrative. Keep the novel train
-loop, forward pass, and loss linear, with tensor shapes at function boundaries; put ordinary
-hackable support code in short modules such as `data.py`, `config.py`, and `run.py`.
+`train.py`. One file. The novel part is written as a readable narrative with tensor shapes in
+comments, so a reviewer can follow it top to bottom without opening other files.
 
 Each long run owns `outputs/<date>_<slug>_<seed>/`: resolved config, commit and argv provenance,
 `run.md`, rectangular metrics, ragged demos/generations, and checkpoints. A detached reader must
