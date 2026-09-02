@@ -55,39 +55,52 @@ find a reason", side-cars, hyperparameter obsession); my wording. -->
 Defaults for a long research loop (runs of an hour or more, a novel method, an agent working
 overnight). A short debugging call on an existing script creates none of these.
 
-Do not write a side-car probe script. Build up the one training script so it has all the metrics
-you need inline as you go, with short interpretable demos at many stages: init, mid train, post
-train, eval, then one long unclipped demo at the end. Demos and probes should not be separate
-runs, they should be quick sanity checks inside the main train script, and the script should write
-`log.md` in markdown so the log diagnoses in situ instead of needing a second pass. That is how a
-lot of nights get wasted and agents go off track: they make side-cars with their own separate bugs
-and weird correlational measurements, and have nothing to show for it. If we work on the training
-script we watch it get better, we reuse the same code, we understand it better, and we squash the
-bugs. - wassname
+Do not write a side-car probe script. Build up the training entry point so it has the metrics and
+quick sanity checks needed inline: short interpretable demos at init, mid train, post train, and
+evaluation, then one long unclipped demo at the end where the task has qualitative output. It
+writes `run.md` in Markdown so the log diagnoses in situ rather than requiring a second pass.
+That is how a lot of nights get wasted and agents go off track: they make side-cars with their own
+separate bugs and weird correlational measurements, and have nothing to show for it. If we work on
+the training script we watch it get better, we reuse the same code, we understand it better, and
+we squash the bugs. - wassname
 
-`train.py`. One file. The novel part is written as a readable narrative with tensor shapes in
-comments, so a reviewer can follow it top to bottom without opening other files.
+The training entry point (often `train.py`) owns the readable narrative. Keep the novel train
+loop, forward pass, and loss linear, with tensor shapes at function boundaries; put ordinary
+hackable support code in short modules such as `data.py`, `config.py`, and `run.py`.
 
-`log.md`, written by `train.py`. Contents, in order: the config as run; a training table of fewer
-than 40 rows; the first train example and the first eval example in raw form and as the model
-consumes them (for a transformer, with special tokens and the loss mask visible); a short
-qualitative demo at init, mid-train, and eval; one long unclipped demo at the end; a full trace
-per generation. Every metric and demo has a `SHOULD:` line written before the run, describing
-what it should look like and how it might fail, in words you can check by eye. It carries a number
-only after the scale exercise (ex H) has been done.
+Each long run owns `outputs/<date>_<slug>_<seed>/`: resolved config, commit and argv provenance,
+`run.md`, rectangular metrics, ragged demos/generations, and checkpoints. A detached reader must
+be able to reconstruct and sanity-check the run from that directory.
 
-Tables in `log.md`: units in the header, fixed decimals per column, one row per logged step, and
-the `SHOULD:` line directly above the table it describes. Put the headline result and output path
-at the end. The result table orders rows by its headline metric and links each result to its source.
+`run.md`, written by the training entry point, is valid Markdown and the result page. Start each
+stage with a heading and breadcrumb, then close it with elapsed time and peak GPU memory when
+relevant. Include the resolved config actually used; a decimated (about 30--60 row) metrics table;
+the first train and evaluation examples in raw form and as the model consumes them (for a
+transformer, special tokens and loss mask visible); and one full normal-path demo for every
+LLM-facing stage that exists. Keep stdout sparse and print the log path. Re-emit a compact final
+result block: headline metric, full copyable result table, output path, and run identity.
 
-The raw event trace is the source of truth. Keep it verbatim and link to it from `log.md`; do not
-summarize away a failed, truncated, incoherent, or refusing output.
+Keep `TODO validate:`, `FIXME:`, or `SHOULD:` beside the evidence it interprets. `SHOULD:` needs a
+mechanism, derivation, paper, or validated prior run; otherwise use `TODO validate:`. It carries a
+number only after the scale exercise (ex H) has been done.
 
-A smoke test: the real pipeline end to end on a tiny random model and small train/eval slices,
-with real data loading and evaluation but reduced scale. Add `jaxtyping` annotations at function
-boundaries and enable `beartype` for the smoke test. It finds shape and runtime errors. A flipped
-sign, a leaked label, a mask that is all `-100`, and a mean shift posing as a direction all pass it.
-<!-- CLAUDE: inline contracts from wassname's logging, table, setup-repo, and jaxtyping skills. -->
+For a comparative result table: first column is an index linked to source, then short metadata,
+then the headline score and its inputs. Sort by the headline score; put an arrow on every header;
+bold meaningful per-column best cells; italicize controls and baselines; include floors; and use
+one table for each comparable group. Put the headline result and output path at the end of `run.md`.
+
+The raw event trace is the source of truth. Keep JSONL or Inspect records verbatim and link from
+`run.md` with a project-relative path and line where possible. Do not summarize away a failed,
+truncated, incoherent, refusing, saturated, or confounded output.
+
+A smoke test before every costly run: execute the real pipeline end to end on a tiny random model
+and small slice of every train, extract, and evaluation stage. Use real loaders, I/O, LLM calls,
+and evaluation; reduce scale only. Annotate function inputs and outputs with `jaxtyping`, and
+activate `beartype` only for this smoke run (for example, `BEARTYPE=1`). Garbage scores are fine:
+it checks code paths, shapes, and dtypes, not scientific validity. A flipped sign, label leakage,
+an all-`-100` mask, or a bad metric can pass it.
+<!-- CLAUDE: direct compact integration of token-efficient-logging, markdown-tables, setup-repo,
+jaxtyping, and pseudopy. -->
 
 `MENTAL_MODEL.md`, under two pages. What you believe about this system: which changes
 (regularisation, architecture, a bottleneck, loss balance, more data, init scale, optimiser)
@@ -124,7 +137,7 @@ Fill this in and show it in full. Read the whole log first. Scoring:
 | lines in the log that surprised you, quoted, with why. Each ends "explained: ..." or "chasing now" | |
 | what is not in this log that you would need in order to trust it | |
 | three or more diagnoses with a % on each: one bug in the training code, one bug in the eval, one confound or shortcut, some % on unknown. For each, the strongest evidence for and against, from the log. No evidence against means untested | |
-| a fresh subagent, given `train.py` and `log.md` with no diagnosis attached, asked for the top bugs and misconceptions. Its list, quoted, including "found nothing" | |
+| a fresh subagent, given the training entry point and `run.md` with no diagnosis attached, asked for the top bugs and misconceptions. Its list, quoted, including "found nothing" | |
 | the cheapest test separating the top two diagnoses, and what each predicts | |
 | wall-clock and GPU memory per stage; what would shorten the loop | |
 
@@ -239,11 +252,13 @@ subagent for at least one bug in your module.
 
 > Summarise your concept and pseudocode and do an external review in scientist mode. Perhaps describe the forward and backward pass as mermaid too. -- wassname
 
-Write the concept in plain English, the pseudocode with tensor shapes and parameter counts per
-module, and a mermaid diagram of the forward and backward pass. Give all three, and nothing else,
-to a reviewer: a fresh subagent, from a different frontier model family where one is available.
-Ask it for the assumptions the design makes, the most likely bugs, and the test it would run
-first. Show its verdict. If no reviewer is available, say so in the report.
+Write the concept in plain English, then compact Python-shaped pseudocode: use Unicode math names
+when they match the method, `←` for conceptual assignment, shapes in trailing comments, and
+parameter counts per module. Omit imports, device moves, error handling, and other boilerplate.
+Add a Mermaid forward/backward diagram when it clarifies the design. Give this material, and no
+diagnosis, to a fresh reviewer from a different model family where one is available. Ask for its
+assumptions, likely bugs, and first test. Show its verdict; if no reviewer is available, say so in
+the report.
 
 ### ex G: what else could score well (small)
 
