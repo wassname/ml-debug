@@ -55,14 +55,15 @@ find a reason", side-cars, hyperparameter obsession); my wording. -->
 Defaults for a long research loop (runs of an hour or more, a novel method, an agent working
 overnight). A short debugging call on an existing script creates none of these.
 
-Do not write a side-car probe script. Build up the training entry point so it has the metrics and
-quick sanity checks needed inline: short interpretable demos at init, mid train, post train, and
-evaluation, then one long unclipped demo at the end where the task has qualitative output. It
-writes `run.md` in Markdown so the log diagnoses in situ rather than requiring a second pass.
-That is how a lot of nights get wasted and agents go off track: they make side-cars with their own
-separate bugs and weird correlational measurements, and have nothing to show for it. If we work on
-the training script we watch it get better, we reuse the same code, we understand it better, and
-we squash the bugs. - wassname
+Do not write a side-car probe script. Build up the one training script so it has all the metrics
+you need inline as you go, with short interpretable demos at many stages: init, mid train, post
+train, eval, then one long unclipped demo at the end. Demos and probes should not be separate
+runs, they should be quick sanity checks inside the main train script, and the script should write
+`run.md` in Markdown so the log diagnoses in situ instead of needing a second pass. That is how a
+lot of nights get wasted and agents go off track: they make side-cars with their own separate bugs
+and weird correlational measurements, and have nothing to show for it. If we work on the training
+script we watch it get better, we reuse the same code, we understand it better, and we squash the
+bugs. - wassname
 
 `train.py`. One file. The novel part is written as a readable narrative with tensor shapes in
 comments, so a reviewer can follow it top to bottom without opening other files.
@@ -73,7 +74,7 @@ be able to reconstruct and sanity-check the run from that directory.
 
 `run.md`, written by the training entry point, is valid Markdown and the result page. Start each
 stage with a heading and breadcrumb, then close it with elapsed time and peak GPU memory when
-relevant. Include the resolved config actually used; a decimated (about 30--60 row) metrics table;
+relevant. Include the resolved config actually used; a decimated (about 30 to 60 row) metrics table;
 the first train and evaluation examples in raw form and as the model consumes them (for a
 transformer, special tokens and loss mask visible); and one full normal-path demo for every
 LLM-facing stage that exists. Keep stdout sparse and print the log path. Re-emit a compact final
@@ -99,7 +100,7 @@ activate `beartype` only for this smoke run (for example, `BEARTYPE=1`). Garbage
 it checks code paths, shapes, and dtypes, not scientific validity. A flipped sign, label leakage,
 an all-`-100` mask, or a bad metric can pass it.
 <!-- CLAUDE: direct compact integration of token-efficient-logging, markdown-tables, setup-repo,
-jaxtyping, and pseudopy. -->
+and jaxtyping. -->
 
 `MENTAL_MODEL.md`, under two pages. What you believe about this system: which changes
 (regularisation, architecture, a bottleneck, loss balance, more data, init scale, optimiser)
