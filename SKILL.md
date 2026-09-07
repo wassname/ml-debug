@@ -34,6 +34,16 @@ changes that will have separate and distinguishable effects on the metrics. What
 effect of each change given the others, so record it that way in the mental model. - wassname
 <!-- CLAUDE: last sentence is mine (Sculley's CACE, in README). -->
 
+With cheap feedback (say, a run under five minutes), isolate changes when that
+helps attribution. With hours between results, choose changes with different
+predicted effects in the log, rather than requiring a separate full run for each.
+Before running, record those predictions and possible interactions in the mental
+model. Afterwards, use the trajectories, demos and metrics to update your beliefs
+about each effect, conditional on the other changes. Distinct signatures help
+separate explanations; they do not guarantee independence. Isolate a change later
+when the remaining uncertainty matters to the next decision or a comparison claim.
+<!-- Pi: wassname's expensive-run approach; five minutes is an example, not a cutoff. -->
+
 ### How agents fail
 
 > Trying an experiment and seeing it fail gives little information by itself. When an experiment fails, it is tempting to conclude "I tried X and it didn't work". However, if X is a high-level conceptual approach, then a more correct conclusion is "I tried an implementation comprising 0.1% of the possible implementations of X, and observed that that particular implementation did not work". -- Steinhardt
@@ -113,7 +123,13 @@ he has not worked with it yet. -->
 
 ## The ml-debug form
 
-Fill this in and show it in full. Read the whole log first. Scoring:
+Fill this in and show it in full. Read the whole log first. This is an anti-skimming
+ritual for the agent, not an expectation that the user reads every row. Keep the
+end message brief: the decisive evidence, the next action, and the relevant
+pseudocode or code. That summary does not replace the full form.
+<!-- Pi: distinguish doing and showing the work from the user's review surface. -->
+
+Scoring:
 
 - a row answered from memory or expectation, with no quoted log line: 0
 - a row left blank, with no "unknown" and no note on what would fill it: 0

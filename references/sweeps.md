@@ -1,32 +1,50 @@
-# Sweeps: same-seed comparison and cross-seed reliability
+# Sweeps: learning what to try, and comparing results
 
-Appendix to the [ML Debugging skill](../SKILL.md). The general idea behind a trustworthy hyperparameter sweep, tool-agnostic. The point is the difference between "I tried it and it seemed better" and "it's reliably better across seeds." Irpan's 30% seed-failure result and Henderson's "seeds alone create statistically different distributions" (see the main skill's folklore section) are why this matters: a single lucky run proves nothing.
+Appendix to the [ML Debugging skill](../SKILL.md). Choose the experiment for the
+question and iteration cost. Learning which direction to try next needs less
+certainty than claiming one method reliably beats another.
 
-## The core move: pair on seed, normalize within group, test across seeds
+## Expensive exploratory runs
 
-1. Run the same set of seeds for every value of the parameter you're varying. Same seeds across values turns this into a paired comparison and cancels seed-level baseline differences.
-2. Vary one parameter per sweep when you can (all-else-equal). If you vary two, effects confound and you can't attribute the result.
-3. Within each (group, seed), z-score the metric across the parameter values. This removes the per-seed baseline offset so you compare *shapes*, not absolute levels.
-4. Aggregate the z-scores across seeds per value, then take a t-stat: `mean_z / (std_z / sqrt(n_seeds))`. `|t| > 2` with 4+ seeds is a real, reliable effect; `t ~ 0` is no consistent effect.
-5. For numeric parameters, also fit a linear trend (Pearson r) and t-test it: a clean dose-response is `r` near +/-1 with a significant t-stat.
+For cheap runs, changing one thing at a time often makes diagnosis easier. For
+hours-long runs, batch changes when they have distinguishable predicted effects.
+Record what each should change in the logs before running, including possible
+interactions. Update the Bayesian mental model from trajectories and demos as well
+as final metrics; keep unresolved explanations rather than forcing attribution.
 
-```py
-for group in groups:
-    for seed in seeds_in_group:
-        vals = {param_value: metric for runs matching (group, seed, param)}
-        z[seed] = (vals - mean(vals)) / std(vals)   # within-(group,seed) normalization
-    for value in param_values:
-        mean_z, std_z = mean(z[:, value]), std(z[:, value])
-        t_stat = mean_z / (std_z / sqrt(n_seeds))    # >>2 reliably better, <<-2 reliably worse
-```
+For example, a loader change may predict less time waiting for data, while a
+regularisation change predicts a different train–validation gap. Seeing both
+supports those explanations, but does not prove the changes acted independently.
+If both predict only a better final score, the log may not separate them. A later
+isolated comparison is useful when that uncertainty changes what to do next.
 
-## What you're looking for
+## Comparing configurations or methods
 
-High effect size *and* a strong t-stat. A value with a big mean but `t=0.5` is a lucky seed; a value with a modest mean but `t=4.0` is a real (if small) effect.
+Keep the evaluation data, metric definition and relevant budget comparable.
+Pair runs where meaningful: reuse seeds and inputs, but check that the changed
+implementation has not changed what those seeds control. Pairing can reduce
+noise; it does not guarantee its cancellation.
 
-## Common pitfalls
+Inspect paired differences in the original metric units, their spread, and failed
+runs. A comparison of two bundles estimates the bundle difference, not each
+component's contribution. Distinguish exploratory selection from confirmation on
+seeds or data not used to select the winner.
 
-- `n_seeds = 1`: t-stat is undefined. One data point. Replicate before concluding anything.
-- Cross-group comparisons: different groups often have different base configs, so "group A's best value vs group B's best" is apples-to-oranges. Compare within groups.
-- Too many parameters varied at once: split into separate sweeps.
-- Crashed / diverged runs showing as missing or NaN metrics: investigate the run, don't silently drop it; a divergence is itself a finding.
+Within-seed z-scores can describe response shapes, but erase effect magnitude.
+With just two settings, they can give the winner the same normalized value on
+every seed despite very different raw gains. Do not use that artificial lack of
+variance as evidence of reliability.
+
+Describe uncertainty in the raw differences, with a method suited to the sample
+size and dependence. There is no universal “t > 2 with four seeds” guarantee.
+A noisy estimate leaves the effect uncertain; it does not establish either “no
+effect” or “a lucky seed.” One run can inform the next experiment without
+establishing reliability across seeds.
+
+Keep crashed or divergent runs visible and investigate them. Do not silently
+exclude them from the comparison.
+
+<!-- Pi: revised from wassname's exploratory-run direction and the reviewed
+within-seed normalization counterexample. Source background: README.md sections
+“Seed variance”, “Changing anything changes everything”, and “Exploration over
+exploitation”. -->
