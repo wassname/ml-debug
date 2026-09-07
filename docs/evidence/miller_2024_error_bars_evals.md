@@ -2,7 +2,7 @@ Source: https://arxiv.org/pdf/2411.00640 (Evan Miller, Anthropic, Nov 2024) + ht
 Title: Adding Error Bars to Evals: A Statistical Approach to Language Model Evaluations
 Fetched-via: r.jina.ai on the arXiv PDF and the Anthropic post, 2026-08-16
 Fetch-status: verbatim from full PDF text (math notation mangled by the PDF-to-markdown pass; prose is clean)
-Used-by: refs/llm_judges.md (repeat draws, temperature, paired differences)
+Used-by: references/llm_judges.md (repeat draws, temperature, paired differences)
 
 # Adding Error Bars to Evals (excerpts)
 

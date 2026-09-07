@@ -1,6 +1,6 @@
 ---
-name: rl
-description: "RL-specific debugging: probe environments, reward engineering, diagnostics, hyperparameter defaults, and reference implementations. Sub-skill of ml-debugging. Use when debugging reinforcement learning systems."
+name: ml-debug-rl
+description: "RL-specific debugging: probe environments, reward engineering, diagnostics, hyperparameter defaults, and reference implementations. Sub-skill of the ml-debug skill. Use when debugging reinforcement learning systems."
 ---
 
 # RL-Specific Debugging

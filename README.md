@@ -1,37 +1,78 @@
 # wassname's ML Debugging Folklore
 
-```
-   ______________________________________________
-  / If you ever see a plot or a behaviour that   \
-  | just seems weird, chase right after it! Do   |
-  | not - do not - just 'hope it goes away'.     |
-  \                                   — Jones    /
-   ----------------------------------------------
-            \   ,___,
-             \  {o,o}
-                /)_)  🔧
-                 " "
-
-```
-
 In an attempt to upskill the machine learning debugging on AI coding assistants (and humans), I've collected high quality sources on how to debug machine learning projects, focusing on the mindset and the "taste". When I started ML I went searching for discussions on best practices, and started a few discussions of my own and they helped me a lot, over the years I've collected good ones. I hope they can help others, as well as help in auto research setups. This intro is human written, and the below is AI written with human guidance.
 
 ## Use as a Claude skill
 
 ```
-/skills add https://github.com/wassname/ml_debug
+/skills add https://github.com/wassname/ml-debug
 ```
 
 Or paste `SKILL.md` into your system prompt / context when debugging.
 
 ## What's here
 
-- **This README** -- the folklore, for humans: verbatim sourced quotes from practitioners
-- **[SKILL.md](SKILL.md)** -- the folklore turned into instructions
-- **[PLAYBOOK.md](PLAYBOOK.md)** -- the synthesized long-form live in [refs/](refs/).
-- **[docs/evidence/](docs/evidence/)** -- frozen local copies of source material (blog posts, talks, papers, reddit threads).
+- **This README** -- the folklore, for humans: verbatim sourced quotes from practitioners, general lessons first, modern transformers and LLM fine-tuning in their own section.
+
+- **[SKILL.md](SKILL.md)** -- what an agent loads: the folklore turned into instructions, each with a trigger, a form to fill, and output to show the user. "Assume you have a bug" becomes "send a subagent to find one and report what it found". This is a bet that a form gets filled where a principle gets skipped, and it is untested. The bet is worth making because the folklore version measured no gain (below), and because forms have their own failure mode: they get filled with plausible content that nobody checked.
+
+- **[PLAYBOOK.md](PLAYBOOK.md)** -- the synthesized long-form: mental models, practitioner priors, step catalogs, symptom tables, the agent debugging loop, triage, and anti-patterns. Menus of hypotheses distilled from the same sources, not quotes. Deeper one-off tricks (loss-surface analysis, stuck-metric diagnosis, sweep reliability) live in [references/](references/).
+
+- **[docs/evidence/](docs/evidence/)** -- frozen local copies of source material (blog posts, talks, papers, reddit threads). Claims here link back to exact quotes.
 
 ## Folklore
+
+
+### The rules, before the rules (Agans)
+
+Most of this folklore's lineage goes back to a 2002 debugging book for general
+electronics and software. Its nine rules, in full, from chapter 2:[^agans]
+
+> UNDERSTAND THE SYSTEM
+> MAKE IT FAIL
+> QUIT THINKING AND LOOK
+> DIVIDE AND CONQUER
+> CHANGE ONE THING AT A TIME
+> KEEP AN AUDIT TRAIL
+> CHECK THE PLUG
+> GET A FRESH VIEW
+> IF YOU DIDN'T FIX IT, IT AIN'T FIXED
+
+Each rule is worth the full Remember summary at the end of its chapter. The
+ones that map most directly onto agent debugging:
+
+> **Quit Thinking and Look**: You can think up thousands of possible reasons
+> for a failure. You can see only the actual cause.
+>
+> See the failure. The senior engineer saw the real failure and was able to find the cause. The junior guys thought they knew what the failure was and fixed something that wasn't broken.
+> See the details. Don't stop when you hear the pump. Go down to the basement and find out which pump.
+> Build instrumentation in. Use source code debuggers, debug logs, status messages, flashing lights, and rotten egg odors.
+> Add instrumentation on. Use analyzers, scopes, meters, metal detectors, electrocardiography machines, and soap bubbles.
+> Don't be afraid to dive in. So it's production software. It's broken, and you'll have to open it up to fix it.
+> Watch out for Heisenberg. Don't let your instruments overwhelm your system.
+> Guess only to focus the search. Go ahead and guess that the memory timing is bad, but look at it before you build a timing fixer.
+
+> **Change One Thing at a Time**: You need some predictability in your life.
+> Remove the changes that didn't do what you expected. They probably did
+> something you didn't expect.
+>
+> Isolate the key factor. Don't change the watering schedule if you're looking for the effect of the sunlight.
+> Grab the brass bar with both hands. If you try to fix the nuke without knowing what's wrong first, you may have an underwater Chernobyl on your hands.
+> Change one test at a time. I knew my VGA capture phase was broken because nothing else was changing.
+> Compare it with a good one. If the bad ones all have something that the good ones don't, you're onto the problem.
+> Determine what you changed since the last time it worked. My friend had changed the cartridge on the turntable, so that was a good place to start.
+
+> **If You Didn't Fix It, It Ain't Fixed**: And now that you have all these
+> techniques, there's no excuse for leaving it unfixed.
+>
+> Check that it's really fixed. Don't assume that it was the wires and send that dirty fuel filter back onto the road.
+> Check that it's really your fix that fixed it. "Wubba!" might not be the thing that did the trick.
+> Know that it never just goes away by itself. Make it come back by using the original Make It Fail methods. If you have to ship it, ship it with a trap to catch it when it happens in the field.
+> Fix the cause. Tear out the useless eight-track deck before you burn out another transformer.
+> Fix the process. Don't settle for just cleaning up the oil. Fix the way you design machines.
+
+Full verbatim chapter summaries are in the [evidence notes](docs/evidence/agans_debugging_9_rules.md);
+the complete book text lives in the dlbook repo.
 
 
 ### Think more, experiment less
@@ -57,15 +98,7 @@ When you're stuck after a diagnostic cycle or two, the generalization of this ad
 
 > What I'm advocating for here is not a blind faith in the buginess of your code, but for dramatically raising the threshold at which you start thinking 'OK, I think this is correct.'[^jones]
 
-```
-    / If it doesn't work, assume there's a bug. \
-    \                 — Achiam                  /
-                     (\_/)
-                     ( •_•)
-                     / >🔧
-```
-
-A bug can also hide, because most ML models have multiple adaptive parts: 
+A bug can also hide, because most ML models have multiple adaptive parts:
 
 > "If one part is broken, the other parts can adapt and still achieve roughly acceptable performance" [^goodfellow],
 and it may not show in the output at all.
@@ -75,17 +108,7 @@ and it may not show in the output at all.
 > The default state of the world is that your research is false, because doing research is hard.[^nanda]
 
 > Excitement is evidence of bullshit: Generally, most true results are not exciting, but a fair amount of false results are. So from a Bayesian perspective, if a result is exciting and cool, it's even more likely to be false than normal![^nanda]
-```
-   ___________________________________________
-  / Excitement is evidence of bullshit:       \
-  | most true results are not exciting, but a |
-  | fair amount of false results are.         |
-  \                              — Nanda      /
-   -------------------------------------------
-              \   (\__/)
-               \  (o.o )
-                  (")_(")🔍
-```
+
 The cheapest antidote he gives: "Read your data ... Often, the quality of the data is a crucial driver of the results of your experiments. Often, it is quite bad."[^nanda]
 
 I'll add. for LLM's I suggest assuming every negative results is a bug, and 1) reviewing associated code and output logs to find the top 5 reasons/probabilities why the results might be invalid 2) to avoid skimming this report should involve quoting and interpreting to the user about everything, which should include at least: config, weird code / engineering, data, eval and importantly the log and metrics behaviour and demos in it. It should often include looking at a random sample of output and comparing it to the expected output. - wassname
@@ -193,7 +216,7 @@ The 2018 tweet thread that seeded the recipe post. Every item is a silent failur
 
 > 6) thinking view() and permute() are the same thing (& incorrectly using view)[^karpathy-mistakes]
 
-Number 6 is the bug the backprop-to-input dependency check catches mechanically ([refs/diagnostics.md](refs/diagnostics.md)).
+Number 6 is the bug the backprop-to-input dependency check catches mechanically ([references/diagnostics.md](references/diagnostics.md)).
 
 ### Seed variance: you can't tell a bug from bad luck
 
@@ -201,7 +224,7 @@ Number 6 is the bug the backprop-to-input dependency check catches mechanically 
 
 > Instability to random seed is like a canary in a coal mine. If pure randomness is enough to lead to this much variance between runs, imagine how much an actual difference in the code could make.[^irpan]
 
-Henderson confirmed it quantitatively: splitting 10 same-config runs (differing only in seed) into two groups of five produces "statistically different distributions just from varying random seeds."[^henderson] This is why one good run proves nothing ([refs/sweeps.md](refs/sweeps.md)).
+Henderson confirmed it quantitatively: splitting 10 same-config runs (differing only in seed) into two groups of five produces "statistically different distributions just from varying random seeds."[^henderson] This is why one good run proves nothing ([references/sweeps.md](references/sweeps.md)).
 
 ### Normalize and scale everything
 
@@ -318,14 +341,291 @@ Axolotl's debugging guide (the general tips trace to Hamel Husain) gives the min
 > Axolotl caches certain steps and so does the underlying HuggingFace trainer. You may want to clear some of these caches when debugging.[^axolotl]
 
 Their training-stability page adds the masking check ("inspect tokenized samples to confirm only the target tokens are trainable") and, bluntly: "Debugging a failed run without metrics is guesswork."[^axolotl-stability]
+
+## The eight common mistakes
+
+On 2026-08-25 I named the eight failure modes I see most often, from AI agents and from myself, and
+SKILL.md turns each one into an exercise. The quotes below were mined from the evidence cache in
+[docs/evidence/](docs/evidence/) to back them. Coverage is uneven and worth knowing about: mode 6
+has only three quotes and none of them says "read the log" in those words, and no source here
+argues against similarity probes by name, so the mode 7 quotes attack the general substitution
+instead.
+
+### 1. Overconfidence, a diagnosis stated as fact
+
+From William Falcon's attendee notes on Schulman's talk, so a secondary source rather than
+Schulman's own text[^deeprlhacks]:
+
+> 4. Think your algorithm is working but you're actually seeing random noise.
+>     - Example: Graph of 7 tasks with 3 algorithms and looks like 1 algorithm might be doing best on all problems, but turns out they're all the same algorithm with DIFFERENT random seeds.
+
+Nanda on why no internal warning fires:
+
+> Insufficient skepticism doesn't *feel* like insufficient skepticism from the inside. It just feels like doing research.[^nanda-mindsets]
+
+Victor Sanh names the state in which a confident report is worthless:
+
+> **The challenge lies in the fact that you can make these mistakes, train a model without it ever crashing, and still get a decent performance…**[^sanh]
+
+Seed noise alone can clear a significance bar, from a different section of the Google playbook:
+
+> -   It is all well and good to make comparisons of validation error rates
+>     estimated on a finite validation set using fastidious statistical tests, but
+>     often the trial variance alone can produce statistically significant
+>     differences between two different trained models that use the same
+>     hyperparameter settings.[^tuning-playbook]
+
+The one question that turns "am I overconfident" into something answerable:
+
+> **How reliable is my experiment?** Ask yourself: "How surprised would I be if it turned out to be complete bullshit due to a bug, error, noise, misunderstanding, etc.?" Investigate the most uncertain bits[^nanda-papers]
+
+And from an unpublished Nanda draft quoted in [references/research_taste.md](references/research_taste.md), so
+weaker provenance than his published posts:
+
+> Insufficient Skepticism: Missing simple alternative explanations, methodological flaws, or bugs. Explicitly list alternatives. Get others (especially mentors) to red team your plans before you run them. Actively try to break your hypothesis. Ask "What observation would make me abandon this?"[^nanda-taste]
+
+### 2. Quitting after one change, calling the negative real
+
+Steinhardt gives the error a number, and SKILL.md builds an exercise on this one:
+
+> **Trying an experiment and seeing it fail gives little information by itself.** When an experiment fails, it is tempting to conclude "I tried X and it didn't work". However, if X is a high-level conceptual approach, then a more correct conclusion is "I tried an implementation comprising 0.1% of the possible implementations of X, and observed that that particular implementation did not work".[^steinhardt]
+
+> When ruling out ideas, it is important to hold oneself to a high standard. "This doesn't seem like it will work" or "I feel less motivated after trying a few things along this line that didn't work" are _not_ ruling out an idea.[^steinhardt]
+
+The textbook states the confusion as the default condition, not an edge case:
+
+> When a machine learning system performs poorly, it is usually difficult to tell whether the poor performance is intrinsic to the algorithm itself or whether there is a bug in the implementation of the algorithm. Machine learning systems are difficult to debug for various reasons.[^goodfellow]
+
+Irpan, reproducing a paper with its first author sitting nearby, another quote SKILL.md turns into
+an exercise:
+
+> It ended up taking me 6 weeks to reproduce results, thanks to several software
+> bugs. The question is, why did it take so long to find these bugs?[^irpan]
+
+Karpathy's nanochat log is the model of how to write a negative honestly, recording the effort spent
+and keeping the idea alive:
+
+> **Result:** This was not an out-of-the-box win for nanochat even with a mild attempt over a few hours at a bit of tuning and debugging. The idea itself is intuitively appealing. Might come back around later to try harder later.[^nanochat]
+
+Miller's recommendations, where item 5 is the check on the whole mode and item 4 is the pairing rule:
+
+> Our specific recommendations to researchers include: 1. Computing standard errors of the mean using the Central Limit Theorem 2. When questions are drawn in related groups, computing clustered standard errors 3. Reducing variance by resampling answers and by analyzing next-token probabilities 4. When two models are being compared, conducting statistical inference on the question-level paired differences, rather than the population-level summary statistics 5. Using power analysis to determine whether an eval (or a random subsample) is capable of testing a hypothesis of interest[^miller]
+
+Rahtz writes the one-change-then-declare loop out as a transcript, priced in a week of wall clock:
+
+> If you keep that strategy when each run takes 10 hours, though, you can easily
+> waste a *lot* of time. Last run didn’t work? OK, I think it’s this thing. Let’s
+> set off another run to check. Coming back the next morning: still doesn’t work?
+> OK, maybe it’s this other thing. Let’s set off another run. A week later, you
+> still haven’t solved the problem.[^rahtz]
+
+### 3. Anchoring on the first idea
+
+Rahtz explains why anchoring feels correct, and when it actually is:
+
+> than forming hypotheses. Why spend 15 minutes carefully considering everything
+> that could be causing what you see when you can check the first idea that jumps
+> to mind in a fraction of that (and gather more evidence in the process)? To put
+> it another way: if you have rapid feedback, you can narrow down the hypothesis
+> space a lot faster by trying things than thinking carefully.[^rahtz]
+
+Nanda attacks anchoring at the root, and also attacks the fix:
+
+> The standard hypothesis testing framework can be misleading here, because it has an implicit frame of being able to list all the hypotheses. But actually, most of your probability mass should normally be on “something I haven’t thought of yet”[^nanda-mindsets]
+
+> If trying to explain something mysterious, novice researchers often neglect simple, dumb hypotheses like “maybe MLP0 is incredibly important on *every* input, and there’s nothing special going on with my prompt”[^nanda]
+
+Steinhardt, on hypotheses 2 and 3 turning out to be hypothesis 1 wearing a hat:
+
+> Importantly, it is often not obvious that multiple approaches to a problem all have the same issue. In the past, I have spent months trying different approaches to a problem before finally stepping back and realizing that they were all failing for the same reason. Moreover, I had all the data necessary to make this realization a couple weeks in but had failed to do so.[^steinhardt]
+
+Josh Tobin's symptom table, where every symptom has two or three candidates and only one is a
+learning rate:
+
+> * **Error goes up**: Commonly, this is due to a flip sign somewhere in
+>   the loss function/gradient.
+> * **Error explodes**: This is usually a numerical issue but can also
+>   be caused by a high learning rate.
+> * **Error oscillates**: You can lower the learning rate and inspect
+>   the data for shuffled labels or incorrect data augmentation.
+> * **Error plateaus**: You can increase the learning rate and get rid
+>   of regulation. Then you can inspect the loss function and the data
+>   pipeline for correctness.[^fsdl]
+
+And the explicit step, again from the unpublished draft. Note it asks for the simplest explanations,
+not more of the same kind as hypothesis 1:
+
+> Actively Seek Alternatives: Explicitly brainstorm other ways your observations could be explained. What are the simplest explanations? What known circuits or phenomena could be involved? What would a strong skeptic argue?[^nanda-taste]
+
+### 4. Obsession with the legible hyperparameters
+
+Achiam gives both the ordering agents invert and the reason for it:
+
+> **If it doesn’t work, assume there’s a bug.** Spend a lot of effort searching for bugs before you resort to tweaking hyperparameters: usually it’s a bug. Bad hyperparameters can significantly degrade RL performance, but if you’re using hyperparameters similar to the ones in papers and standard implementations, those will probably not be the issue.[^spinningup]
+
+Karpathy's five worked examples of silent failure, where the legible hyperparameters arrive last, in
+one clause:
+
+> For example, perhaps you forgot to flip your labels when you left-right flipped the image during data augmentation. Your net can still (shockingly) work pretty well because your network can internally learn to detect flipped images and then it left-right flips its predictions. Or maybe your autoregressive model accidentally takes the thing it’s trying to predict as an input due to an off-by-one bug. Or you tried to clip your gradients but instead clipped the loss, causing the outlier examples to be ignored during training. Or you initialized your weights from a pretrained checkpoint but didn’t use the original mean. Or you just screwed up the settings for regularization strengths, learning rate, its decay rate, model size, etc.[^karpathy-recipe]
+
+Sanh treats a weird optimal hyperparameter as a symptom to explain, not a setting to keep:
+
+> Most importantly, there is no point of launching 1000 runs with different hyperparameters (or architecture tweaks like activation functions): **compare a couple of runs with different hyperparameters to get an idea of which hyperparameters have the highest impact** but in general, it is delusional to expect to get your biggest jumps of performance by simply tuning a few values. For instance, if your best performing model is trained with a learning rate of 4e2, there is probably something more fundamental happening inside your neural network and you want to identify and understand this behavior so that you can re-use this knowledge outside of your current specific context.[^sanh]
+
+Daniel Ziegler's self-study, reported second-hand by an 80,000 Hours career guide:
+
+> Once the algorithm was partially working, they would attain higher performance by looking for remaining bugs, both by reviewing the code carefully, and by collecting metrics such as average policy entropy to perform sanity-checks, rather than just tune hyperparameters.[^olsson]
+
+Sweeping the obvious hyperparameters is brute-force search wearing a lab coat:
+
+> Third, and perhaps most important for building skill,[[1]](https://www.lesswrong.com/posts/LTypqBMTSmRrrhb2v/how-to-get-good-at-programming#fn289bs9hi65b)you must **notice** when you're going into brute-force search mode, and then **take action** by investing time in understanding the underlying system, until both the problem and solution make sense.[^ulisse]
+
+Last, a specimen rather than advice. An anonymous reddit self-report from a self-described
+non-expert, nine hyperparameters turned and the agent still does not learn. In the same thread he
+reports his two real bugs on that environment were a terminal-flag masking error and a shape
+broadcast, neither of which any of these can reach[^reddit-rl]:
+
+> Things I've tried (but maybe not systematically enough):
+>
+> * Different initial LRs
+> * Different optimizers
+> * Different number of hidden layers/units
+> * Shared pi/V NN body (with diff output layers) vs not
+> * Changing amount of entropy
+> * Adding correlated noise
+> * Using TD residual instead of MC version
+> * Clipping the gradient
+> * Different gamma values
+
+### 5. Not reading the data
+
+The textbook naming the exact drift, and why the scalar cannot police itself:
+
+> Visualize the model in action: When training a model to detect objects in images, view some images with the detections proposed by the model displayed superimposed on the image. When training a generative model of speech, listen to some of the speech samples it produces. This may seem obvious, but it is easy to fall into the practice of looking only at quantitative performance measurements like accuracy or log-likelihood. Directly observing the machine learning model performing its task will help to determine whether the quantitative performance numbers it achieves seem reasonable. Evaluation bugs can be some of the most devastating bugs because they can mislead you into believing your system is performing well when it is not.[^goodfellow]
+
+Henderson et al. on a healthy-looking curve produced by a policy that has learned nothing anyone
+wanted (the "demon-strated" break is an OCR artifact in the cached copy):
+
+> By reaching a local optimum, learning curves can indicate successful optimization of the policy over time, when in reality the returns achieved are not qualitatively representative of learning the desired behaviour, as demon-strated in video replays of the learned policy 5. Therefore, it is important to show not only returns but demonstrations of the learned policy in action.[^henderson]
+
+"Read the data" as a pass/fail test that takes a minute, again from the DeepRLHacks attendee
+notes[^deeprlhacks]:
+
+> 2. Make sure observations usable:
+>     - See if YOU could control the system by using the same observations you give the agent.
+>       - Example: Look at preprocessed images yourself to make sure you don't remove necessary details or hinder the algorithm in a certain way.
+
+For LLM work, the data you have to read is the tokenized data:
+
+> Pro-tip: when you work with language, have a serious **look at the outputs of the tokenizers**. I can’t count the number of lost hours I spent trying to reproduce results (and sometimes my own old results) because something went wrong with the tokenization.[^sanh]
+
+Ng names the motivational failure rather than the procedural one:
+
+> Error analysis can often help you figure out how promising different directions are. I’ve seen many engineers reluctant to carry out error analysis. It often feels more exciting to just jump in and implement some idea, rather than question if the idea is worth the time investment. This is a common mistake: It might result in your team spending a month only to realize afterward that it resulted in little benefit.[^ng-mly]
+
+And reading one process's data is not reading the data when eight processes disagree:
+
+> ⚠️ If you are doing distributed training, print samples of your dataset in each process and triple-check that you get the same thing. One common bug is to have some source of randomness in the data creation that makes each process have a different version of the dataset.[^hfcourse]
+
+### 6. Not reading the log
+
+The closest thing in the cache to a hard rule that you read the run before you report its number,
+from a team with every excuse to just read the number:
+
+> -   Although in many cases the primary objective of our experiments only
+>     requires considering the validation error of each trial, we must be careful
+>     when reducing each trial to a single number because it can hide important
+>     details about what’s going on below the surface.
+> -   For every study, we always look at the **training curves** (training error
+>     and validation error plotted versus training step over the duration of
+>     training) of at least the best few trials.[^tuning-playbook]
+
+A price tag on skipping a boring number, from Rahtz:
+
+> (I missed
+> a multithreading bug for several months by ignoring a small but mysterious
+> decay in frames per second.)[^rahtz]
+
+Bekman, where the visible symptom was an artifact of the resume and the data sampler, so every
+hypothesis about the optimizer or the precision would have been confidently wrong:
+
+> There was no real spike in the two earlier runs. The loss never went up in the first place. In both resumes it was under-reporting loss due to an exactly repeated data and then it reached data it hasn't seen before and started reporting correctly. In other words it was overfitting and reporting a false loss.[^bekman-book]
+
+### 7. A cheap indirect probe instead of running the real thing
+
+A published case where a clever mechanism turned out to be norm damage, and the cheap real test
+that the indirect story never ran:
+
+> **Do ablations on your fancy method**: It's easy for people to have a fancy method with lots of moving parts, when many actually are unnecessary. You should always try removing one part and see if the method breaks. Do this for each part.
+>     *   For example, the [original unlearning method](https://arxiv.org/abs/2403.03218v1) in the [RMU paper](https://arxiv.org/abs/2403.03218) claimed it was based on finding a meaningful steering vector, until follow-up work found that it was just about adding a vector with really high norm that broke the model, and a random vector performed just as well.[^nanda]
+
+Ng's shortest statement of build-it-and-run-it, from CS229 slides, where the line breaks are the
+PDF's. His next slide caveats that this is worse advice when the goal is to invent new algorithms.
+
+> The only way to find out what needs work is to implement something quickly,
+>
+> and find out what parts break.[^cs229]
+
+A convenient proxy metric silently deleting the one object the task was about:
+
+> Figure 15.5: An autoencoder trained with mean squared error for a robotics task has failed to reconstruct a ping pong ball. The existence of the ping pong ball and all its spatial coordinates are important underlying causal factors that generate the image and are relevant to the robotics task. Unfortunately, the autoencoder has limited capacity, and the training with mean squared error did not identify the ping pong ball as being salient enough to encode.[^goodfellow-ch15]
+
+What a scalar proxy costs, which is a different point from reading your data for quality:
+
+> One of the key drivers of progress in mech interp is an openness to qualitative research: summary statistics lose a ton of information. What can we learn by actually looking deeply into what's happening?[^nanda]
+
+When the metric will not move, run the real objective on known inputs:
+
+> 1. **Test reward function standalone**: Run it outside training with known inputs to verify it returns nonzero values.[^axolotl-stability]
+
+### 8. An arbitrary threshold set before you know what is fair
+
+The textbook killing the invented threshold from first principles, and another quote SKILL.md builds
+an exercise on:
+
+> In most cases, we do not know a priori what the intended behavior of the algorithm is. In fact, the entire point of using machine learning is that it will discover useful behavior that we were not able to specify ourselves. If we train a neural network on a new classification task and it achieves 5 percent test error, we have no straightforward way of knowing if this is the expected behavior or suboptimal behavior.[^goodfellow]
+
+Nanda states the default and names the fix as a baseline rather than a chosen cutoff. This is from an
+unpublished draft, the passage never made the published post, and SKILL.md uses it too:
+
+> A valuable intuition to have in mind is that, by default, all numbers are meaningless because we lack any scale to compare them. E.g. if a probe gets 95% classification accuracy on some task, is this good? Is this bad? Hard to say without knowing more! Baselines are one way to get context to compare against.[^nanda-draft]
+
+A worked case where a fixed cutoff is meaningless until you know the scale of the quantity. The fix
+is a scale-free metric, not an argument about where the cutoff sits. The typo is in the source.
+
+> You might be temped to keep track of the difference \(\mid f’\_a - f’\_n \mid \) or its square and define the gradient check as failed if that difference is above a threshold. However, this is problematic. For example, consider the case where their difference is 1e-4. This seems like a very appropriate difference if the two gradients are about 1.0, so we’d consider the two gradients to match. But if the gradients were both on order of 1e-5 or lower, then we’d consider 1e-4 to be a huge difference and likely a failure.[^cs231n]
+
+Four questions Sanh asks before any number can be called good or bad. The last one, what you cannot
+conclude from a perfect score, is the specific antidote:
+
+> *   How would a random predictor perform (especially in classification problems)? Dataset can be unbalanced…
+> *   What would the loss look like for a random predictor?
+> *   What is (are) the best metric(s) to measure progress on my task?
+> *   What are the limits of this metric? If it’s perfect, what can I conclude? What can’t I conclude?[^sanh]
+
+The constructive alternative, compute what random gets and treat any distance from it as a bug
+report until shown otherwise:
+
+> If the loss/metric you get on your initial model is very different from the loss/metric you would expect for random predictions, double-check the way your loss or metric is computed, as there is probably a bug there. If you are using several losses that you add at the end, make sure they are of the same scale.[^hfcourse]
+
+The legitimate form of a numeric gate, discovered by reproducing a known-good reference rather than
+chosen in advance:
+
+> 5.   **Rule of thumb: 400 episodic return in breakout**: Check if your PPO could obtain 400 episodic return in breakout. We have found this to be a practical rule of thumb to determine the fidelity of online PPO implementations in GitHub. Often we found PPO repositories not able to do this, and we know they probably do not match all implementation details of `openai/baselines`’ PPO.[^ppo37]
+
+And a floor under any target, because a threshold set tighter than the label noise in your
+validation set is measuring overfitting to errors:
+
+> The issue here isn't just that we might have bad labels in our training set, the issue is that it appears in the validation set. If a machine learning model can become state of the art by squeezing another 0.5% out of a validation set one has to wonder. Are we really making a better model? Or are we creating a model that is better able to overfit on the bad labels?[^koaning]
+
 ## Links and further reading
 
 Start here rather than treating the bibliography as flat:
 
-- **Beginner / broad checklist:** Lones, ["How to avoid machine learning pitfalls"](https://arxiv.org/pdf/2108.02497), with its full do/don't list extracted in [refs/checklist.md](refs/checklist.md).
+- **Beginner / broad checklist:** Lones, ["How to avoid machine learning pitfalls"](https://arxiv.org/pdf/2108.02497), with its full do/don't list extracted in [references/checklist.md](references/checklist.md).
 - **Debugging a neural net:** Karpathy, ["A Recipe for Training Neural Networks"](https://karpathy.github.io/2019/04/25/recipe/).
 - **Designing tuning experiments:** Google, [Deep Learning Tuning Playbook](https://developers.google.com/machine-learning/guides/deep-learning-tuning-playbook).
-- **Transformer and LLM runs:** [refs/transformers.md](refs/transformers.md), then the HF, Axolotl, Unsloth, nanochat, and Bekman sources below.
+- **Transformer and LLM runs:** [references/transformers.md](references/transformers.md), then the HF, Axolotl, Unsloth, nanochat, and Bekman sources below.
 
 Folklore sources (the quotes above trace to these):
 
@@ -361,9 +661,97 @@ Folklore sources (the quotes above trace to these):
 [^tuning-playbook]: Godbole, Dahl, Gilmer, Shallue, Nado, "Deep Learning Tuning Playbook" (Google Research / Google Developers, 2023; Google Developers page last updated 2025-08-25) — https://developers.google.com/machine-learning/guides/deep-learning-tuning-playbook ([cache](docs/evidence/google_tuning_playbook.md): exploration-over-exploitation, scientific/nuisance/fixed, incremental-tuning)
 [^domingos]: Pedro Domingos, "A Few Useful Things to Know About Machine Learning" (CACM, Oct 2012) — https://homes.cs.washington.edu/~pedrod/papers/cacm12.pdf ([cache](docs/evidence/domingos_2012_few_useful_things.md): test-on-train illusion, insidious-contamination, overfitting-bugbear, features-are-key)
 [^bekman-book]: Stas Bekman, *Machine Learning Engineering Open Book*, "Understanding Training Loss Patterns" + "Instabilities" — https://github.com/stas00/ml-engineering ([cache](docs/evidence/bekman_ml_engineering_instabilities.md): heartbeat, 104B post-mortem, spike types + bad-data-pocket, init-std, PaLM batch-skipping, logbooks)
+[^deeprlhacks]: William Falcon, "DeepRLHacks", attendee notes on Schulman's "Nuts and Bolts of Deep RL Research" -- https://github.com/williamFalcon/DeepRLHacks ([cache](docs/evidence/williamfalcon_deeprl_hacks.md): random-noise-not-signal, observations-usable). Secondary source; the primary slide deck is `[^schulman]`.
+[^nanda-mindsets]: Neel Nanda, "My Research Process: Key Mindsets" -- https://www.lesswrong.com/s/5GT3yoYM9gRmMEKqL/p/cbBwwm4jW6AZctymL ([cache](docs/evidence/nanda_research_process_key_mindsets.md): insufficient-skepticism-feels-like-research, mass-on-unlisted-hypotheses)
+[^nanda-papers]: Neel Nanda, "Highly Opinionated Advice on How to Write ML Papers" -- https://www.lesswrong.com/posts/eJGptPbbFPZGLpjsp/highly-opinionated-advice-on-how-to-write-ml-papers ([cache](docs/evidence/nanda_highly_opinionated_ml_paper_writing.md): how-reliable-is-my-experiment)
+[^nanda-taste]: Neel Nanda, "My Model of the Research Process", unpublished shared draft, as quoted in [references/research_taste.md](references/research_taste.md) (insufficient-skepticism, actively-seek-alternatives). Draft quality, weaker provenance than the published posts.
+[^nanda-draft]: Neel Nanda, "My Model of the Research Process", unpublished shared draft -- https://docs.google.com/document/d/1YMkeMrhqsWxZcNDD9CIUWEK_DAOegeufnbc79U2hycg/edit ([cache](docs/evidence/nanda_research_process_shared_draft.md): all-numbers-are-meaningless). This passage never made it into the published post.
+[^sanh]: Victor Sanh, "Simple considerations for simple people building fancy neural networks" (HF, 2021) -- https://huggingface.co/blog/simple-considerations ([cache](docs/evidence/sanh_simple_considerations_hf_2021.md): decent-performance-without-crashing, read-the-tokenizer-output, 4e2-is-a-symptom, pre-training questions)
+[^steinhardt]: Jacob Steinhardt, "Research as a Stochastic Decision Process" -- https://cs.stanford.edu/~jsteinhardt/ResearchasaStochasticDecisionProcess.html ([cache](docs/evidence/steinhardt_research_stochastic_decision_process.md): 0.1%-of-implementations, high-standard-for-ruling-out, months-of-approaches-one-cause)
+[^miller]: Evan Miller (Anthropic), "Adding Error Bars to Evals" (2024) -- https://arxiv.org/pdf/2411.00640 ([cache](docs/evidence/miller_2024_error_bars_evals.md): five recommendations, question-level pairing, power analysis). arXiv preprint, not peer reviewed.
+[^agans]: David J. Agans, *Debugging: The 9 Indispensable Rules for Finding Even the Most Elusive Software and Hardware Problems*, AMACOM, 2002 ([notes](docs/evidence/agans_debugging_9_rules.md): nine rules and Remember summaries verbatim; complete book text in the private dlbook repo)
+[^fsdl]: Josh Tobin, Full Stack Deep Learning Spring 2021 lecture 7, "Troubleshooting Deep Neural Networks", notes by James Le and Vishnu Rachakonda -- https://fullstackdeeplearning.com/spring2021/lecture-7/ ([cache](docs/evidence/fsdl_spring2021_lecture7.md): error up/explodes/oscillates/plateaus table)
+[^olsson]: Catherine Olsson and the 80,000 Hours team, "ML Engineering for AI Safety and Robustness" -- https://80000hours.org/articles/ml-engineering-career-transition-guide/ ([cache](docs/evidence/olsson_80000hours_ml_engineering_ai_safety.md): bug-hunting-with-diagnostics-over-tuning). Reports Daniel Ziegler's self-study second-hand.
+[^reddit-rl]: u/GrundleMoof, "How to more intelligently debug RL roadblocks?" -- https://old.reddit.com/r/reinforcementlearning/comments/bzg3l2/ ([cache](docs/evidence/reddit_rl_roadblocks_bzg3l2.md): nine-knobs list, terminal-flag and broadcast bugs in the replies). Anonymous self-report from a self-described non-expert; quoted as a specimen of the failure mode, not as authority.
+[^cs229]: Andrew Ng, "Advice for Applying Machine Learning" (CS229 slides) -- https://cs229.stanford.edu/materials/ML-advice.pdf ([cache](docs/evidence/cs229_ml_advice.md): implement-quickly-find-what-breaks, and his own caveat for algorithm invention)
+[^goodfellow-ch15]: Goodfellow, Bengio, Courville, *Deep Learning*, ch. 15 "Representation Learning" -- https://www.deeplearningbook.org/contents/representation.html ([cache](docs/evidence/goodfellow_ch15_representation_learning.md): Figure 15.5 ping pong ball / MSE salience)
+[^ppo37]: Huang, Dossa, Raffin, Kanervisto, Wang, "The 37 Implementation Details of Proximal Policy Optimization" (ICLR Blog Track, 2022) -- https://iclr-blog-track.github.io/2022/03/25/ppo-implementation-details/ ([cache](docs/evidence/cleanrl_37_ppo_details.md): 400-return-in-breakout rule of thumb)
 [^lones]: Michael A. Lones, "How to avoid machine learning pitfalls" (2021, updated annually) — https://arxiv.org/pdf/2108.02497 ([cache](docs/evidence/lones_2021_ml_pitfalls.md): full do/don't TOC, leakage, look-ahead bias). Aimed at beginners but the most exhaustive checklist here: 36 do/don'ts across data prep, training, evaluation, comparison, and reporting.
 
 For modern transformer pretraining specifically (most sources above predate it), see [Karpathy's recipe](https://karpathy.github.io/2019/04/25/recipe/) and the [nanochat experiment log](https://github.com/karpathy/nanochat/blob/master/dev/LOG.md) (320+ empirical HP sweeps for a GPT-2-scale run). For LLM-as-judge eval debugging workflow more broadly, Hamel Husain's ["Your AI Product Needs Evals"](https://hamel.dev/blog/posts/evals/) covers the error-analysis-first approach for LLM products. Most multi-source claims trace to quotes in [docs/ml_debug_folklore.argdown](docs/ml_debug_folklore.argdown) (vargdown); the full evidence set is in [docs/evidence/](docs/evidence/).
+
+## Does it help?
+
+Measured on [ml-bench](https://github.com/wassname/ml-bench): 12 hard machine learning research
+problems from my own work, none of them in any training set, each answer graded against my own
+answer by a panel of five LLM judges. A score of 1.00 means the model matched me. The test gives the
+model this SKILL.md and nothing else, so the only change is the document.
+
+No measurable gain, from three answers per question in each arm:
+
+| deepseek-v4-flash-0731, 12 questions | bare | with SKILL.md |
+| --- | --- | --- |
+| mean score | +0.643 | +0.667 |
+| the three runs | +0.608, +0.648, +0.674 | +0.746, +0.641, +0.614 |
+
+The difference is +0.023 with a standard error of 0.044, so it is not distinguishable from zero.
+Pairing by question rather than by run gives the same +0.023 with a standard error of 0.031, t of
+0.76. The runs themselves scatter by more than the difference between the two columns.
+
+An earlier version of this section reported +0.135, or 59% of the distance to gpt-5.6-sol. That was
+one run of each arm, and it happens to be the first run in each column above. It did not survive the
+other two.
+
+Two other readings. With SKILL.md the model writes 31% more text for the same score, so any
+verbosity bias in the judges makes the true effect smaller than +0.023, not larger. And only 1 answer
+in 36 uses the document's own vocabulary, so the document is in the context without changing much of
+what the model writes. The header does tell it not to quote the document back.
+
+Caveats: one model, three answers per question, one judge panel, at bench version v96. The result is
+that this document did not help this model on these questions. It is not evidence about a stronger
+model, a longer task, or an agent that can run code.
+
+### Which part of the document does the work?
+
+A later round swapped the document for cut-down versions of it, on three of the twelve questions,
+four answers per question, grok-4.6 at high reasoning effort. Both controls are documents that
+contain none of this material: `inert doc` gives no instruction at all, and `be thorough` is five
+lines telling the model to work the problem in full and show its work.
+
+*One row is one document loaded in place of SKILL.md. Controls are italic. `struggling` counts
+answers that narrate fetching evidence in a bench that offers no tools, and `mean clean` is the
+mean with those dropped.*
+
+| document | size | mean↑ | mean clean↑ | struggling↓ | version |
+| --- | ---: | ---: | ---: | ---: | --- |
+| *be thorough (control)* | 636 B | *+0.66* | *+0.66* | 0/12 | control |
+| be diligent first, named exercises | 29 K | +0.56 | +0.56 | 0/12 | [`3a58c54`](https://github.com/wassname/ml-debug/blob/3a58c54/SKILL.md) |
+| exercises, almost no quotes | 19 K | +0.53 | +0.53 | 0/10 | ablation |
+| *inert doc (control)* | 771 B | *+0.53* | *+0.53* | 0/12 | control |
+| *bare, no document* | 0 | *+0.44* | *+0.44* | 0/12 | -- |
+| read the data, and give hypotheses | 3.0 K | +0.44 | +0.44 | 0/11 | ablation |
+| quotes and exercises | 26 K | +0.35 | +0.47 | 3/12 | [`efcac5c`](https://github.com/wassname/ml-debug/blob/efcac5c/SKILL.md) |
+| quotes only, no exercises | 40 K | +0.13 | -- | 10/12 | [`d5d725e`](https://github.com/wassname/ml-debug/blob/d5d725e/SKILL.md) |
+
+<sub>Table: 0.0 is the obvious answer each question rejects and 1.0 is my own answer, so a
+negative row is worse than the answer the question was built to reject. Judge `gpt-5.6-terra`,
+bench version v102. The ablation rows were built for the bench and were never committed here; each
+one is kept verbatim in the bench repo, listed in `docs/audits/skill_snapshots/MANIFEST.md`.</sub>
+
+Three readings, all from grok-4.6 alone. The exercises carry what lift there is and the quotes
+cost more than they pay: the two best of the real documents are the ones that lead with the
+exercises, and the quotes-only document collapses, with 10 of its 12 answers going off to narrate
+tool calls instead of answering. A short instruction to be thorough beats every version of this
+document. And the
+quotes do move the specific point they encode, so the loss is elsewhere: on the question about a
+number repeated across windows, bare and the inert control both score 0.00 while every document
+carrying that quote scores 0.75 or better.
+
+The line at the top of SKILL.md telling you to be diligent and show your work is there because of
+the first row of this table. Adding it, and naming the exercises, moved the current document from
+0.096 below bare to 0.115 above it, standard error 0.059, and it gained on all three questions.
+That is the difference of two arm means over 12 answers each, not a paired difference.
+
 
 ## Other skills
 
@@ -377,6 +765,6 @@ For modern transformer pretraining specifically (most sources above predate it),
   title = {ML Debugging Folklore: A Practitioner Debugging Skill for LLM Agents},
   author = {Michael J. Clark},
   year = {2026},
-  url = {https://github.com/wassname/ml_debug/}
+  url = {https://github.com/wassname/ml-debug/}
 }
 ```

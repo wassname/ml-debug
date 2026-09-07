@@ -1,12 +1,12 @@
 ---
-name: pinn
-description: "PINN (Physics-Informed Neural Network) training best practices and debugging. Use when building, debugging, or optimizing PINNs for PDEs, ODEs, or physics-constrained learning problems. Sub-skill of ml-debugging."
+name: ml-debug-pinn
+description: "PINN (Physics-Informed Neural Network) training best practices and debugging. Use when building, debugging, or optimizing PINNs for PDEs, ODEs, or physics-constrained learning problems. Sub-skill of the ml-debug skill."
 ---
 
 
 # PINN Training Best Practices
 
-Consolidated from: NeuralPDE.jl tests/docs, ConFIG repo, Wang et al. 2021, Rathore et al. 2024 (ICML), ml_debug folklore, and practical experience. Heat-exchanger-specific notes in [refs/heat_exchanger.md](refs/heat_exchanger.md).
+Consolidated from: NeuralPDE.jl tests/docs, ConFIG repo, Wang et al. 2021, Rathore et al. 2024 (ICML), ml_debug folklore, and practical experience. Heat-exchanger-specific notes in [references/heat_exchanger.md](references/heat_exchanger.md).
 
 Epistemic status: Patterns confirmed across multiple sources. Where sources disagree, noted. Paper claims marked with credence estimates.
 
@@ -18,7 +18,7 @@ PINNs are complex. Before trusting a PINN, work up the complexity ladder and com
 
 **Make complexity pay rent.** If a fancier model doesn't improve on the simpler one, the added physics/architecture is either wrong, badly scaled, or unnecessary.
 
-Build a complexity ladder for your problem (see [refs/heat_exchanger.md](refs/heat_exchanger.md) for a heat exchanger example). At each level, brainstorm:
+Build a complexity ladder for your problem (see [references/heat_exchanger.md](references/heat_exchanger.md) for a heat exchanger example). At each level, brainstorm:
 - What assumption am I adding/relaxing?
 - What does this buy me (lower RMSE, new physics captured)?
 - What breaks if I simplify further?
@@ -214,7 +214,7 @@ ConFIG and UPGrad are both reasonable candidates when the losses cannot be repla
 > "The proposed approach consistently outperforms a standard PINN-based collocation method."
 > Source: https://arxiv.org/pdf/2104.08426, Abstract and Section 1
 > Evidence: evidence/sukumar2022_exact_bc_distance.md
-> Domain-specific failure modes and hard BC examples: see [refs/heat_exchanger.md](refs/heat_exchanger.md).
+> Domain-specific failure modes and hard BC examples: see [references/heat_exchanger.md](references/heat_exchanger.md).
 
 ---
 
@@ -242,7 +242,7 @@ For 2D problems with radial integrals: use a regular grid in r (including r=0 an
 
 ## 6. Property Mappings & Multi-Episode Training
 
-> Domain-specific: differentiable EoS wrapping (REFPROP/PCHIP), IC handling for plant data, multi-episode training. See [refs/heat_exchanger.md](refs/heat_exchanger.md).
+> Domain-specific: differentiable EoS wrapping (REFPROP/PCHIP), IC handling for plant data, multi-episode training. See [references/heat_exchanger.md](references/heat_exchanger.md).
 
 ---
 

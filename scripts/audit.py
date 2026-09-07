@@ -26,7 +26,12 @@ def authored_markdown(root: Path) -> list[Path]:
     return [
         path
         for path in sorted(root.rglob("*.md"))
-        if ".git" not in path.parts and not is_frozen_evidence(path, root)
+        if (
+            ".git" not in path.parts
+            and "slop" not in path.parts
+            and path.relative_to(root).parts[:2] != ("docs", "spec")
+            and not is_frozen_evidence(path, root)
+        )
     ]
 
 
@@ -254,6 +259,10 @@ def self_test() -> None:
     with tempfile.TemporaryDirectory() as directory:
         clean = Path(directory) / "clean"
         write_fixture(clean)
+        (clean / "slop").mkdir()
+        (clean / "slop" / "scratch.md").write_text("[broken](missing.md)\n")
+        (clean / "docs" / "spec").mkdir(parents=True)
+        (clean / "docs" / "spec" / "scratch.md").write_text("[broken](missing.md)\n")
         assert not audit(clean), audit(clean)
     for expected, mutate in mutations:
         with tempfile.TemporaryDirectory() as directory:
