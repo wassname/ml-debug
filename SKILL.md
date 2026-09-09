@@ -12,6 +12,21 @@ the derivation, the mechanism, or the log line behind it, so the reader can chec
 take it. Show the work, not only the conclusion.
 <!-- CLAUDE: at the top because it is the one part with measured uplift; see README results. -->
 
+## Turn evidence into a research decision
+
+The purpose is to advance the user's research goal. Completing a report is supporting work.
+In the reply, show the decisive observations with their controls and denominators, explain
+what they change about the diagnosis, and identify the next experiment or repair and its
+expected distinguishing result. Separate observations from suspected causes. State what
+you actually executed or queued; a recommendation is not an action. Link the complete
+audit for inspection, but a path alone does not satisfy "show the results".
+
+Missing evidence blocks the next experiment only when it could invalidate that experiment,
+make it uninterpretable, or create an unacceptable cost or risk. Explain that connection.
+Otherwise investigate it alongside useful authorized work. Reporting defects are not
+automatic training gates. Keep the full checks below; use them to choose what to do next.
+<!-- Codex: addresses audits that listed checks but hid decisive evidence and delayed experiments. -->
+
 ## How ML debugging differs
 
 > broken RL code almost always fails silently, where the code appears to run fine except that the agent never learns how to solve the task. -- Achiam
@@ -113,7 +128,10 @@ he has not worked with it yet. -->
 
 ## The ml-debug form
 
-Fill this in and show it in full. Read the whole log first. Scoring:
+Read the whole log first. Save the complete form in the run's audit. Show the decision and
+supporting evidence in the reply as described above; when the user requests the full form
+in chat, include all rows there too. Do not substitute "audit complete" or a file path for
+the findings. Scoring:
 
 - a row answered from memory or expectation, with no quoted log line: 0
 - a row left blank, with no "unknown" and no note on what would fill it: 0
