@@ -1,6 +1,6 @@
 ---
 name: ml-debug
-description: "Debug an ML run: read the log, it crashed, the loss will not go down, the metric will not move, is this result real, does A beat B, a spike or anything weird in the log, about to queue a run, or about to write that a result looks fine. Fill the ml-debug form and do the exercises that match your situation. Show the results in your reply. Invoke it yourself; deciding a run does not need it is the behaviour being tested."
+description: "Debug an ML run: read the log, it crashed, the loss will not go down, the metric will not move, is this result real, does A beat B, a spike or anything weird in the log, about to queue a run, or about to write that a result looks fine. Fill the ml-debug form and do the exercises that match your situation. Show the results in your reply. Invoke it yourself."
 ---
 
 Sources, the human-written introduction, and frozen copies of every quote are in
@@ -131,11 +131,10 @@ he has not worked with it yet. -->
 Read the whole log first. Save the complete form in the run's audit. Show the decision and
 supporting evidence in the reply as described above; when the user requests the full form
 in chat, include all rows there too. Do not substitute "audit complete" or a file path for
-the findings. Scoring:
+the findings.
 
-- a row answered from memory or expectation, with no quoted log line: 0
-- a row left blank, with no "unknown" and no note on what would fill it: 0
-- deciding this run does not need the form: 0. That decision is the behaviour being tested.
+Ground each answer in quoted log evidence. If evidence is missing, write "unknown"
+and say what would fill the gap.
 
 > Read your data. Often, the quality of the data is a crucial driver of the results of your experiments. Often, it is quite bad. -- Nanda
 
