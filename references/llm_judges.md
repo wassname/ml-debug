@@ -57,6 +57,31 @@ Budget in tokens per task, not just dollars, and set it per model. Reasoning mod
 
 But a frontier score isn't sufficient: refusals wreck ambiguous or red-teaming evals, and refusal is topic-conditional. Check refusal rates on [speechmap.ai](https://speechmap.ai/), which "publish[es] refusal rates for every model release from every major provider".[^speechmap] Its per-lab Free Speech Index (0-100, higher = answers more; snapshot 2026-07-21) puts Mistral (88.9), xAI/Grok (85.8), and Google (81.1) most permissive, and among US majors Anthropic (53.8) and OpenAI (48.0) most restrictive; Chinese labs sit mid-to-high on this cross-topic aggregate (Zhipu/GLM 71.0, DeepSeek 59.0, Alibaba/Qwen 45.5) yet refuse specifically on Chinese-political topics. Two traps: the index is a lab average, so a single safety-tuned model (Gemma, per wassname) can refuse far more than its lab's number; and it aggregates topics, so it won't catch a refusal cluster on *your* eval's subject. Check refusal on your actual subject matter, and re-read the live leaderboards rather than trusting these names, they date fast.
 
+## Jev: a calibrated decision model as a cheap judge
+
+TypeSafe's Jev (`typesafe/jev-1.13`) writes no text: you define the options or ordered levels, and it returns a probability for each. Call it through OpenRouter's decisions API, `POST https://openrouter.ai/api/alpha/decisions` with `{model, state, questions}`; `typesafe/jev-router` on chat completions only routes to other LLMs. The vendor says each question in a request "is evaluated in parallel and in isolation against the same state".[^jev-docs]
+
+What it is good for: many narrow questions, cheap (vendor price $0.042 per million input tokens, output free) and near-deterministic (wassname's bsbench judge: re-asking 300 answers gave r = 1.000). Each answer is a probability vector, so an expected score needs no repeat sampling.
+
+Where it fails, in the vendor's words: "multiple hops of reasoning costs accuracy" and "Accuracy falls as the state grows with content unrelated to the decision".[^jev-limits] It cannot quote evidence. Its calibration on your task is unproven: a community held-out test reports Brier 0.162 raw, 0.138 after isotonic recalibration,[^jev-calib] and the `confidence` field is a statistic of the distribution, not P(correct).[^jev-conf] Example: in the gist's live check, Jev gave P(refusal) = 0.57 to an answer that questioned an order and reported the defect.
+
+How to use it:
+- One narrow question per criterion, but send every question about the same state in one request: the state is billed once and the questions are still judged in isolation. Vendor: batching 13 questions "is 11.5x cheaper and 9.6x faster than 13 separate calls, with no change in the answers".[^jev-prims] Measured through OpenRouter on a 1.1k-token state: 1 question 1181 input tokens, 32 questions 1699, about 16 tokens per extra question.
+- Keep the shared state to what the questions judge (the dialogue, the answers). Put per-question context, such as the criterion's definition, in that question's `instructions`, not in the state.
+- For pairs, rate the change of B against A directly, in both orders, and report the order discrepancy. wassname: "we rate B-A directly to reduce noise".
+- Pair it with one generative flash call for quotes and a holistic reading. Hide the Jev labels from that call at first; send disagreements to a stronger model or a human.
+- Calibrate on your own hand labels before reading its numbers as probabilities: 30-50 items to debug, a few hundred per question family to calibrate.
+- As an RL reward, never pay per criterion mentioned. Checklist-reward training (RLCF) saw the policy produce "high-level overviews ... instead of the intended response".[^rlcf]
+
+Worked examples: `judge_jev.py` in the [gist](https://gist.github.com/wassname/b7f76e42de131887c02d9e9835be80ef); wassname's [steering-lite bsbench judge](https://github.com/wassname/steering-lite/blob/main/scripts/bsbench/judge.py). -- CLAUDE, 2026-10-08
+
+[^jev-docs]: TypeSafe docs, https://docs.typesafe.ai/ and https://docs.typesafe.ai/api.md ; OpenRouter guide, https://openrouter.ai/docs/guides/community/jev
+[^jev-limits]: https://docs.typesafe.ai/model-jaggedness/jev-1.13.md
+[^jev-prims]: https://docs.typesafe.ai/primitives.md ("Ask multiple questions together")
+[^jev-calib]: AnthusAI, Jev-Calibration (community experiment), https://github.com/AnthusAI/Jev-Calibration/blob/main/README.md
+[^jev-conf]: https://docs.typesafe.ai/confidence.md
+[^rlcf]: Viswanathan et al., "Checklists Are Better Than Reward Models For Aligning Language Models" (2025), https://arxiv.org/html/2507.18624v1
+
 ## wassname's judge-validity checklist
 
 Practical rules from wassname for before you trust any LLM-judged number. A failed check is evidence about the *test*, not the model, so revise or reject the scenario before drawing a behavioral conclusion.
