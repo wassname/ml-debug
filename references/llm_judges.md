@@ -194,6 +194,28 @@ The sections above are about pairwise preference judging. This one is about the 
 
 For a worked example, wassname has a ~300-line async OpenRouter judge (WIP) that implements many of these: bounded thinking, pinned quantisation, a versioned eval, JSON-schema output, JSONL of everything, OpenRouter error handling, and position-bias swapping: [gist](https://gist.github.com/wassname/b7f76e42de131887c02d9e9835be80ef). The same gist has `judge_inspect.py`, the inspect-ai port (`.eval` logs instead of JSONL, epochs for the repeat passes, a provider subclass that retries OpenRouter's transient-status-in-HTTP-400), and `audit.py`, a scout scanner for the identical-arms / refusal / truncation / saturation checks that runs both inline and over saved logs.
 
+## Judges for training data: critique, repair, panel review
+
+A judge that filters training data is a different job from an eval judge. Used as a pass/fail gate, a strict judge removes exactly the items that carry what you are training: in one constitution-training project, hard-advice answers (the items that apply the constitution) went 12 -> 2 kept, because they make the most checkable claims, while generic helpfulness passed. What worked was using the judge as a critic and the labels as drafts, which is also what Anthropic found matters most in their constitutional SFT pipeline:
+
+> The most important part of the process is step 6. Ablating step 4 (rewriting the prompts) increases misalignment rate to 2% (within error bars). Ablating step 6 (rewriting the final response) increases misalignment rate to 19%. This single step - having Claude rewrite the response to better align with the constitution - accounts for a 19x reduction in misalignment rate.
+>
+> (Anthropic, *Teaching Claude Why*, 2026, https://alignment.anthropic.com/2026/teaching-claude-why/)
+
+and, from the same post: "training on high quality responses to honeypot prompts works better than generic on-policy responses, even if the actual behavior being demonstrated is correct in both cases." SFT imitates what it is given, so the bar is that every passed label is one you would want the model to copy.
+
+The procedure (worked example: wassname's `constitutional_grafting` repo, `scripts/data/0[2-8]*.py`, reviews in `slop/reviews/20261008_pilot{7,8}_v4_package/`):
+
+1. **Generate** (prompt -> teacher answer with the spec in context -> teacher rewrite against the spec -> optional target-model self-rewrite).
+2. **Judge as critic**: the judge returns problems with severity (major/minor), a verbatim quote and a one-line why, plus pass/fail. Give it the spec and the item exactly as the model will see it; tell it what the data is (synthetic names are fine; a document's fiction may invent people) in general terms, never with an example from one item.
+3. **Repair, do not drop**: a model fixes exactly the listed major problems, changes nothing else, prefers deleting an overclaim to adding hedges, keeps length within ~10%, and removes sentences that now contradict a fix; then re-judge, up to 2 rounds. Hard advice went 2/12 -> 8/12 kept. Watch for repair side effects: hedge-bloat and blurred verdicts (one repair grew a label 33% and left a sentence contradicting its own fix).
+4. **Mechanical gates before the judge**: provider error text returned as content (one provider returned "Your quota has been exhausted ... USDT balance" as the model's reply, and it reached the label), template placeholders in generated prompts, truncation, lost content in rewrites. These are cheap regexes; the judge catches them late and repair cannot fix them.
+5. **Review package per pilot** (seeded random ~10-20 items per set, each in full and in the exact form the model and judge saw it, every member of the tuple, the judge's input, reasoning and verdict, and repair history). Read it yourself first and write what you found; then a panel of 3-4 cheap models from families other than the generators and the judge; then check every panel claim against the samples (panellists are often right on specifics and wrong on mechanism, e.g. blaming a hidden target the labeller never saw).
+6. **Count character defects separately from factual noise**: wrong drive, refusal of ordinary help, lectures, reciting the spec, slogans in place of reasons, wrong verdicts. Track a few cheap regex proxies across pilots (in that project a "if everyone did X" closing sentence went 20/24 -> 9/24 documents and 5/24 -> 0/27 labels after one prompt change), but read the items: the proxies miss the next slogan (closing aphorisms replaced the formula).
+7. **Fix the pipeline, not the spec**, and keep fixes general: item-specific examples pasted into generator or judge prompts anchor every later generation on one incident. Put provenance in code comments.
+
+What this does not yet establish: the judge's precision on these items (it flips verdicts between runs on the same item, false-dropped fiction-craft advice, and passed a fabricated citation). Hand-label ~30 items including decoys before trusting its rates. -- Claude (Opus 5.5), 2026-10-08
+
 [^zheng]: Zheng et al., "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena" (NeurIPS 2023) — https://arxiv.org/pdf/2306.05685
 [^wang]: Wang et al., "Large Language Models are not Fair Evaluators" (ACL 2024) — https://arxiv.org/pdf/2305.17926
 [^panickssery]: Panickssery, Bowman, Feng, "LLM Evaluators Recognize and Favor Their Own Generations" (2024) — https://arxiv.org/pdf/2404.13076
