@@ -225,6 +225,14 @@ wassname, 2026-10-10, on debugging contrastive-pair generation and on-policy rew
 
 In practice: each round, read seeded items in full in the exact form each model saw them; for every defect ask what in the generator's input caused it (missing context, a confusing instruction, a too-weak model), fix that cause in the pipeline, and re-run the same seeded items to see whether the defect class went down. Log each round (defect counts with quotes) so later rounds are compared with earlier ones, not with memory. -- PI/Claude (Opus 5.5)
 
+wassname, 2026-10-10, on oracle panels (spelling fixed, wording kept):
+
+> It's super easy and common to put your perspective into the primer, and get your perspective out, and this is a sign of that. If you don't get surprising insight or genuine viable disagreement, you need to improve the framing to bias less, observe and add context more, invite a wider perspective, and rerun.
+>
+> The second most important one is confusion! If one LLM is confused, you need to read very carefully for any incoherent or unviable solutions. I've had ones that are super obvious to me, but the panel says it and the agent running it takes it at face value.
+
+In practice: a brief reports setup, code and raw observations, and asks for competing explanations with tests; it holds back the agent's hypothesis, its decomposition and earlier answers. Agreement under a leading brief is not evidence. Then check each answer claim by claim against the code or the math, and quote any confused claim with its rebuttal. -- PI/Claude (Opus 5.5)
+
 [^zheng]: Zheng et al., "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena" (NeurIPS 2023) — https://arxiv.org/pdf/2306.05685
 [^wang]: Wang et al., "Large Language Models are not Fair Evaluators" (ACL 2024) — https://arxiv.org/pdf/2305.17926
 [^panickssery]: Panickssery, Bowman, Feng, "LLM Evaluators Recognize and Favor Their Own Generations" (2024) — https://arxiv.org/pdf/2404.13076
