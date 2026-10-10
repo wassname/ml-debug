@@ -216,6 +216,15 @@ The procedure (worked example: wassname's `constitutional_grafting` repo, `scrip
 
 What this does not yet establish: the judge's precision on these items (it flips verdicts between runs on the same item, false-dropped fiction-craft advice, and passed a fabricated citation). Hand-label ~30 items including decoys before trusting its rates. -- Claude (Opus 5.5), 2026-10-08
 
+
+### Debugging data generation: iterate on the process, read full traces (wassname)
+
+wassname, 2026-10-10, on debugging contrastive-pair generation and on-policy rewriting (spelling fixed, wording kept):
+
+> Properly, iteratively, debug the data generation and the on-policy rewrite: at least 10 iterations, and fix it properly. Don't overfit by accumulating patches; take a step back and fix the process. This is always needed and always fails naively. First, models (1) don't do anything and rely on some naive, failing judge setup; (2) skim, or have a subagent skim, misdiagnose a problem, and treat the symptom ("don't cough", or "don't make stuff up") instead of reading the full trace (system prompt, user prompt, CoT, response, and comparing base and/or cho and rej) and thinking "oh, the model makes stuff up because I haven't given it context or facts", "could I solve it?", "oh, it seems confused by X"; and finally (3) they do one iteration of this when they should do as many as needed. Sometimes they also use judges that are too dumb. Limit judge input to <30k tokens without follow-up, as in the gist.
+
+In practice: each round, read seeded items in full in the exact form each model saw them; for every defect ask what in the generator's input caused it (missing context, a confusing instruction, a too-weak model), fix that cause in the pipeline, and re-run the same seeded items to see whether the defect class went down. Log each round (defect counts with quotes) so later rounds are compared with earlier ones, not with memory. -- PI/Claude (Opus 5.5)
+
 [^zheng]: Zheng et al., "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena" (NeurIPS 2023) — https://arxiv.org/pdf/2306.05685
 [^wang]: Wang et al., "Large Language Models are not Fair Evaluators" (ACL 2024) — https://arxiv.org/pdf/2305.17926
 [^panickssery]: Panickssery, Bowman, Feng, "LLM Evaluators Recognize and Favor Their Own Generations" (2024) — https://arxiv.org/pdf/2404.13076
