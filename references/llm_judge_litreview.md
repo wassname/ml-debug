@@ -114,6 +114,33 @@ URLs resolve (checked by subagent via WebFetch); I have not curled every dataset
 | JETTS (2504.15253) | judge for test-time scaling | [SalesforceAIResearch/jetts-benchmark](https://github.com/SalesforceAIResearch/jetts-benchmark) | rerank/beam/critique |
 | RewardMATH (2410.01729) | RM math robustness | [HF RewardMATH/RewardMATH](https://huggingface.co/datasets/RewardMATH/RewardMATH) | code repo anonymized |
 
+## Provider quality and structured output
+
+Added by PI/OpenAI from wassname's requested sources. These are a leaderboard, an empirical benchmark and a test tool, rather than three research papers. They inform provider selection; they do not directly measure judge accuracy or isolate quantisation as the cause of provider differences. The [2026-10-13 lookup report](../slop/research/20261013_tool_and_judge_accuracy.md) adds actual per-model provider BFCL scores, quantization evidence and moral-evaluator comparisons.
+
+### Artificial Analysis — [provider leaderboard](https://artificialanalysis.ai/leaderboards/providers), [Endpoint Accuracy Index methodology](https://artificialanalysis.ai/methodology/endpoint-accuracy-index)
+
+> The Endpoint Accuracy Index measures how the intelligence and capability of a specific model varies across a range of API providers who serve it. The same model served by different providers can behave differently depending on quantization, sampling defaults, context handling, token limits, prompt parsers and other endpoint-side configuration. To capture this, we re-run a fixed evaluation suite against each provider endpoint and report how closely the endpoint reproduces the model accuracy. We also use a self-hosted model deployment as a baseline, expressing each provider endpoint's overall accuracy score as a percentage of the baseline deployment. The index is designed so that 100% means an endpoint matches the reference, and lower scores indicate accuracy is lower compared to the baseline.
+
+Epistemic context: independent benchmarking service's own methodology, date not stated; the full leaderboard fetch exceeded the tool's 5 MB limit, so no current provider ranks are quoted here. Its [provider requirements](https://artificialanalysis.ai/methodology/performance-benchmarking#provider-requirements) require publicly available configurations and disclosure of version and precision on request.
+
+### Openbenchmarks — [Best LLM inference provider for tool-calling agents](https://openbenchmarks.com/inference/best-inference-provider-for-tool-calling)
+
+> Baseten led end-to-end p99 latency at 3.23 seconds; Telnyx and Fireworks AI led task success at 99.5%. The scorecard keeps latency, tokens per second, accuracy, and failures separate rather than blending them into one synthetic score. For tool-calling agents the complete structured result is the finish line; time to first token matters only when text is shown to a person first. Measured across 10 LLM inference providers serving GLM 5.3 Flash, 600 requests each, Sep 3, 2026.
+
+> Same request. One-turn, non-tool chat completion in JSON-object mode, streaming on, temperature 0, top-p 1, reasoning low, 256-token ceiling, 20-second timeout, concurrency one.
+
+Epistemic context: benchmark operator's reported measurements with [runner and per-request records](https://github.com/openbenchmarks-labs/inference). Despite the title, the measured workload uses JSON-object chat replies, not actual tool calls; its transfer to strict JSON Schema and judging needs care. In this same GLM run, the published table reports DeepInfra task success 95.5% and operational failures 4.0%; do not generalize that result to DeepInfra's DeepSeek endpoint.
+
+### Adam W Larson — [LLMToolCallingTester](https://github.com/adamwlarson/LLMToolCallingTester)
+
+> Semantic accuracy is too early to use as an indicator
+> Structural accuracy and Tool Recall are the primary metrics to look at currently
+
+Epistemic context: author's README warning (two adjacent bullets), date not stated. A reusable OpenAI-compatible tool-calling test harness with OpenRouter provider routing; the example output is not a controlled provider comparison. Retain the distinction between schema/structure correctness and semantic correctness when using its results.
+
+-- PI/OpenAI
+
 ## Epistemic summary
 
 - **Who says X**: the "large, size-dependent bias" claim rests on three independent chains: an outsider benchmark measuring order-flip on 2026 models (Lech Mazur), an EMNLP paper measuring self-preference vs size with a quality-netted metric (2506.02592), and a Google paper reporting position bias rising as labeler size falls (2309.00267). The "long context / long reasoning both hurt" claim rests on NoLiMa + Lost-in-the-Middle (context) and Ghosal + Loo (reasoning tokens / samples).

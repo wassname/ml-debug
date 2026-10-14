@@ -2,6 +2,16 @@
 
 Appendix to the [ML Debugging skill](../SKILL.md). This collects transformer-specific quotes, primary sources, and technical reports; start with the general debugging folklore first.
 
+## Start from a known-good config for the exact model
+
+Before writing a fine-tuning or LoRA config for a model family, copy one that already runs on it, and record any deliberate change and why. Look in this order:
+
+- Axolotl `examples/<family>/` (e.g. `examples/qwen3.5/35b-a3b-moe-qlora.yaml`, `examples/gemma4/`): per-model target modules, MoE expert parameters, needed plugins and installs (the README lists peak VRAM).
+- Unsloth's model guide (`unsloth.ai/docs/models/<family>/fine-tune`): VRAM per size, and warnings such as "It is not recommended to do QLoRA (4-bit) training on the Qwen3.5 models".
+- Tinker cookbook recipes (`github.com/thinking-machines-lab/tinker-cookbook/tree/main/tinker_cookbook/recipes`): SFT, distillation, preference and RL loops.
+
+Vendor the files you use into the repo (e.g. `docs/vendor_snippets/`) so later readers can diff against them. Check that LoRA target names exist in both the training model and the model you merge into (`model.safetensors.index.json` lists them).
+
 ## Walk and log the full trace
 
 > The best way to debug an error that arises in `trainer.train()` is to manually go through this whole pipeline to see where things went awry.[^hfcourse]

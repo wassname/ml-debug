@@ -92,7 +92,9 @@ stage with a heading and breadcrumb, then close it with elapsed time and peak GP
 relevant. Include the resolved config actually used; a decimated (about 30 to 60 row) metrics table;
 the first train and evaluation examples in raw form and as the model consumes them (for a
 transformer, special tokens and loss mask visible); and one full normal-path demo for every
-LLM-facing stage that exists. Keep stdout sparse and print the log path. Re-emit a compact final
+LLM-facing stage that exists. Each demo starts with its full setup (task, input as the model reads it,
+intervention, judge question, column meanings), then the results; read the demos before the metrics, as
+the first sanity check (wassname 2026-10-04: "the most important part"). Keep stdout sparse and print the log path. Re-emit a compact final
 result block: headline metric, full copyable result table, output path, and run identity.
 
 Keep `TODO validate:`, `FIXME:`, or `SHOULD:` beside the evidence it interprets. `SHOULD:` needs a
@@ -117,14 +119,23 @@ an all-`-100` mask, or a bad metric can pass it.
 <!-- CLAUDE: direct compact integration of token-efficient-logging, markdown-tables, setup-repo,
 and jaxtyping. -->
 
-`MENTAL_MODEL.md`, under two pages. What you believe about this system: which changes
-(regularisation, architecture, a bottleneck, loss balance, more data, init scale, optimiser)
-move which metrics, in which direction, and with what credence. Updated after every run in a
-Bayesian way: a credence moves on a cited log line, and a disproved row is marked disproved with
-the line rather than deleted. Read it at the start of every turn. The filled form for each run is
-appended to whatever run log the repo already keeps.
-<!-- CLAUDE: wassname asked for one file; this is his description of its contents. Experimental,
-he has not worked with it yet. -->
+`MENTAL_MODEL.md`, under two pages. What you believe causes the results, built from evidence:
+
+1. Cause: for each behaviour you care about, what produces it? Cite the strongest evidence,
+   preferring interventions (ablations, controls) over correlations. Untested is "unknown".
+2. Ceiling: what is the best each part could do (the target it fits, a reference, an oracle)?
+   Has that ceiling been measured on the current evaluation? If not, say so.
+3. Bottleneck: which link limits the result now?
+4. Retrodict: does the model explain recent results, including the nulls? If several runs
+   changed the same link without effect, the limit is probably elsewhere.
+5. Predict: credences for the next runs, and the cheapest experiment where this model and its
+   best alternative disagree.
+
+Update it after every run: a credence moves on a cited log line, and a disproved claim is marked
+disproved with the line rather than deleted. Read it at the start of every turn. The filled form
+for each run is appended to whatever run log the repo already keeps.
+<!-- CLAUDE: from building a model of a stalled project (LUCID3, 2026-10-14) with wassname.
+Untested as a prompt; see references/research_taste.md for the source quotes. -->
 
 ## The ml-debug form
 
@@ -176,7 +187,8 @@ After a run (finished or crashed):
 - if it failed: reproduce it, same seed then a different seed, before diagnosing. A failure
   that does not reproduce is a different problem; write that down
 - if the log has a spike, a flat line, or an impossible value: rows before the spike (ex D, small)
-- if two cycles have passed with no progress: reference implementation (ex E, large)
+- if two cycles have passed with no progress: reference implementation (ex E, large), and
+  redo `MENTAL_MODEL.md` steps 2 to 4 before the next run
 
 Before you report:
 - if about to quote a headline metric: what else could score well (ex G, small)
@@ -343,11 +355,12 @@ Keep the list in `docs/JARGON.md` when working in a long loop.
 - [references/sweeps.md](references/sweeps.md): paired comparison and cross-seed reliability.
 - [references/llm_judges.md](references/llm_judges.md) and
   [references/llm_judge_litreview.md](references/llm_judge_litreview.md): judge biases and the
-  papers behind the advice.
+  papers behind the advice. For many cheap Jev questions plus one larger-model review, read
+  [that section](references/llm_judges.md#combining-jev-questions-with-one-larger-model-review).
 - [references/metric_stuck.md](references/metric_stuck.md),
   [references/loss_surface.md](references/loss_surface.md),
   [references/time_series.md](references/time_series.md),
-  [references/transformers.md](references/transformers.md),
+  [references/transformers.md](references/transformers.md) (incl. where to copy a known-good LoRA/fine-tune config: Axolotl examples, Unsloth guides, Tinker cookbook),
   [references/research_taste.md](references/research_taste.md),
   [references/checklist.md](references/checklist.md).
 - [rl/SKILL.md](rl/SKILL.md), [pinn/SKILL.md](pinn/SKILL.md): domain specifics, also loadable as

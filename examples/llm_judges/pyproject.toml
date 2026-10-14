@@ -1,0 +1,15 @@
+[project]
+name = "llm-judge-examples"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28,<0.29",
+    "inspect-ai==0.3.247",
+    "loguru>=0.7,<0.8",
+    "openai>=2.45,<3",
+    "pydantic>=2,<3",
+    "scipy>=1.16,<2",
+]
+
+[tool.uv]
+exclude-newer = "8 days"
