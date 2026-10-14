@@ -179,6 +179,34 @@ From the shared draft:
 
 > When to go back to Understanding? If you discover that your narrative no longer seems true/well supported, you should go back to Understanding This is fine: It's totally natural that in the course of trying to refine your evidence and case, you discover you were wrong about something. Sometimes results from a few cherry-picked prompts don't generalize. This is the point of refining. Switch mode: If you discover that you no longer think your list of key claims is true, then you should return to understanding or possibly even exploration.[^nanda-draft]
 
+## Predictive models (Jiao)
+
+Jo Jiao's reflections after MATS 9 (Team Shard) and a Redwood Research internship. This is the source for the `MENTAL_MODEL.md` instructions in the main skill. It is an apprenticeship report, not a measured study.
+
+> A predictive model can be wrong but still useful. It supplies a starting belief to update from, and helps generate ideas.[^jiao]
+
+> Our model helped generate function classes to test, and favoured exploration into simpler function families. We found that a simple function with few parameters indeed explained our held-out data, which was evidence in support of our model. Had it been the case that thorough, principled search over simple function classes failed to predict held-out data, I would have updated against the model.[^jiao]
+
+She trains the model by predicting experts, and by treating surprise as the moment the hidden model becomes visible:
+
+> One of the most useful exercises for improving research taste is intentionally trying to predict what senior researchers would say when discussing research.[^jiao]
+
+> To give an example, say I am trying to predict the test set in a train/test split, and I also have available another train set that's bigger but more off-distribution. I find that if I use this other train set, I do better on the target test set. I might notice a mild sense of surprise. At this point, I should encourage my mind to ask, why am I surprised? I want to bring my implicit model into the front stage, and think about how my model would change if this were true. Then I might want to be a bit skeptical, and run through possibilities for things I or my agent might've done wrong.[^jiao]
+
+Uncertainty that the error bars do not show, with an AI control example:
+
+> If I do that and then still get 80%, then I start being more confident that my weak model really was that good. Still, I might worry that LinuxArena does not capture the distribution I actually care about. That's harder to estimate, and I may not be able to quantify my uncertainty, so I should mentally register that I now have some uncertainty about the world that my error bars don't account for.[^jiao]
+
+Good and bad confusion:
+
+> An example of good confusion: I want to find a good metric, but I don't know what the right one is. The quantity I'm trying to estimate is conceptually fuzzy, and I don't even know if it's a natural quantity in the world. I need to try a bunch of stuff to slowly clarify if this quantity is well-defined, existent, and natural. An example of bad confusion: I don't know if I'm in the right stage to wrap up the project, or if I should continue exploring more directions within the paper, and I'm doing both at the same time while not knowing what I should expect to have done in two weeks.[^jiao]
+
+Which level of done to aim for:
+
+> An *epistemic-complete* empirical project can defend its central claim, but is messy at the edges. It's written for co-workers: people can talk about the results over lunch at work and trust that it's correct enough to build on. A *paper-complete* project is way more fleshed out, does a bunch of ablations and robustness checks, and defends its claims carefully. It's ready to be defended amongst skeptics.[^jiao]
+
+> Most of the lessons I shared are downstream of treating technical AI safety research as a science: developing a model of the world, making predictions, empirically testing these predictions, and then updating. Having a wrong model is better than having an unfalsifiable one.[^jiao]
+
 ## Agent habit
 
 Minimal loop:
@@ -204,6 +232,7 @@ Most relevant sources cached for this reference:
 
 Less central but useful:
 
+- Jo Jiao, [Research Lessons I Learned at MATS & Redwood](https://www.lesswrong.com/posts/Q4rcvgjbgjTwmn8Xa/research-lessons-i-learned-at-mats-and-redwood): predictive models, surprise, uncertainty beyond error bars, levels of done. Not cached.
 - Catherine Olsson / 80,000 Hours, [ML Engineering for AI Safety & Robustness](../docs/evidence/olsson_80000hours_ml_engineering_ai_safety.md): implementation/debugging as research-engineer apprenticeship.
 - Tim Rocktaschel et al., Advice for Short-term Machine Learning Research Projects: linked by Spinning Up but not cached yet.
 - Islam et al., Reproducibility of Benchmarked Deep RL Tasks: linked by Spinning Up; not separately cached, but discussed in Henderson.
@@ -220,4 +249,5 @@ Less central but useful:
 [^rahtz]: Matthew Rahtz, "Lessons Learned Reproducing a Deep Reinforcement Learning Paper" (2018) - http://amid.fish/reproducing-deep-rl ([cache](../docs/evidence/amid_fish_reproducing_deep_rl.md)).
 [^henderson]: Henderson et al., "Deep Reinforcement Learning that Matters" (AAAI 2018) - https://arxiv.org/pdf/1709.06560 ([cache](../docs/evidence/henderson_2018_deep_rl_matters.md)).
 [^schulman]: John Schulman, "Nuts and Bolts of Deep RL Research" (2016) - http://joschu.net/docs/nuts-and-bolts.pdf ([cache](../docs/evidence/joschu_nuts_and_bolts.md)).
+[^jiao]: Jo Jiao, "Research Lessons I Learned at MATS & Redwood" (LessWrong, 2026-10-12) - https://www.lesswrong.com/posts/Q4rcvgjbgjTwmn8Xa/research-lessons-i-learned-at-mats-and-redwood
 [^irpan]: Alex Irpan, "Deep Reinforcement Learning Doesn't Work Yet" (2018) - https://www.alexirpan.com/2018/02/14/rl-hard.html ([cache](../docs/evidence/alexirpan_rl_hard.md)).

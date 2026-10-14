@@ -119,23 +119,21 @@ an all-`-100` mask, or a bad metric can pass it.
 <!-- CLAUDE: direct compact integration of token-efficient-logging, markdown-tables, setup-repo,
 and jaxtyping. -->
 
-`MENTAL_MODEL.md`, under two pages. What you believe causes the results, built from evidence:
+`MENTAL_MODEL.md`, under one page, in prose: where your model of the project stands, and the
+result that would refute it. A wrong model is better than an unfalsifiable one.
 
-1. Cause: for each behaviour you care about, what produces it? Cite the strongest evidence,
-   preferring interventions (ablations, controls) over correlations. Untested is "unknown".
-2. Ceiling: what is the best each part could do (the target it fits, a reference, an oracle)?
-   Has that ceiling been measured on the current evaluation? If not, say so.
-3. Bottleneck: which link limits the result now?
-4. Retrodict: does the model explain recent results, including the nulls? If several runs
-   changed the same link without effect, the limit is probably elsewhere.
-5. Predict: credences for the next runs, and the cheapest experiment where this model and its
-   best alternative disagree.
+- Retrodict: for the last several results, would the model have predicted them? For each miss,
+  which belief caused it? Revise that belief and cite the log or journal line.
+- Ceiling: for each part of the method, what is the best it could do (the target it imitates, a
+  reference, an oracle)? Has that been measured on the current evaluation? If not, say so.
+- Predict before each run (ex B). The model's quality is its record of predictions, not its length.
 
-Update it after every run: a credence moves on a cited log line, and a disproved claim is marked
-disproved with the line rather than deleted. Read it at the start of every turn. The filled form
-for each run is appended to whatever run log the repo already keeps.
-<!-- CLAUDE: from building a model of a stalled project (LUCID3, 2026-10-14) with wassname.
-Untested as a prompt; see references/research_taste.md for the source quotes. -->
+Read it at the start of every turn. The filled form for each run is appended to whatever run log
+the repo already keeps. For the source of these steps, see
+[references/research_taste.md](references/research_taste.md#predictive-models-jiao).
+<!-- CLAUDE: backtest on LUCID3 (2026-10-14, local slop/research/20261014_mental_model_backtest.md):
+this text vs the old change-to-metric table, 2 runs each. Forecast scores did not separate; 3/4
+runs with this text proposed measuring the ceiling first, 0/2 with the old text. Small n. -->
 
 ## The ml-debug form
 
