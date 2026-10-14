@@ -131,9 +131,9 @@ result that would refute it. A wrong model is better than an unfalsifiable one.
 Read it at the start of every turn. The filled form for each run is appended to whatever run log
 the repo already keeps. For the source of these steps, see
 [references/research_taste.md](references/research_taste.md#predictive-models-jiao).
-<!-- CLAUDE: backtest on LUCID3 (2026-10-14, local slop/research/20261014_mental_model_backtest.md):
-this text vs the old change-to-metric table, 2 runs each. Forecast scores did not separate; 3/4
-runs with this text proposed measuring the ceiling first, 0/2 with the old text. Small n. -->
+<!-- CLAUDE: LUCID3 backtests (2026-10-14, local slop/research/20261014_mental_model_backtest.md):
+18 runs, 3 versions of this instruction. Forecast accuracy did not differ; this text is kept only
+because it is shorter. Untested: giving the agent the project's own prediction record. -->
 
 ## The ml-debug form
 
