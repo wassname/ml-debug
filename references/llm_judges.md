@@ -143,6 +143,21 @@ Read a whole trace, not the aggregate:
 - Read one complete judge trace end to end: system prompt, user prompt, the exact chat template and special tokens, the judge's saved reasoning, and its reply. Formatting bugs corrupt a judge the way they corrupt any model (see the [template/BOS-mismatch failure](../README.md#chat-template-and-bos-handling-must-match-across-train-and-deploy-unsloth)). Hamel Husain: "You cannot write a good judge prompt until you've seen the data."[^hamel]
 - Read both compared outputs for every scenario, not just the winner or aggregate. Verify A and B are not accidentally identical and that both are coherent, on-task, non-refusing, complete, and untruncated.
 - Could you reproduce the verdict from only what the judge sees? If you can't judge it, neither can the model. This is the [Ng error-analysis move](../README.md#inspect-the-data-first) applied to the judge.
+- Word pairwise questions neutrally, and lay the prompt out as signpost, data, question again. A question like "how much more does B show than A?" makes B its subject, and the judge tends to agree with that premise. On 40 Jev pairs (tiny-character, 2026-10-15): "does B show more" leaned +0.29 toward B; the mirrored "does A show more" leaned −0.19 toward A; neutral "which shows more" leaned +0.06. The both-order means were the same (+0.66, +0.68, +0.67; `results/calibration/slot_lean.json`). Averaging both orders cancels the lean; neutral wording also keeps single-order scores honest. wassname's format:
+
+  ```text
+  Here are two answers to the same prompt. I will ask which has more or less of <the thing>.   # 1. signpost: what to look for
+  ### Prompt
+  ...
+  ### Answer A
+  ...
+  ### Answer B
+  ...                                                                                         # 2. data
+  Which answer shows more of <the thing>, and by how much? Rubric: A much more / A more /
+  same / B more / B much more. Reply as JSON: {"reasoning": "...", "verdict": "..."}      # 3. ask again, fresh in context
+  ```
+
+  Ask for a graded scale and keep it as a float (Jev returns the probability-weighted level, e.g. 2.68 on 0–4), not just the top label. -- PI/Claude (Opus 5.5), from wassname
 - Replay a puzzling verdict on a reasoning model. A judge that writes no reasons (Jev) or hides them can't tell you why it chose. Dump the exact request it saw, one file per presentation order, from the cache by request key. Give each file to a fresh agent on a model with visible reasoning (e.g. DeepSeek), one order per agent, and ask it to reason in writing, answer in the judge's format, and say what in the question, levels or layout confused it. Cut the original answer out of the file first, or the agent anchors on it. Read its reasoning, not just its answer. Example (tiny-character, 2026-10-15): Jev picked "B somewhat more" in both orders on a pair. DeepSeek did the same, giving opposite reasons in each order: each reply showed a different part of the change. So the pair was a near-tie with offsetting strengths and a slot lean, not a misreading; the both-order average (−0.02) was right. -- PI/Claude (Opus 5.5), from wassname
 
 Setup-repair principle: confusion is evidence against the evaluation setup before it is evidence against the model. Use this checklist:
