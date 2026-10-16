@@ -123,7 +123,7 @@ class JevTests(unittest.IsolatedAsyncioTestCase):
                 self.assertTrue(all(len(q["criteria"]) <= 255 for q in request["questions"].values()))
             options = debug["selection"]["request"]["questions"]
             self.assertEqual(list(options["word_0"]["criteria"]), list(reversed(options["word_1"]["criteria"])))
-            self.assertEqual(len(debug["scout"]["request"]["questions"]), 4)
+            self.assertEqual(len(debug["scout"]["request"]["questions"]), 2)  # one option order per word group
             self.assertFalse(debug["option_order_disagreement"])
 
     async def test_debug_word_option_disagreement_and_invalid_vocabulary(self):
