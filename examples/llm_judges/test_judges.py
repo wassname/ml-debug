@@ -39,9 +39,7 @@ def jev_response(request):
             answers[name] = {"type": "score", "score": index + (0.01 if preferred == "tie" else 0), "confidence": 1,
                              "probabilities": {str(i): float(i == index) for i in range(5)}, "legend": dict(enumerate(question["criteria"]))}
         else:
-            if name.startswith("group_"):
-                label = "ambiguity" if "ambiguity" in question["criteria"] else next(iter(question["criteria"]))
-            elif name.startswith("word_"):
+            if name == "debug_word":
                 if state["context"] == "word option bias":
                     label = next(iter(question["criteria"]))
                 else:
@@ -86,9 +84,9 @@ class JevTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(set(calls[0]["state"]), {"context", "answer_A", "answer_B"})
         self.assertEqual(len(calls[0]["questions"]), 10)
 
-    async def test_debug_word_is_unscored_cached_and_has_none(self):
+    async def test_debug_word_is_unscored_cached_and_inside_the_scoring_request(self):
         calls = []
-        words = ["word" + a + b for a in "abcdefghijklmnopqrst" for b in "abcdefghijklmnopqrst"] + ["ambiguity", "none"]
+        words = ["ambiguity", "truncated", "✂️"]
 
         async def respond(request):
             body = json.loads(request.content)
@@ -100,40 +98,31 @@ class JevTests(unittest.IsolatedAsyncioTestCase):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory)
             async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
-                baseline = await jev.judge(pairs, client, output)
+                baseline = await jev.judge(pairs, client, Path(directory) / "base")
+                n_base = len(calls)
                 rows = await jev.judge(pairs, client, output, debug_words=words)
-                self.assertEqual([{k: v for k, v in row.items() if k != "debug"} for row in rows], baseline)
+                self.assertEqual(len(calls) - n_base, n_base)  # same number of requests: the word adds none
+                strip = lambda row: {k: v for k, v in row.items() if k not in ("debug", "views")}
+                self.assertEqual([strip(row) for row in rows], [strip(row) for row in baseline])
                 self.assertEqual(jev.bradley_terry(rows), jev.bradley_terry(baseline))
                 self.assertEqual([row["debug"]["word"] for row in rows], ["ambiguity", "none"])
-                self.assertTrue(all(row["debug"]["unscored"] for row in rows))
-                self.assertEqual(len(calls), 12)
+                self.assertTrue(all(row["debug"]["unscored"] and not row["debug"]["option_order_disagreement"] for row in rows))
+                n = len(calls)
                 self.assertEqual(await jev.judge(pairs, client, output, debug_words=words), rows)
-                self.assertEqual(len(calls), 12)
-                await jev.judge(pairs, client, output, debug_words=words + ["newword"])
-                self.assertGreater(len(calls), 12)
-            self.assertIn('"debug"', (output / "results.jsonl").read_text())
-        for row in rows:
-            debug = row["debug"]
-            self.assertIn("ambiguity", debug["shortlist"])
-            for stage in ("scout", "selection"):
-                request = debug[stage]["request"]
-                self.assertEqual(set(request["state"]), {"context", "answer_A", "answer_B", "evaluation_questions"})
-                self.assertNotIn("answers", request["state"])
-                self.assertEqual(request["state"]["evaluation_questions"], jev.pair_request(row, "AB", False)["questions"])
-                self.assertTrue(all(len(q["criteria"]) <= 255 for q in request["questions"].values()))
-            options = debug["selection"]["request"]["questions"]
-            self.assertEqual(list(options["word_0"]["criteria"]), list(reversed(options["word_1"]["criteria"])))
-            self.assertEqual(len(debug["scout"]["request"]["questions"]), 2)  # one option order per word group
-            self.assertFalse(debug["option_order_disagreement"])
+                self.assertEqual(len(calls), n)  # cached
+        for body in calls[n_base:]:
+            options = body["questions"]["debug_word"]["criteria"]
+            self.assertLessEqual(len(options), 255)
+            self.assertEqual(set(options), {"none", "idk", *words})
 
     async def test_debug_word_option_disagreement_and_invalid_vocabulary(self):
-        async def fetch(key, request):
-            return {"key": key, "request": request, "response": jev_response(request)}
-        result = await jev.debug_word(PAIR | {"context": "word option bias"}, ["ambiguity", "context"], jev.CRITERION, fetch)
-        self.assertTrue(result["option_order_disagreement"])
-        for words in ([], ["context", "context"], ["two words"], ["none"]):
+        pair = PAIR | {"context": "word option bias"}
+        views = [{**{"key": str(i)}, "response": jev_response(jev.pair_request(pair, order, reverse, debug_words=["ambiguity", "context"])),
+                  "order": order} for i, (order, reverse) in enumerate([("AB", False), ("AB", True), ("BA", False), ("BA", True)])]
+        self.assertTrue(jev.summarize(pair, views)["debug"]["option_order_disagreement"])
+        for words in (["context", "context"], ["two words"], ["none"], ["w" + str(i) for i in range(254)]):
             with self.assertRaises(AssertionError):
-                await jev.debug_word(PAIR, words, jev.CRITERION, fetch)
+                jev.debug_options(words)
 
     async def test_transient_retry_and_permanent_failure(self):
         attempts = []
