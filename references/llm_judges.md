@@ -94,7 +94,24 @@ Worked examples: `judge_jev.py` in the [gist](https://gist.github.com/wassname/b
 
 ### Jev 1.13 vs Perplexity Decider v1.1
 
-`perplexity/pplx-decider-v1.1-27b` uses the same decisions API and request (`{model, state, questions}`, Choice criteria as a dict); swap the model id. One small test (tiny-virtues `scripts/scratch/49_labeller_test.py`, 2026-10-16): 10 quoted moral passages × 6 schools = 60 well/badly/neither labels, same questions, three option rotations. Agreement with Opus 5.5 (same instructions as a chat question): Jev 48/60, Decider 48/60. With my blind labels: Jev 42/60, Decider 45/60. Cost: Jev $0.031, Decider $0.014. Chose the Decider there: a tie with Opus, half the cost; its 3-label lead with my labels is within noise for 10 items, and my labels and the Opus reference are the same model family (Opus 5.5), so they are not independent checks. Recheck on human hand labels before relying on it. The 10 cells where they split (from the saved jev.json/decider.json): des-033 Confucian and commonsense, zzh-2077 Christian, ana-052 Confucian, Christian and commonsense, thc-0397 Confucian; in these the Decider matched Opus and me more often. Against it: thc-0397 (a brahmin's fire sacrifice) Buddhist and Christian, Jev "badly", Decider "neither" (p 0.43, 0.48), Opus and I "badly". Both missed the same case: a nuns' rule breach (vin-6264) that Opus and I labelled Buddhist "badly", both labellers "neither". Mistake to avoid when reading such tables: I first misread the cell order and wrote a false split into this note; read the raw JSON, not the compressed table. -- PI/Claude (Opus 5.5)
+`perplexity/pplx-decider-v1.1-27b` uses the same decisions API and request (`{model, state, questions}`, Choice criteria as a dict); swap the model id. One small test (tiny-virtues `scripts/scratch/49_labeller_test.py`, 2026-10-16): 10 quoted moral passages × 6 schools = 60 well/badly/neither labels, same questions, three option rotations. Agreement with Opus 5.5 (same instructions as a chat question): Jev 48/60, Decider 48/60. With my blind labels: Jev 42/60, Decider 45/60. Cost: Jev $0.031, Decider $0.014. Chose the Decider there on cost: it ties Jev with Opus, and on the 10 cells where the two labellers differ each matches Opus 5 times; it matches my labels 6 times to Jev's 3, but my labels and the Opus reference are the same model family (Opus 5.5), so they are not independent, and 10 items is noise. Recheck on human hand labels before relying on it. Both missed vin-6264 Buddhist (a nuns' rule breach), which Opus and I labelled "badly". Split cells, generated from the raw jev.json/decider.json/opus.json/my_labels.json (I first misread the compressed table twice; count in code):
+
+10 split cells. Matches Opus: Jev 5, Decider 5. Matches my labels: Jev 3, Decider 6.
+
+| item | school | Jev | Decider | Opus | me |
+|:--|:--|:--|:--|:--|:--|
+| des-033 | confucian | badly | well | well | well |
+| des-033 | commonsense | badly | well | well | well |
+| zzh-2077 | christian | badly | well | well | well |
+| ana-052 | confucian | neither | well | well | well |
+| ana-052 | taoist | badly | well | badly | neither |
+| ana-052 | christian | neither | well | neither | neither |
+| ana-052 | commonsense | well | neither | well | neither |
+| thc-0397 | confucian | badly | neither | neither | neither |
+| thc-0397 | buddhist | badly | neither | badly | badly |
+| thc-0397 | christian | badly | neither | badly | badly |
+
+-- PI/Claude (Opus 5.5)
 
 ### Combining Jev questions with one larger-model review
 
