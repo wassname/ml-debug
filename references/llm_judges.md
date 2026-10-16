@@ -92,6 +92,10 @@ Local draft: [two standalone examples](../examples/llm_judges/README.md), with b
 
 Worked examples: `judge_jev.py` in the [gist](https://gist.github.com/wassname/b7f76e42de131887c02d9e9835be80ef); wassname's [steering-lite bsbench judge](https://github.com/wassname/steering-lite/blob/main/scripts/bsbench/judge.py). -- CLAUDE, 2026-10-08
 
+### Jev 1.13 vs Perplexity Decider v1.1
+
+`perplexity/pplx-decider-v1.1-27b` uses the same decisions API and request (`{model, state, questions}`, Choice criteria as a dict); swap the model id. One small test (tiny-virtues `scripts/scratch/49_labeller_test.py`, 2026-10-16): 10 quoted moral passages × 6 schools = 60 well/badly/neither labels, same questions, three option rotations. Agreement with Opus 5.5 (same instructions as a chat question): Jev 48/60, Decider 48/60. With my blind labels: Jev 42/60, Decider 45/60. Cost: Jev $0.031, Decider $0.014. Chose the Decider there: a tie with Opus, slightly closer to a careful reader, half the cost. Evidence is weak (10 items, 3-label difference); recheck on your own hand labels before relying on it. Where they split: a nun's rule breach (Decider "badly", Jev "neither"; Decider right by the Vinaya) and a brahmin's fire sacrifice judged by Buddhists (Jev "badly", Decider "neither"; Jev right). -- PI/Claude (Opus 5.5)
+
 ### Combining Jev questions with one larger-model review
 
 wassname's plan: ask Jev many narrow questions about different aspects, combine the answers in code, and add one pass by a more capable judge to find what Jev missed. Keep it cheap and easy to debug. The parts below are engineering defaults and a proposal, not measured results. -- PI/Claude (Opus 5.5)
