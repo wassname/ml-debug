@@ -71,7 +71,7 @@ For the gist, the versioned OpenRouter ID is `deepseek/deepseek-v4.1-flash`, rat
 
 TypeSafe's Jev (`typesafe/jev-1.13`) writes no text: you define the options or ordered levels, and it returns a probability for each. Call it through OpenRouter's decisions API, `POST https://openrouter.ai/api/alpha/decisions` with `{model, state, questions}`; `typesafe/jev-router` on chat completions only routes to other LLMs. The vendor says each question in a request "is evaluated in parallel and in isolation against the same state".[^jev-docs]
 
-What it is good for: many narrow questions, cheap (vendor price $0.042 per million input tokens, output free) and near-deterministic (wassname's bsbench judge: re-asking 300 answers gave r = 1.000). Each answer is a probability vector, so an expected score needs no repeat sampling.
+What it is good for: many narrow questions, cheap (vendor price $0.042 per million input tokens, output free) and near-deterministic (wassname's bsbench judge: re-asking 300 answers gave r = 1.000). Each answer is a probability vector, so an expected score needs no Monte Carlo draws of a categorical label. Identical requests can still return slightly different probabilities; measure that baseline when investigating batching or context effects. -- clarification PI/OpenAI
 
 Where it fails, in the vendor's words: "multiple hops of reasoning costs accuracy" and "Accuracy falls as the state grows with content unrelated to the decision".[^jev-limits] It cannot quote evidence. Its calibration on your task is unproven: a community held-out test reports Brier 0.162 raw, 0.138 after isotonic recalibration,[^jev-calib] and the `confidence` field is a statistic of the distribution, not P(correct).[^jev-conf] Example: in the gist's live check, Jev gave P(refusal) = 0.57 to an answer that questioned an order and reported the defect.
 
@@ -88,7 +88,7 @@ How to use it:
 - Later, validate calibration on your own hand labels before using probabilities for consequential thresholds. This is not a prerequisite for implementing the vendor's practical defaults. `confidence` summarizes the distribution, not a separately measured probability of correctness. -- PI/OpenAI
 - As an RL reward, never pay per criterion mentioned. Checklist-reward training (RLCF) saw the policy produce "high-level overviews ... instead of the intended response".[^rlcf]
 
-Local draft: [two standalone examples](../examples/llm_judges/README.md), with balanced Choice orders, raw probabilities and optional Bradley–Terry ranking. Public gist unchanged pending editorial approval. -- PI/OpenAI
+Local templates: [two standalone examples](../examples/llm_judges/README.md), with balanced Choice orders, raw probabilities and optional Bradley–Terry ranking. The [public gist](https://gist.github.com/wassname/b7f76e42de131887c02d9e9835be80ef) is a separate authority-steering example; do not assume the templates and gist have identical features or rubrics. -- PI/OpenAI
 
 Worked examples: `judge_jev.py` in the [gist](https://gist.github.com/wassname/b7f76e42de131887c02d9e9835be80ef); wassname's [steering-lite bsbench judge](https://github.com/wassname/steering-lite/blob/main/scripts/bsbench/judge.py). -- CLAUDE, 2026-10-08
 
@@ -112,6 +112,16 @@ Worked examples: `judge_jev.py` in the [gist](https://gist.github.com/wassname/b
 | thc-0397 | christian | badly | neither | badly | badly |
 
 -- PI/Claude (Opus 5.5)
+
+### Jev isolation versus Decider v1.2
+
+Jev's diagnostic cannot inspect sibling questions by referring to them. Build the scored-question object once, then copy it into only the diagnostic question's own `instructions`; exclude the diagnostic itself to avoid recursion. The shared state needs a short task signpost, not a duplicate full rubric. This fixes input visibility, not general diagnostic accuracy. -- PI/OpenAI
+
+Decider v1.2 has a different protocol. Its [model card](https://huggingface.co/perplexity-ai/pplx-decider-v1.2#when-to-group-questions) says: "Full attention is noncausal, so every question attends to the state and to every other question." That is the vendor's architecture description, not an independent check of every hosted endpoint. Neither model's same-call diagnostic receives its siblings' returned labels or probability vectors; supply those explicitly in a follow-up if you want a critique of the answers. The Jev comparison above tested Decider **v1.1**, not v1.2. -- PI/OpenAI
+
+Keep the diagnostic vocabulary broad enough for unanticipated data, code, harness, context and other needs. Examples from two workflows are not a complete taxonomy. A selected word is an attention signal, not a bad-row verdict; `consent` or `hedging` may describe legitimate content. `none` can win while probability is spread over many warnings, and an emoji can receive probability without ever being the top option. Preserve full distributions and raw inputs. -- PI/OpenAI
+
+Question isolation, statistical independence, redundancy and useful information are distinct. Ten constant binary answers carry zero bits of variation; ten copies of one balanced bit carry one bit; ten independent balanced bits carry ten bits. Independent random answers can still carry no information about correctness. See the [gist README](https://gist.github.com/wassname/b7f76e42de131887c02d9e9835be80ef#file-readme-md) for entropy, conditional information, mutual information and saturation. -- PI/OpenAI
 
 ### Combining Jev questions with one larger-model review
 
