@@ -66,7 +66,7 @@ def judge_openrouter() -> type[ModelAPI]:
     # These two private imports are pinned to Inspect 0.3.247. -- PI/OpenAI
     class RecordedOpenRouter(OpenRouterAPI):
         def __init__(self, *args, **kwargs):
-            super().__init__(*args, default_headers={"HTTP-Referer": "https://gist.github.com/wassname/b7f76e42de131887c02d9e9835be80ef", "X-OpenRouter-Title": "judge-example/inspect"}, **kwargs)
+            super().__init__(*args, default_headers={"HTTP-Referer": "https://github.com/wassname/llm-judge", "X-OpenRouter-Title": "judge-example/inspect"}, **kwargs)
 
         def handle_bad_request(self, error: APIStatusError) -> object:
             code = error.body.get("error", {}).get("code") if isinstance(error.body, dict) else None

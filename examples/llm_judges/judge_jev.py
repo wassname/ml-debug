@@ -261,7 +261,7 @@ async def main(args) -> None:
         print(json.dumps(bradley_terry(results), indent=2))
         return
     pairs = [json.loads(line) for line in args.pairs.read_text().splitlines()] if args.pairs else [DEMO]
-    headers = {"Authorization": f"Bearer {os.environ['OPENROUTER_API_KEY']}", "HTTP-Referer": "https://gist.github.com/wassname/b7f76e42de131887c02d9e9835be80ef", "X-OpenRouter-Title": "judge-example/jev"}
+    headers = {"Authorization": f"Bearer {os.environ['OPENROUTER_API_KEY']}", "HTTP-Referer": "https://github.com/wassname/llm-judge", "X-OpenRouter-Title": "judge-example/jev"}
     async with httpx.AsyncClient(headers=headers) as client:
         words = [line.strip() for line in args.debug_vocab.read_text().splitlines() if line.strip() and not line.startswith("#")] if args.debug_vocab else None
         await judge(pairs, client, args.output, args.criterion, debug_words=words)

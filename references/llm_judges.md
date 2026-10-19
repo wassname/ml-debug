@@ -1,12 +1,69 @@
-# LLM-as-a-judge: known biases and mitigations
+# LLM-as-a-judge: design a measurement that separates the hypotheses
 
-Appendix to the [ML Debugging skill](../SKILL.md). When an LLM-judged eval looks surprisingly good, or a ranking flips between runs, suspect the judge before the model. Each bias below has been measured; verbatim sources in [docs/evidence/llm_judge_biases.md](../docs/evidence/llm_judge_biases.md), with quote-anchored 2026 numbers and their epistemic status in [llm_judge_litreview.md](llm_judge_litreview.md). For the wider literature, two surveys collect it: Eugene Yan's practitioner review[^yan] and Gu et al., "A Survey on LLM-as-a-Judge"[^survey].
+Appendix to the [ML Debugging skill](../SKILL.md). Start with the competing explanations for your result, then choose measurements that distinguish them. Read a complete sample before interpreting the aggregate.
+
+> What distributions are we trying to distinguish, with which measurement? Does a measurement add bias, standard deviation, or help separate them?
+>
+> — wassname, spelling corrected; “std” expanded to “standard deviation”
+
+## Start with the distinctions you need
+
+Suppose steering raises a virtue score. It might have changed decisions, taught virtue-related vocabulary, damaged ordinary answering, or exploited a judge's preference for longer answers. These hypotheses predict different distributions over new scenarios. A single average virtue score may fit all four.
+
+Measure the distinctions separately: choices on unfamiliar scenarios, vocabulary-only examples, ordinary task quality and refusal, and the same evidence presented with different length or position. Ask which observation would change your belief about the competing explanations. A test can be precise and repeatable while measuring the wrong distinction.
+
+The measurement is the whole procedure: sampled items, rendered context, questions, rubric, model/provider/precision, answer order, reasoning budget, output schema, validation, missing-score policy and aggregation. Asking for evidence and an explanation before rating changes that procedure. It can direct attention and improve the judgment, like a checklist; it is not merely an audit field added after an unchanged verdict. Test the procedure on cases whose relevant difference you can inspect yourself.
+
+## Useful information, redundancy and saturation
+
+Keep three distributions distinct: variation between original items, uncertainty about one item's label, and variation between repeated calls on that same item. A judge returning .5 everywhere has high uncertainty per answer but does not separate items. A judge returning probabilities near 0 or 1 can separate items well if those probabilities change with the behavior of interest.
+
+For a binary label $X$, entropy is:
+
+$$H(X)=-p\log_2 p-(1-p)\log_2(1-p),\qquad p=P(X=1).$$
+
+Entropy measures variation in bits. Constant labels carry zero bits of variation across the evaluated population. Ten deterministic copies of one balanced binary label carry one bit jointly, while ten independent balanced labels carry ten bits. Partial correlation does not make questions equivalent, and pairwise zero correlation does not establish joint independence. Jev's question isolation is an attention rule, not statistical independence.
+
+Useful information is variation that distinguishes the hypotheses or predicts a relevant reference label. An unrelated random bit has entropy without that usefulness. Conditional information asks what another question adds after the existing questions. A question can help through a disagreement pattern even when its individual mean barely changes. Do not infer an effective question count from correlation alone, or multiply marginal probabilities into a joint probability without a justified model.
+
+Saturation is loss of a distinction you need: if both compared populations always receive the same maximum score, that scale cannot resolve their difference here. It may still correctly establish that both clear a minimum requirement. Check known positive/negative cases and raw vectors before deciding whether the population, rubric resolution, judge or parsing caused the flat scores. Do not reject a measurement solely because its histogram is skewed.
+
+Aggregation can discard information already measured. On levels 0–4, vectors `[.5,0,0,0,.5]` and `[0,0,1,0,0]` both have expected score 2: unresolved extremes and a concentrated middle verdict become identical. Preserve the vectors, not only the expectation or winning option.
+
+## Bias and noise matter through the comparison
+
+On a common measurement scale, a useful working decomposition is:
+
+$$\widehat{\Delta}_M=\Delta_{\mathrm{target}}+b_M+\epsilon_M,$$
+
+where $\widehat{\Delta}_M$ is the observed contrast under procedure $M$, $\Delta_{\mathrm{target}}$ is the intended behavioral contrast on that scale, $b_M$ is differential systematic measurement error, and $\epsilon_M$ is sampling error. This is a diagnostic model, not an assumption that the unknown terms have been identified.
+
+A shared offset can cancel in a paired comparison. Bias that changes with response length, model family or treatment can imitate a treatment effect. Lower standard deviation is therefore not the goal by itself: a constant judge is perfectly stable and discards every between-item distinction. Repeats can reduce sampling error but repeat a shared misreading indefinitely.
+
+Use priors about the judge and update them alongside priors about the evaluated model. In Bayesian terms, a measurement is valuable when its possible outcomes would change the posterior over relevant hypotheses. One formal expression is expected information gain:
+
+$$\operatorname{EIG}(M)=\mathbb{E}_{z\mid D,M}\!\left[\operatorname{KL}\!\left(p(H\mid D,z,M)\,\Vert\,p(H\mid D)\right)\right],$$
+
+where $H$ indexes competing hypotheses, $D$ is existing evidence, $M$ is a proposed measurement procedure, and $z$ is its possible result. KL divergence measures how much the posterior changes, in nats when natural logarithms are used. Usually we cannot estimate this expression accurately; use it to ask which affordable test separates the live explanations, not to manufacture an information-gain score from a few probes.
+
+## Debugging practices as tests of the measurement
+
+- Change a nuisance while holding the judged behavior fixed: swap answer order, reverse unordered Choice options, remove irrelevant polish, or paraphrase a rubric without changing its meaning. A shifted mapped verdict points to measurement sensitivity. Keep ordered Score levels ordered. These views remain one item.
+- Change the behavior while holding nuisances fixed: known correct/incorrect answers, refusal versus disagreement inside a story, or genuine action versus a virtue-word-only answer. Failure to separate these locates a missing distinction; it does not by itself identify the cause.
+- Repeat sampled generative judgments to measure within-item noise. Average within the original item before uncertainty across items. Use independent model families to probe shared blind spots, not as votes that automatically establish truth. Related scenarios require grouped uncertainty.
+- Inspect rendering, cache keys and parsing before diagnosing the judge. A lost question, truncated action or stale cached answer can remove the distinction before the model sees it. Long context can contain the needed evidence without the judge extracting it.
+- Keep the compared population fixed. Dropping failed scores can make the surviving easy rows appear better. Distinguish evaluated-model failure from judge/infrastructure failure; report coverage and rerun unresolved measurement failures.
+- Preserve full incremental traces and one unclipped sample in `run.md`. Logs retain the evidence needed to locate where information was lost. An unscored vent or exit interview lets the model name distinctions the rubric omitted. Keep the vocabulary broad and the probability vector intact; a selected flag is a lead, and `none` is not clearance.
+
+The sections below give practical defaults and source-grounded examples. Quotes and their source-level limitations remain evidence to update from, not universal constants.
+
+<!-- Measurement-design framing: PI/OpenAI, from wassname's questions. -->
 
 ## Numbers worth knowing (2026)
 
 Operational rules of thumb, anchored in verbatim quotes; full passages, sources, and calibration in [llm_judge_litreview.md](llm_judge_litreview.md). Source type is stated so you can weight it: independent benchmarks and peer-reviewed studies carry more than single-group preprints.
 
-- Swap the order and average, on every judge. Position bias is still large in 2026: an independently-run public benchmark of 36 models reports "the model-average order-flip rate is 43.0%, and the median model flips in 41.3% of decisive two-view cases",[^lechmazur] and a peer-reviewed study of 150k+ judgements finds it concentrates on the hard cases, since position bias "is strongly affected by the quality gap between solutions".[^shi] The two agree from independent methods, so it is very probable this holds for your judge; even a frontier model flips ~66%, making a bigger judge a weak prior at best, not a fix. Running both orders and averaging is the fix, and a high flip rate means the test is broken, not decided.
+- Swap the order and average, on every judge. Position bias is still large in 2026: an independently-run public benchmark of 36 models reports "the model-average order-flip rate is 43.0%, and the median model flips in 41.3% of decisive two-view cases",[^lechmazur] and a peer-reviewed study of 150k+ judgements finds it concentrates on the hard cases, since position bias "is strongly affected by the quality gap between solutions".[^shi] The two agree from independent methods, so it is very probable this holds for your judge; even a frontier model flips ~66%, making a bigger judge a weak prior at best, not a fix. Running both orders and averaging reduces this nuisance; retain the discrepancy because averaging alone does not establish a valid comparison. A high flip rate calls for inspecting the difficult cases.
 
 - Don't let a small model grade its own family. A peer-reviewed EMNLP study, on a metric that nets out genuine quality, reports "the DBG score of Qwen2.5-0.5B-Instruct is 41.7%. In contrast, the DBG score of Qwen2.5-14B-Instruct is only 2.1%",[^selfpref] and finds reasoning does not rescue it, "the self-preference bias in reasoning models is not necessarily less significant than the bias found in language models".[^selfpref] The shrink-with-size direction is probable but partly confounded with capability (the authors credit better instruction-following), so treat "use a larger, different-family judge than the model under test" as the safe rule rather than size being the true lever.
 
@@ -61,6 +118,8 @@ But a frontier score isn't sufficient: refusals wreck ambiguous or red-teaming e
 
 ## Provider and precision defaults
 
+Choose project credentials explicitly in the calling environment or with an explicitly named `--env-file`. The maintained toolkit blocks Inspect's automatic search of current/parent `.env` files, so another project's key/configuration is not silently selected. Raw Inspect outside this wrapper retains its own loading behavior. -- PI/OpenAI
+
 Pin a versioned model ID and one provider; disable provider fallback, require the requested API parameters, and record the served model, provider and precision. Keep JSON Schema for the generative judge's reply; readable instructions do not need conversion to JSON. Prefer the model creator's endpoint when it supports the required features. Fireworks, DeepInfra FP8, DeepSeek's own endpoint and xAI's own Grok endpoint are candidates from wassname's provider experience, not a universal provider ranking. -- PI/OpenAI, from wassname
 
 Use documented FP8 or higher precision as a practical default for ordinary post-training alternatives; retain creator-recommended native formats such as gpt-oss's MXFP4 when changing models. wassname's observed concerns are INT4 and unknown quantisation; a new FP8-versus-BF16 experiment is not a prerequisite for using these defaults. Check the exact endpoint's accuracy and parameter support, not just speed or provider reputation. The [provider lookup report](../slop/research/20261013_tool_and_judge_accuracy.md#tool-accuracy-by-inference-provider) gives dated per-model BFCL results and precision evidence. -- PI/OpenAI, from wassname
@@ -79,7 +138,7 @@ How to use it:
 - One narrow question per criterion, but send every question about the same state in one request: the state is billed once and the questions are still judged in isolation. This is question isolation, not a guarantee of statistically independent errors; wassname identifies causal masking as the mechanism. Vendor: batching 13 questions "is 11.5x cheaper and 9.6x faster than 13 separate calls, with no change in the answers".[^jev-prims] Measured through OpenRouter on a 1.1k-token state: 1 question 1181 input tokens, 32 questions 1699, about 16 tokens per extra question.
 - Keep the shared state to what the questions judge (the dialogue, the answers). Put per-question context, such as the criterion's definition, in that question's `instructions`, not in the state.
 - Match the primitive to the decision: Choice for categories, Noul for a yes/no proposition, Score for ordered semantic levels. Ask separately about task refusal, incoherence, repetition/looping and off-topic content; a broad off-axis score can hide which failure occurred. Define task refusal separately from disobedience inside a story. -- PI/OpenAI
-  TypeSafe's [primitives page](https://docs.typesafe.ai/primitives.md): "Noul fits a clean yes/no question where the probability itself is the useful signal", and "Choice fits when the answer is one of a known set of options with no order between them". The local failure checks still use a yes/no Choice; they have not been converted to Noul. -- PI/Claude (Opus 5.5)
+  TypeSafe's [primitives page](https://docs.typesafe.ai/primitives.md): "Noul fits a clean yes/no question where the probability itself is the useful signal", and "Choice fits when the answer is one of a known set of options with no order between them". The standalone template uses yes/no Choice; the maintained toolkit uses Noul. Check the actual request before comparing their outputs. -- PI/Claude (Opus 5.5); template/toolkit status checked by PI/OpenAI
 - For pairs, rate the change of B against A directly, in both orders, and report the order discrepancy. wassname: "we rate B-A directly to reduce noise". For ranking many candidates, use pairwise Choice across balanced response and option orders, then consider Bradley–Terry aggregation rather than scoring each candidate independently. This is a ranking-method prior, not a demonstrated Jev-specific improvement. TypeSafe's [re-ranking cookbook](https://docs.typesafe.ai/cookbooks/rerank_typesafe.md) also uses independent Noul probabilities successfully. -- PI/OpenAI, from wassname
   One small contrary observation, from a different task (choosing the best of three generated sentences), [jev-talks](https://github.com/zie1ony/jev-talks/blob/50bc6df463202f0b7f329077ea688ef97b9a473d/README.md): "best-of-3 with Jev choosing between the candidates in one multiple-choice question, which preferred the rambling ones; grading each candidate separately on the rubric is what works." That was a three-way Choice, not balanced pairs, so it does not decide the question either way. -- PI/Claude (Opus 5.5)
 - Reorder Choice options as well as compared responses: TypeSafe warns that Jev 1.13 can favor the first option.[^jev-limits] Keep the raw mapped probabilities and discrepancy; repeated identical requests to a near-deterministic model add little. Adopt vendor and empirical guidance as defaults now; task-specific refinement can follow. -- PI/OpenAI
@@ -88,9 +147,9 @@ How to use it:
 - Later, validate calibration on your own hand labels before using probabilities for consequential thresholds. This is not a prerequisite for implementing the vendor's practical defaults. `confidence` summarizes the distribution, not a separately measured probability of correctness. -- PI/OpenAI
 - As an RL reward, never pay per criterion mentioned. Checklist-reward training (RLCF) saw the policy produce "high-level overviews ... instead of the intended response".[^rlcf]
 
-Local templates: [two standalone examples](../examples/llm_judges/README.md), with balanced Choice orders, raw probabilities and optional Bradley–Terry ranking. The [gist](https://gist.github.com/wassname/b7f76e42de131887c02d9e9835be80ef) is the compact, example-first introduction: one pair judge, a blind generative review and optional talk-to-Jev feedback. Its CLI differs from these templates. -- PI/OpenAI
+Maintained toolkit: [wassname's LLM-as-judge defaults](https://github.com/wassname/llm-judge), with installable `Trace`, `compare` and `label` functions, durable Inspect/JSONL traces, numerical evidence-first judging and optional Jev diagnostics. The [local standalone illustrations](../examples/llm_judges/README.md) have a different CLI and optional Bradley–Terry ranking; do not assume feature parity. -- PI/OpenAI
 
-Worked examples: `judge_jev.py` in the [gist](https://gist.github.com/wassname/b7f76e42de131887c02d9e9835be80ef); wassname's [steering-lite bsbench judge](https://github.com/wassname/steering-lite/blob/main/scripts/bsbench/judge.py). -- CLAUDE, 2026-10-08
+Worked code: the repository's [typed questions](https://github.com/wassname/llm-judge/blob/main/src/llm_judge/jev.py) and [paired runner](https://github.com/wassname/llm-judge/blob/main/src/llm_judge/pairs.py); wassname's [steering-lite bsbench judge](https://github.com/wassname/steering-lite/blob/main/scripts/bsbench/judge.py). -- PI/OpenAI (repository links); original bsbench pointer: CLAUDE
 
 ### Jev 1.13 vs Perplexity Decider v1.1
 
@@ -121,7 +180,7 @@ Decider v1.2 has a different protocol. Its [model card](https://huggingface.co/p
 
 Keep the diagnostic vocabulary broad enough for unanticipated data, code, harness, context and other needs. Examples from two workflows are not a complete taxonomy. A selected word is an attention signal, not a bad-row verdict; `consent` or `hedging` may describe legitimate content. `none` can win while probability is spread over many warnings, and an emoji can receive probability without ever being the top option. Preserve full distributions and raw inputs. -- PI/OpenAI
 
-Question isolation, statistical independence, redundancy and useful information are distinct. Ten constant binary answers carry zero bits of variation; ten copies of one balanced bit carry one bit; ten independent balanced bits carry ten bits. Independent random answers can still carry no information about correctness. See the [gist README](https://gist.github.com/wassname/b7f76e42de131887c02d9e9835be80ef#file-readme-md) for entropy, conditional information, mutual information and saturation. -- PI/OpenAI
+Question isolation, statistical independence, redundancy and useful information are distinct. Ten constant binary answers carry zero bits of variation; ten copies of one balanced bit carry one bit; ten independent balanced bits carry ten bits. Independent random answers can still carry no information about correctness. See [Useful information, redundancy and saturation](#useful-information-redundancy-and-saturation) above. -- PI/OpenAI
 
 ### Combining Jev questions with one larger-model review
 
@@ -135,19 +194,17 @@ $$\mathbb{E}\Big[\sum_i w_i s_i\Big] = \sum_i w_i \, \mathbb{E}[s_i]$$
 
 where $s_i$ is the numeric value your code assigns to the answer of question $i$ (for example 1 for yes and 0 for no, or the rubric value you assign to each Score level, which need not be the level index) and $w_i$ is a weight you chose. Multiplying per-question probabilities to get "P(no failure)" assumes independence, so do not do it. The weighted score is also not the probability that the response is correct; that needs a model you have specified and checked. Calibrated questions do not give a calibrated aggregate.
 
-The larger-model review (proposed; not implemented in the examples):
+Choose the larger model's job explicitly. For an independent measurement, give it the original material and rubric, blind to Jev labels. Ask it to explain the relevant evidence before its numerical rating, quote exact response spans, and emit a separate unscored setup note last. The explanation/checklist is part of how the judgment is produced; it is also evidence for debugging the result. Preserve numerical ratings rather than silently substituting a prose-only critique.
 
-- Input: the original material and the criteria. No Jev labels at first, so the review is blind to them.
-- Output: a short list of findings, each with an exact quote, what is wrong or missing (including problems that appear only when two aspects interact), and one line of reason. An empty list is a valid answer. No numeric score, so nothing is averaged with Jev.
-- Check every quote against the judged text in code, as `validate_quotes` in `judge_inspect.py` already does.
-- One review per response or pair, not per aspect. Review the targeted items (Jev probabilities close to even, an order discrepancy, aspects that contradict each other, a setup tag other than `none`) plus a seeded random sample. Targeted selection cannot find cases where Jev is confident and wrong; the random sample can.
-- Start with low reasoning effort and about 2-4k output tokens in total. This is an initial budget, not a measured optimum; count truncations and raise it if they are common.
-- After a truncated reply, send one short follow-up with reasoning disabled. Keep whatever reasoning the provider returned in the conversation, and allow the answer "defer". The follow-up cannot finish reasoning that was cut off, so do not force a verdict; count a deferred item as unreviewed, not as clean.
-- A finding means: read the item, ask Jev a new narrow question, or repair the setup. The larger judge is not ground truth. When it and Jev disagree, read the item yourself.
+A useful mixed evaluation can have twenty narrow Jev metrics and one reasoned holistic score. Report them separately unless you have specified and checked a meaningful aggregation. A post-label critic is a different procedure: it must receive the actual labels explicitly and should be marked as anchored on them. Neither critic nor scorer is ground truth.
 
-Current state of the examples: `judge_inspect.py` is a thorough comparison, three sampled passes times four views per pair with `max_tokens=32000`. It is not this cheap single-pass review, and no budget flag or review mode exists for it yet. Its truncation follow-up does not offer "defer". [Petri](#harness-patterns-from-petri) is for an auditor that probes a target over several turns; for pairs that are already supplied, plain Python or Inspect is enough. -- PI/Claude (Opus 5.5)
+For cost control, review targeted disagreements (uncertain probabilities, order sensitivity, conflicting aspects or vent flags) plus a seeded random sample. Targeted review alone misses confident shared errors. Keep selection provenance and do not report the reviewed subset as representative accuracy. Start with low reasoning effort on easy cases, count truncations, and increase the budget when the work requires it rather than guessing a universal token cap.
 
-The local template's optional `--debug-vocab` flag (`examples/llm_judges/judge_jev.py`, not the minimal gist CLI) asks Jev for one unscored word that names a setup problem, or `none` or `idk`. It is one extra Choice question inside the scoring requests (at most 255 options; one per concept, since synonyms split the probability), so it costs about $0.0002 per pair; a separate 3,000-word tournament cost 10× that. See `examples/llm_judges/README.md`. -- PI/Claude-opus-5-5, 2026-10-16. Earlier [live smoke test](../slop/artifacts/20261013_jev_debug_word/verification.md) of the tournament version: three constructed cases, not a benchmark. The tournament idea comes from jev-talks, which also reports a bias that may affect the `none` option:
+If a reasoning model reaches its output limit, retain the provider-returned reasoning and ask once for the structured final answer with reasoning disabled. This does not complete missing reasoning. Keep both phases; reject an unfinished answer. A bounded validation retry may return the exact parse, field or quote error to the judge and request a new complete judgment. Preserve the invalid reply; do not regex-patch scores or invent defaults. Deferred/unresolved judgments are missing measurements, not clean outcomes.
+
+The maintained [paired runner](https://github.com/wassname/llm-judge/blob/main/src/llm_judge/pairs.py) supports Jev, numerical generative judging, or both on the original inputs. Its [optional diagnostics](https://github.com/wassname/llm-judge/blob/main/src/llm_judge/diagnostics.py) include controls and an experimental post-label interview; they do not replace numerical scoring. A targeted cheap review is a study recipe, not an automatic review-selection policy. [Petri](#harness-patterns-from-petri) is for multi-turn target auditing; already supplied pairs need only a plain evaluator or Inspect. -- PI/OpenAI
+
+The local template's optional `--debug-vocab` flag (`examples/llm_judges/judge_jev.py`, not the maintained toolkit CLI) asks Jev for one unscored word that names a setup problem, or `none` or `idk`. It is one extra Choice question inside the scoring requests (at most 255 options; one per concept, since synonyms split the probability), so it costs about $0.0002 per pair; a separate 3,000-word tournament cost 10× that. See `examples/llm_judges/README.md`. -- PI/Claude-opus-5-5, 2026-10-16. Earlier [live smoke test](../slop/artifacts/20261013_jev_debug_word/verification.md) of the tournament version: three constructed cases, not a benchmark. The tournament idea comes from jev-talks, which also reports a bias that may affect the `none` option:
 
 > Words that sound like moves, such as "finish", "none" and "null", attract the model whenever finishing is a separate relative option; as absolute yes/no questions they behave.
 
@@ -206,8 +263,8 @@ Setup-repair principle: confusion is evidence against the evaluation setup befor
 
 Check the score distribution:
 
-- Not saturated: reject scenarios where every arm passes or every arm fails (too easy or too hard leaves nothing to discriminate).
-- Not clustered: plot the raw histogram. Mode collapse or skew means the scale isn't being used.[^verdict]
+- Saturation: if every compared response receives the same score, check whether the scale still resolves the distinction you need. Passing a common minimum can be informative even when relative quality remains unresolved. Inspect positive/negative controls rather than deleting all easy or hard items.
+- Clustering: inspect raw histograms and vectors against known contrasts. A cluster can reflect the population or a judge that cannot use the scale; skew alone does not distinguish these explanations.[^verdict]
 - Not anchored: don't put an example score in the prompt. A few-shot "+2" pulls a weak judge toward +2, and Eugene Yan's survey notes few-shot judges are "unstable when changing the label, example order, and number of examples".[^yan] Ask for a bare integer or label, and prefer a coarse scale: Databricks recommend a low-precision range (0-3 or 1-5) because "Scales like 0-10 are difficult to come up with distinguishing criteria between all scores".[^databricks] Hamel is blunter, preferring binary: "If your evaluations consist of a bunch of metrics that LLMs score on a 1-5 scale (or any other scale), you're doing it wrong."[^hamel]
 
 Keep the comparison set fixed:
@@ -286,7 +343,7 @@ The sections above are about pairwise preference judging. This one is about the 
 
 - **Anchor the scale at both ends.** METR's [ai-rd-tasks](https://github.com/METR/ai-rd-tasks) normalise a run to 0 at the starting solution and 1 at the reference solution, and a run can exceed 1 by beating the reference. A rubric fraction only has the upper anchor: its zero is "said nothing" rather than "the naive approach the prompt describes", and it cannot exceed 1, so it measures agreement with the reference and structurally cannot detect an answer better than it. -- CLAUDE, 2026-08-13
 
-For a worked example, wassname has a ~300-line async OpenRouter judge (WIP) that implements many of these: bounded thinking, pinned quantisation, a versioned eval, JSON-schema output, JSONL of everything, OpenRouter error handling, and position-bias swapping: [gist](https://gist.github.com/wassname/b7f76e42de131887c02d9e9835be80ef). The same gist has `judge_inspect.py`, the inspect-ai port (`.eval` logs instead of JSONL, epochs for the repeat passes, a provider subclass that retries OpenRouter's transient-status-in-HTTP-400), and `audit.py`, a scout scanner for the identical-arms / refusal / truncation / saturation checks that runs both inline and over saved logs.
+Worked code and current commands: [wassname/llm-judge](https://github.com/wassname/llm-judge). Inspect supplies the standard viewer and analysis; incremental JSONL/run.md preserves crash-time evidence. Read the complete first state/pair, not only the aggregate. The earlier gist redirects to this repository. -- PI/OpenAI
 
 ## Judges for training data: critique, repair, panel review
 

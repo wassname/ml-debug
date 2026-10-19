@@ -1,5 +1,7 @@
 # Two standalone judge examples
 
+For the maintained defaults and installable toolkit, use [wassname/llm-judge](https://github.com/wassname/llm-judge). These standalone illustrations have a different CLI and optional ranking code; do not assume the same execution safeguards. -- PI/OpenAI
+
 `judge_jev.py` returns typed probabilities. `judge_inspect.py` returns explanations, exact response quotes and ratings in Inspect `.eval` logs. Each works without the other.
 
 ## Defaults
@@ -77,4 +79,4 @@ uv run python -m unittest test_judges -v
 
 Tests use offline inference fixtures through production execution paths, not live endpoint measurements. Inspect is pinned because the provider adapter uses private APIs. The project lock records the test environment; standalone scripts resolve their inline dependencies.
 
-Draft prose for review; public gist unchanged. Prepared by PI/OpenAI.
+Canonical installation and current commands: [wassname/llm-judge](https://github.com/wassname/llm-judge). Prepared by PI/OpenAI.
