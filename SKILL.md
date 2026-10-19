@@ -12,6 +12,37 @@ the derivation, the mechanism, or the log line behind it, so the reader can chec
 take it. Show the work, not only the conclusion.
 <!-- CLAUDE: at the top because it is the one part with measured uplift; see README results. -->
 
+## Choose experiments that improve the mental model
+
+Use this skill before choosing research runs, architecture changes, sweeps, ablations, or probes,
+not only after failures. Research alternates between exploration and testing explanations.
+Observations can precede theory: when you do not know which variables matter, use a small real
+experiment to discover behaviour rather than invent a confident hypothesis.
+
+Your mental model includes plausible mechanisms, confidence in them (priors), and their predicted
+observations. Choose runs by the useful model updates their possible outcomes would support,
+relative to GPU time and elapsed time. Include promising architecture changes; do not restrict
+the search to optimiser settings. Use rough judgments, not invented information-gain scores.
+
+Before a costly sweep or ablation, establish a credible learning signal through the real pipeline.
+An earlier targeted comparison is useful when it distinguishes a specific failure or mechanism;
+name that distinction. Otherwise, sweeping a method that does not work mostly compares failures.
+For a probe, state which decision or unknown its outcomes could clarify and why existing inline
+metrics cannot answer it. Prefer adding the check to the real pipeline over a separate script.
+
+A speculative ("Hail Mary") run can be worth its cost even with low confidence of success.
+Use the real run to collect inline probes, sanity checks, and examples at several stages, so
+failure still reveals where the mental model diverges from observed behaviour. Several promising
+changes can be tried together; distinguish learning about the combination from attributing an
+effect to one change. Judge the run by useful learning as well as task improvement.
+<!-- PI/OpenAI: wassname's clarification that instrumented speculative runs can be valuable. -->
+
+Use exercises A/B for the choice and predictions. After the run, update `MENTAL_MODEL.md` with
+the observation, which belief changed and why, and the next useful action. Useful learning can
+come without a score improvement; model-building must still advance the user's research goal.
+For the source reasoning, read [Bayesian experimental design](references/research_taste.md#bayesian-experimental-design).
+<!-- PI/OpenAI: from wassname's research-stage and GPU-budget guidance, with sources in the linked reference. -->
+
 ## Turn evidence into a research decision
 
 The purpose is to advance the user's research goal. Completing a report is supporting work.
@@ -20,6 +51,14 @@ what they change about the diagnosis, and identify the next experiment or repair
 expected distinguishing result. Separate observations from suspected causes. State what
 you actually executed or queued; a recommendation is not an action. Link the complete
 audit for inspection, but a path alone does not satisfy "show the results".
+
+Report progress against research questions, not just completed runs. A buggy or insufficiently
+investigated run leaves the question inconclusive. Work through the data, logs, and code over
+successive debugging iterations: fix bugs, improve misleading metrics, inspect actual examples,
+and rerun. Show what each iteration changed in the explanation and what remains unchecked.
+A negative conclusion needs a stated scope and evidence against plausible alternatives; a count
+of debugging rounds alone is not enough. For a brief update, use `busy`'s research-question states.
+<!-- PI/OpenAI: align research conclusions with wassname's question-led busy framing. -->
 
 Missing evidence blocks the next experiment only when it could invalidate that experiment,
 make it uninterpretable, or create an unacceptable cost or risk. Explain that connection.
@@ -35,9 +74,11 @@ automatic training gates. Keep the full checks below; use them to choose what to
 
 > The challenge lies in the fact that you can make these mistakes, train a model without it ever crashing, and still get a decent performance... -- Sanh
 
-The training script has to print the checks, as SHOULD lines written before the run and
-compared after it.
-<!-- CLAUDE: one line from the three quotes above. -->
+Use `token-efficient-logging` for inline diagnostic expectations in `run.md`, beside the metrics
+and examples they interpret. State expectations before the run; quote important expected-versus-
+observed divergences afterward and say which belief they change. Use its diagnostic-statements
+reference to distinguish supported `SHOULD:` predictions from `TODO validate:` hypotheses.
+<!-- PI/OpenAI: route inline predictions to their canonical logging definition. -->
 
 ### Expensive runs
 
@@ -119,8 +160,10 @@ an all-`-100` mask, or a bad metric can pass it.
 <!-- CLAUDE: direct compact integration of token-efficient-logging, markdown-tables, setup-repo,
 and jaxtyping. -->
 
-`MENTAL_MODEL.md`, under one page, in prose: where your model of the project stands, and the
-result that would refute it. A wrong model is better than an unfalsifiable one.
+`MENTAL_MODEL.md`, under one page, in prose: where your model of the project stands, its
+uncertainties, and observations that would change it. A wrong model is better than an
+unfalsifiable one. During exploration, record unknowns without forcing a finished theory.
+<!-- PI/OpenAI: allow empirical exploration before a developed theory. -->
 
 - Retrodict: for the last several results, would the model have predicted them? For each miss,
   which belief caused it? Revise that belief and cite the log or journal line.
@@ -221,8 +264,9 @@ A job is stopped, or an idea dropped, only after the form, ex I, and ex J are wr
 The table lives in `MENTAL_MODEL.md` (or in your reply, for a short call). Correct it before each
 run and show it.
 
-| option | metric it should affect | direction and order | what separates it from the other options |
-|---|---|---|---|
+| option | metric it should affect | direction and order | possible outcomes and model updates | GPU / elapsed time |
+|---|---|---|---|---|
+<!-- PI/OpenAI: compare expected learning and cost, not only score improvement. -->
 
 Consider architecture and loss changes where they are live choices for this problem, alongside
 data, regularisation, and optimiser. Say which options change in this run and why. Several can
@@ -233,8 +277,11 @@ the run you will compare to.
 
 > Before acting plan by writing multiple competing hypotheses: consider the most likely failure but also some of: a subtle failure, a perverse failure, a possible bug, and an unknown. Put a rough credence on each. Finally write down what you expect to see differently for success vs each possibility and brainstorm the cheapest tests that may narrow them down. -- wassname
 
-Write down the question this run answers in one sentence, the result that would make you drop the
-idea, and which part is the novel part (everything else is a control). Then:
+Write down the question this run answers in one sentence, the result that would change the
+current explanation, and which parts change versus the comparison run. For an
+exploratory run, name the behaviour or unknown you will inspect and how it could guide the next
+change; do not invent a precise hypothesis merely to fill the table. Then:
+<!-- PI/OpenAI: distinguish exploration from testing an established explanation. -->
 
 | risky part | what I expect to see | too weak | too strong | buggy | metric exists? |
 |---|---|---|---|---|---|
@@ -350,7 +397,9 @@ Keep the list in `docs/JARGON.md` when working in a long loop.
 - [references/diagnostics.md](references/diagnostics.md): init loss, overfit one batch, gradient
   flow, NaN hooks, leakage tracer.
 - [references/static_analysis.md](references/static_analysis.md): grep patterns for silent bugs.
-- [references/sweeps.md](references/sweeps.md): paired comparison and cross-seed reliability.
+- Once the method has a credible learning signal and the question needs a controlled sweep,
+  read [references/sweeps.md](references/sweeps.md): paired comparison and cross-seed reliability.
+<!-- PI/OpenAI: route mature comparisons separately from exploratory research. -->
 - [references/llm_judges.md](references/llm_judges.md) and
   [references/llm_judge_litreview.md](references/llm_judge_litreview.md): judge biases and the
   papers behind the advice. For many cheap Jev questions plus one larger-model review, read

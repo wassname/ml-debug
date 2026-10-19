@@ -4,6 +4,49 @@ Appendix to the [ML Debugging skill](../SKILL.md).
 
 Use this when the question is closer to "what should we try next?" than "why did this crash?" The quotes do most of the work here. The editorial is just routing.
 
+## Bayesian experimental design
+
+Read this before choosing costly runs, especially if the method is not working yet. The sources
+below are methodological essays, not measured evidence that these instructions improve agents.
+The local application is wassname's preference: spend GPU time updating a mental model and
+exploring promising architectural changes before paying for mature sweeps and ablations.
+<!-- PI/OpenAI: source context and local application; the quotations are the authors' words. -->
+
+### Theory helps choose informative experiments
+
+frmsaul, [The Expensive-Loop Problem](https://www.lesswrong.com/posts/2mStxuNDMdaWdyHu6/the-expensive-loop-problem)
+(2026-10-12), section "Theory Building":
+
+> In order to perform well in expensive-loop tasks, you need "theory". A "theory" is a causal model of your environment that allows you to generalize the results from some experiments to other experiments. **A theory also allows you to assign "information value" to different experiments: "what will this experiment teach me?".** A theory will also tell you things about how well different cheap proxies relate to the overall expensive-loop task. These properties are incredibly useful in expensive-loop experiments because they allow you to be systematic about which experiments you should run in order to complete the task most efficiently.
+
+This is the closest source for using a mental model to allocate an expensive experiment budget.
+The skill's cost comparison is qualitative; an experiment's value depends on its relevance to
+the research goal, not just how surprising an outcome could be.
+<!-- PI/OpenAI: interpretation, not an additional claim by frmsaul. -->
+
+### Exploration can build the theory
+
+John Wentworth, [Science in a High-Dimensional World](https://www.lesswrong.com/posts/4XRjPocTprL4L8tmB/science-in-a-high-dimensional-world)
+(2021-01-08), contrasts testing a preselected hypothesis with discovering which variables explain
+inconsistent yeast-culture growth:
+
+> This looks less like the prototypical Scientific Method. There’s probably some hypothesis formation and testing steps in the middle, but it’s less about hypothesize-test-iterate, and more about figuring out which variables are relevant.
+
+This supports exploratory experiments before a developed theory. It does not make observations
+assumption-free. The exploration sections below give the corresponding ML research practices.
+<!-- PI/OpenAI: interpretation and routing. -->
+
+### Tests should distinguish explanations
+
+Eliezer Yudkowsky, [Positive Bias: Look Into the Dark](https://www.lesswrong.com/posts/rmAbiEKQDpDnZzcRf/positive-bias-look-into-the-dark)
+(2007-08-28), on Wason's 2–4–6 rule-discovery task:
+
+> The study was called “On the failure to eliminate hypotheses in a conceptual task.” Subjects who attempt the 2-4-6 task usually try to generate *positive* examples, rather than *negative* examples—they apply the hypothetical rule to generate a representative instance, and see if it is labeled “Yes.”
+
+Use this when a proposed probe or ablation would give the same apparent support under several
+explanations. Ask what different outcomes would change the next research decision.
+<!-- PI/OpenAI: local application; selecting a negative example alone does not guarantee information value. -->
+
 ## Patience and process
 
 Research taste is learned under long, noisy feedback loops. This is the quote I would put nearest the main skill.
@@ -136,6 +179,11 @@ More understanding mechanics:
 > Be Able to Discard False Hypotheses: Sometimes you’ll have a hypothesis that you’re really excited about, and it turns out to be false. This is OK! This is all just part of science. Move on and try new hypotheses, or write up your negative results if they’re interesting enough! Be exploratory: You should still be partially in explore mode in this stage - often your conception of the hypothesis, or the right kinds of experiment, will shift. This is an important part of the research process, not a sign that you screwed anything up! When to move on to distillation? When you are fairly convinced of some hypotheses, and think they’re interesting enough to be worth communicating.[^nanda-draft]
 
 ## Rigorous comparisons
+
+Use this section when the method has a credible learning signal and the goal is to establish a
+comparative claim. Earlier targeted ablations can diagnose a specific failure; "Always Be
+Ablating" below is not a reason to launch a full ablation study of a method that does not work.
+<!-- PI/OpenAI: stage distinction requested by wassname; preserves the quoted advice's wording. -->
 
 Spinning Up is RL-framed but generally useful for research agents doing method comparisons.
 
