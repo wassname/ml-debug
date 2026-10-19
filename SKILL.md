@@ -378,6 +378,9 @@ Say what would have to be true for the idea to be alive and your run to still fa
 
 ## Language
 
+For explaining findings from the reader's existing knowledge, use `annoy-less`.
+<!-- PI/OpenAI -->
+
 LLMs of 2026 are trained to compress speech and use folky or humanistic language, but it's better
 for the agent (and user) to move toward field standard language, it's precise instead of ambiguous
 and communicates more bits of information. They should build a short list of jargon used in the
