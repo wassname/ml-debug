@@ -160,10 +160,19 @@ an all-`-100` mask, or a bad metric can pass it.
 <!-- CLAUDE: direct compact integration of token-efficient-logging, markdown-tables, setup-repo,
 and jaxtyping. -->
 
-`MENTAL_MODEL.md`, under one page, in prose: where your model of the project stands, its
-uncertainties, and observations that would change it. A wrong model is better than an
-unfalsifiable one. During exploration, record unknowns without forcing a finished theory.
-<!-- PI/OpenAI: allow empirical exploration before a developed theory. -->
+`MENTAL_MODEL.md`, under one page, with two sections:
+
+- **Current model:** the best explanation so far, uncertainties, and predictions. A wrong model
+  is better than an unfalsifiable one; record unknowns without forcing a finished theory.
+- **Dated clues:** short observations not yet accounted for by the current model. Use shared
+  jargon, enough context to identify the stage or condition, and a source log or journal link.
+  Keep observations separate from suspected causes.
+
+As clues accumulate, revise the current model to account for them, cite the dated evidence,
+and state which belief changed and why. Remove an absorbed clue from the pending section only
+when its original observation remains in the linked log or journal. Preserve unresolved
+contradictions; do not rewrite observations to fit the explanation.
+<!-- PI/OpenAI: wassname's dated clues proposal; keep the model short and the evidence recoverable. -->
 
 - Retrodict: for the last several results, would the model have predicted them? For each miss,
   which belief caused it? Revise that belief and cite the log or journal line.
