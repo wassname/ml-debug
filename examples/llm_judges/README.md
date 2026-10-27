@@ -15,9 +15,9 @@ For the maintained defaults and installable toolkit, use [wassname/llm-judge](ht
 - Pairwise Choice plus Bradley–Terry when ranking many candidates: fit relative strengths from comparisons instead of sorting independent absolute scores.
 - Task-specific calibration and review thresholds can come later. Jev’s confidence is not a separately measured probability of correctness.
 
-[Reasons and accuracy lookups](../../slop/research/20261013_tool_and_judge_accuracy.md). [Jev-specific guidance](../../references/llm_judges.md#jev-a-calibrated-decision-model-as-a-cheap-judge). Pairwise ranking is a practical prior, not a proved Jev-specific improvement. Balancing and repeat passes reduce particular errors; they do not create independent judges.
+[Reasons and accuracy lookups](../../slop/research/20261013_tool_and_judge_accuracy.md). [Jev-specific guidance](../../references/llm_judge_notes.md#jev-a-calibrated-decision-model-as-a-cheap-judge). Pairwise ranking is a practical prior, not a proved Jev-specific improvement. Balancing and repeat passes reduce particular errors; they do not create independent judges.
 
-`judge_inspect.py` is a thorough comparison (three passes times four views, `max_tokens=32000`). The cheap single-pass review that only reports quoted findings is a [proposal in the guide](../../references/llm_judges.md#combining-jev-questions-with-one-larger-model-review), not implemented here. -- PI/Claude (Opus 5.5)
+`judge_inspect.py` is a thorough comparison (three passes times four views, `max_tokens=32000`). The cheap single-pass review that only reports quoted findings is a [proposal in the guide](../../references/llm_judge_notes.md#combining-jev-questions-with-one-larger-model-review), not implemented here. -- PI/Claude (Opus 5.5)
 
 ## Run
 

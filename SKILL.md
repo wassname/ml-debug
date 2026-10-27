@@ -420,10 +420,12 @@ Keep the list in `docs/JARGON.md` when working in a long loop.
 - Once the method has a credible learning signal and the question needs a controlled sweep,
   read [references/sweeps.md](references/sweeps.md): paired comparison and cross-seed reliability.
 <!-- PI/OpenAI: route mature comparisons separately from exploratory research. -->
-- [references/llm_judges.md](references/llm_judges.md) and
-  [references/llm_judge_litreview.md](references/llm_judge_litreview.md): judge biases and the
-  papers behind the advice. For many cheap Jev questions plus one larger-model review, read
-  [that section](references/llm_judges.md#combining-jev-questions-with-one-larger-model-review).
+- For any LLM-judged number, read [references/llm_judges.md](references/llm_judges.md) first: what
+  to read before reporting, and judge biases. [references/llm_judge_litreview.md](references/llm_judge_litreview.md)
+  holds the papers behind the advice. When choosing or setting up a judge (Jev, Petri, rubric points,
+  training-data filters), read [references/llm_judge_notes.md](references/llm_judge_notes.md); for
+  many cheap Jev questions plus one larger-model review, read
+  [that section](references/llm_judge_notes.md#combining-jev-questions-with-one-larger-model-review).
 - [references/metric_stuck.md](references/metric_stuck.md),
   [references/loss_surface.md](references/loss_surface.md),
   [references/time_series.md](references/time_series.md),
