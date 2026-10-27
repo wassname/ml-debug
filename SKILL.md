@@ -413,6 +413,10 @@ Keep the list in `docs/JARGON.md` when working in a long loop.
 - [references/diagnostics.md](references/diagnostics.md): init loss, overfit one batch, gradient
   flow, NaN hooks, leakage tracer.
 - [references/static_analysis.md](references/static_analysis.md): grep patterns for silent bugs.
+- Before copying a method from papers, or when it works for the authors but not for you, read
+  [references/engineering_lit_review.md](references/engineering_lit_review.md): mine papers,
+  ablations, code comments and commit history for the most important tricks, gotchas, components
+  and insights, each with quoted evidence and who said it.
 - Once the method has a credible learning signal and the question needs a controlled sweep,
   read [references/sweeps.md](references/sweeps.md): paired comparison and cross-seed reliability.
 <!-- PI/OpenAI: route mature comparisons separately from exploratory research. -->
