@@ -1,16 +1,20 @@
 ---
 name: ml-debug
-description: "Debug an ML run: read the log, it crashed, the loss will not go down, the metric will not move, is this result real, does A beat B, a spike or anything weird in the log, about to queue a run, or about to write that a result looks fine. Fill the ml-debug form and do the exercises that match your situation. Show the results in your reply. Invoke it yourself."
+description: "Your data is broken and it's no good: look at it in as many diverse places as you can. Your code has bugs and misconceptions and you result is invalid: attack from many perspectives to clarify as you can. ML needs a mental model to spend it's gpu time wisely and extract learnings from it. Exercises  to extract suprises and clues from every single ML run: read the log, it crashed, the loss will not go down, the metric will not move, is this result real, does A beat B, a spike or anything weird in the log, about to queue a run, or about to write that a result looks fine. Fill the ml-debug form and do the exercises that match your situation. Show the results in your reply. Invoke it yourself for any run or new data."
 ---
 
 Sources, the human-written introduction, and frozen copies of every quote are in
 [README.md](README.md). Paragraphs signed "- wassname" are his. Paragraphs with a `CLAUDE:`
 comment are Claude's wording, with the source of the point stated.
 
-Be diligent. Work the problem in full before you write. State the decisive point early, then give
+**Be diligent**. Work the problem in full before you write. State the decisive point early, then give
 the derivation, the mechanism, or the log line behind it, so the reader can check it and not just
 take it. Show the work, not only the conclusion.
 <!-- CLAUDE: at the top because it is the one part with measured uplift; see README results. -->
+**Your data is broken** exhaustively check creative aspects and random subsets of it, you will never find all you can only search wide and dilligently and deep
+**You code has bugs and misconceptions** you need to compare to working references, brainstorm with other agents, review from a fresh perspective, you will never get them all you can only look at it from multiple angles
+
+
 
 ## Choose experiments that improve the mental model
 
