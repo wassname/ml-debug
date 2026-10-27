@@ -90,13 +90,19 @@ effect, and what does not), **motivating insights** (why they think it works). L
 
 ## 6. State our point of departure
 
-Be very clear where we leave the literature. For each idea in our method, write:
+Take a Bayesian view. The closest prior work is our prior: its evidence tells us how likely the method is to work in its setting. Each way we depart from it adds uncertainty, because their evidence no longer covers that part. So be very clear on ours versus theirs, and on where our departures add research uncertainty: those are the things our own experiments must test first, in order of how much uncertainty they add and how much the result depends on them. A departure that copies their setting adds little; a new stage, model family, scale or objective adds a lot.
+<!-- wassname, 2026-10-27: "it's a bayesian view of science and this is the closest prior and we need to be clear on ours vs theirs and where we will add research uncertainty" (spelling corrected). -->
+
+For each idea in our method, write:
 
 - **Closest prior work**: what the authors did that comes nearest to our idea, quoted with its location. Say how it differs (different checkpoint, data, scale, objective, evaluation).
 - **Confidence in that evidence**: how strong is the result for our question? Consider seeds and repeats, effect size, held-out vs near-training evaluation, whether the code shows it ran, author claim vs independent replication, and how far their setting is from ours. Use words of estimative probability.
 - **What we add on top**: the part no paper has tested. That part needs its own evidence; it does not inherit theirs.
 
-A plain table works: `our idea | closest prior (quote, §) | difference | confidence | what we add`. Readers then know which claims rest on published evidence and which are ours to show.
+A plain table works: `our idea | closest prior (quote, §) | difference | confidence | what we add | uncertainty added (low/med/high) | our test`. Readers then know which claims rest on published evidence and which are ours to show.
+
+Test of the write-up: a superforecaster who reads only this section should have the information they need to bet on whether our experiment will work. They may lose the bet, since uncertainty is high, but they should not have to guess what the evidence is. So give them: a reference class and its base rate (how often results like the closest prior replicate or transfer to a new setting, if known), the strength of the closest evidence, each departure and which way it should move the estimate, the cruxes the outcome depends on, and which early observation would move the estimate most. Give your own estimate too, labelled as yours.
+<!-- wassname, 2026-10-27: "if a super forecaster read it they should be able to use this to estimate experiment success"; "they should have info they need to make a bet. might not win. uncertainty is high" (spelling corrected). -->
 
 ## 7. Compare with ours, detail by detail
 
