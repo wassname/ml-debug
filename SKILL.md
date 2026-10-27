@@ -414,7 +414,7 @@ Keep the list in `docs/JARGON.md` when working in a long loop.
   flow, NaN hooks, leakage tracer.
 - [references/static_analysis.md](references/static_analysis.md): grep patterns for silent bugs.
 - Before copying a method from papers, or when it works for the authors but not for you, read
-  [litreview/SKILL.md](litreview/SKILL.md) (also loadable as `ml-debug-litreview`): papers as
+  [references/engineering_lit_review.md](references/engineering_lit_review.md): papers as
   markdown, vendored code or replications, jargon.md, and the boring critical details authors leave
   out of papers (loss tweaks, data cleaning, exact prompts), compared with ours, with quoted evidence.
 - Once the method has a credible learning signal and the question needs a controlled sweep,
@@ -431,7 +431,7 @@ Keep the list in `docs/JARGON.md` when working in a long loop.
   [references/research_taste.md](references/research_taste.md),
   [references/checklist.md](references/checklist.md).
 - [rl/SKILL.md](rl/SKILL.md), [pinn/SKILL.md](pinn/SKILL.md): domain specifics, also loadable as
-  `ml-debug-rl` and `ml-debug-pinn`. [litreview/SKILL.md](litreview/SKILL.md): `ml-debug-litreview`.
+  `ml-debug-rl` and `ml-debug-pinn`.
 
 ## Sign off
 

@@ -1,6 +1,6 @@
 # Dump every comment >40 chars or multi-line block (and docstrings) from each vendored repo, with file:line, for reading.
 # Usage: uv run --no-project python dump_comments.py <vendor_dir> <out_dir>  -> <out_dir>/<repo>.md per subdirectory
-# See ../SKILL.md (ml-debug-litreview). -- PI/Claude (opus-5-5), 2026-10-27
+# See references/engineering_lit_review.md. -- PI/Claude (opus-5-5), 2026-10-27
 import ast, io, json, re, sys, tokenize
 from pathlib import Path
 

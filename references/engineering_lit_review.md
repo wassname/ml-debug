@@ -1,9 +1,6 @@
----
-name: ml-debug-litreview
-description: "Engineering literature review for ML methods: fetch the key papers as markdown, find and vendor their code or replications as git submodules and judge each repo's quality, build jargon.md from the most relevant paper first, then mine papers, ablations, prompts, code comments and commit history for the boring critical details (loss tweaks, masking, data cleaning and filters, exact prompts) with quoted evidence and who said it. Sub-skill of ml-debug. Use before copying a method from papers, when a method works for the authors but not for you, or when asked what the papers did that we missed."
----
-
 # Engineering literature review
+
+Use before copying a method from papers, when a method works for the authors but not for you, or when asked what the papers did that we missed.
 
 The aim is the **boring details that decide whether a method works**: loss tweaks, masking and
 EOS handling, data cleaning and filters, the exact prompts, replay ratios, what they removed from
@@ -99,7 +96,7 @@ For every detail found, one row: `detail | theirs (quote + file:line or §) | ou
 
 - Dump every comment longer than 40 characters or spanning several lines, plus docstrings, and read
   them all; grep for `NOTE|IMPORTANT|HACK` misses most:
-  `uv run --no-project python ~/.pi/agent/skills/ml-debug/litreview/scripts/dump_comments.py docs/vendor .local/comment_dumps`
+  `uv run --no-project python ~/.pi/agent/skills/ml-debug/scripts/dump_comments.py docs/vendor .local/comment_dumps`
 - Where the authors spent many commits is where the hard problems were:
   ```bash
   git -C <repo> log --format= --name-only | sort | uniq -c | sort -rn | head -30
