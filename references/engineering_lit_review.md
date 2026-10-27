@@ -88,11 +88,21 @@ effect, and what does not), **motivating insights** (why they think it works). L
 - **Ablations and author notes:** what was varied, what mattered, effect size; every "surprisingly",
   "we found", "did not matter".
 
-## 6. Compare with ours, detail by detail
+## 6. State our point of departure
+
+Be very clear where we leave the literature. For each idea in our method, write:
+
+- **Closest prior work**: what the authors did that comes nearest to our idea, quoted with its location. Say how it differs (different checkpoint, data, scale, objective, evaluation).
+- **Confidence in that evidence**: how strong is the result for our question? Consider seeds and repeats, effect size, held-out vs near-training evaluation, whether the code shows it ran, author claim vs independent replication, and how far their setting is from ours. Use words of estimative probability.
+- **What we add on top**: the part no paper has tested. That part needs its own evidence; it does not inherit theirs.
+
+A plain table works: `our idea | closest prior (quote, §) | difference | confidence | what we add`. Readers then know which claims rest on published evidence and which are ours to show.
+
+## 7. Compare with ours, detail by detail
 
 For every detail found, one row: `detail | theirs (quote + file:line or §) | ours (file:line, or "none") | same / different / unknown | matters? (their ablation, or inferred)`. Read our executed config and launcher, not only the template YAML: overrides hide there. "Unknown" is a finding: it means neither the paper nor the code says, so ask the authors or test it.
 
-## 7. Code comments and commit history
+## 8. Code comments and commit history
 
 - Dump every comment longer than 40 characters or spanning several lines, plus docstrings, and read
   them all; grep for `NOTE|IMPORTANT|HACK` misses most:
@@ -104,7 +114,7 @@ For every detail found, one row: `detail | theirs (quote + file:line or §) | ou
   git -C <repo> show <hash> -- <file>
   ```
 
-## 8. Evidence and attribution
+## 9. Evidence and attribution
 
 Use `varglight` / `quote-with-provenance` for every item: a blockquote with a sentence before and
 after, the main sentence in bold, the exact location (paper section or line, `file:line`, commit
@@ -112,12 +122,12 @@ hash), and **who said it**: paper authors, code author (`git blame`), commit aut
 third-party replicator, or "inferred by me". An inference must never read like an author claim.
 For code, quote the comment and the line it explains.
 
-## 9. Process that worked
+## 10. Process that worked
 
 1. One brief file, quoting the user's goal. One reader per paper and its code; stronger models for
    the core papers. Keep the brief in a file: context compaction can wipe a reader's task.
 2. Per paper: Top 10, recipe table ("not stated" where absent), exact prompts, ablations and notes,
-   effort map, the theirs-vs-ours comparison table, read coverage.
+   effort map, the point-of-departure table, the theirs-vs-ours comparison table, read coverage.
 3. A synthesis index: what the papers say matters most, tricks worth taking, things we skipped
    (deliberate or not), gotchas in one line each. It verifies claims against the source and lists
    unverifiable ones separately.
