@@ -100,6 +100,8 @@ A plain table works: `our idea | closest prior (quote, §) | difference | confid
 
 ## 7. Compare with ours, detail by detail
 
+Compare against the **closest prior work first and most thoroughly**: it is our point of departure, so every difference from it is either a deliberate change we must justify or an omission we must fix. Do the full detail-by-detail table for that paper (one per idea, if different ideas have different closest papers). For other papers, add rows only where they do something important that the closest paper does not.
+
 For every detail found, one row: `detail | theirs (quote + file:line or §) | ours (file:line, or "none") | same / different / unknown | matters? (their ablation, or inferred)`. Read our executed config and launcher, not only the template YAML: overrides hide there. "Unknown" is a finding: it means neither the paper nor the code says, so ask the authors or test it.
 
 ## 8. Code comments and commit history
