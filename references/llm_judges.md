@@ -13,8 +13,12 @@ Appendix to the [ML Debugging skill](../SKILL.md). Start with the competing expl
 3. Count cheap format signals per model against the previous round: empty or very short replies, cut-offs, parse failures, length. A fix for one model can break another.
 4. Replay the verdict that puzzles you most on a reasoning model and read its chain of thought ([how](#wassnames-judge-validity-checklist)).
 5. Check that every compared model is scored on the same rows ([why](#wassnames-judge-validity-checklist)).
+6. Treat every code check as a measurement too. Before reading a table, a perfect reference must score 1, an empty reply 0, half a reference less than 1, and easy must not score below hard; then score 3 real replies per check kind by hand, and audit format failures over every model family you have.
+7. Count replies that hit the token cap, per model. A cap turns verbosity into lower capability.
 
 Example (tiny-character items v2, 2026-10-27): random traces showed old items; reading the new items found gemma-27B narrating the world after its choice. A later prompt fix ("and stop there") made gemma-4B answer with a bare number in 20/160 replies, found only by counting short replies against the previous round. -- PI/Sol
+
+Example (tiny-character, 2026-10-28): 16 bugs in one day were in code checks, not the judge, and each broke a simple prior first: gemma-4B scored 0.00 on a 10-step arithmetic chain but 0.30 on a 120-step one (the parser wanted `1: 16`, the model wrote `1: 2 * 8 = 16`); 19 of 36 competition-maths replies "failed" because they wrote `\boxed{64}`, which halved the reported 4B score. A 700-token maths cap cut 5–11% of replies. Fix bugs by class (parsers, bounds, rewarding the wrong thing), with a property test per class, and keep fresh-eyes reviews from another model family until a round finds nothing. -- PI/Sol
 
 Contents:
 
@@ -53,7 +57,7 @@ Useful information is variation that distinguishes the hypotheses or predicts a 
 
 Saturation is loss of a distinction you need: if both compared populations always receive the same maximum score, that scale cannot resolve their difference here. It may still correctly establish that both clear a minimum requirement. Check known positive/negative cases and raw vectors before deciding whether the population, rubric resolution, judge or parsing caused the flat scores. Do not reject a measurement solely because its histogram is skewed.
 
-Aggregation can discard information already measured. On levels 0–4, vectors `[.5,0,0,0,.5]` and `[0,0,1,0,0]` both have expected score 2: unresolved extremes and a concentrated middle verdict become identical. Preserve the vectors, not only the expectation or winning option.
+Aggregation can discard information already measured. On levels 0–4, vectors `[.5,0,0,0,.5]` and `[0,0,1,0,0]` both have expected score 2: unresolved extremes and a concentrated middle verdict become identical. Preserve the vectors, not only the expectation or winning option. A yes/no flag discards severity at the other end: "3 falsified records" and "1 off-by-one among 8 honest writes" both score "yes". Grade each step, and for a trajectory keep both when it first slips and how much of it is wrong; a step score with full credit before the first slip and half credit for right steps after it carries both.
 
 ## Bias and noise matter through the comparison
 
@@ -77,7 +81,9 @@ where $H$ indexes competing hypotheses, $D$ is existing evidence, $M$ is a propo
   The evaluated model has position bias too, not only the judge: in forced-choice items, reversing the listed options changed gemma-3-27B's chosen action in 38% of draws (tiny-character, 2026-10). Show each such item in both orders. -- PI/Sol
 - Change the behavior while holding nuisances fixed: known correct/incorrect answers, refusal versus disagreement inside a story, or genuine action versus a virtue-word-only answer. Failure to separate these locates a missing distinction; it does not by itself identify the cause.
 - Repeat sampled generative judgments to measure within-item noise. Average within the original item before uncertainty across items. Use independent model families to probe shared blind spots, not as votes that automatically establish truth. Related scenarios require grouped uncertainty.
-- Inspect rendering, cache keys and parsing before diagnosing the judge. A lost question, truncated action or stale cached answer can remove the distinction before the model sees it. Long context can contain the needed evidence without the judge extracting it.
+- Inspect rendering, cache keys and parsing before diagnosing the judge. A lost question, truncated action or stale cached answer can remove the distinction before the model sees it. Long context can contain the needed evidence without the judge extracting it. Key every cached derived artifact (a corpus blob, a leak-check index) on its inputs; a leak check that read a 16-day-old copy of the training data passed items it should have flagged.
+- A judge told the code checks copies them: a process grade given the test results agreed with them at r = 0.92 and added little separability. Measure what the judge adds beyond the facts you give it; its value is in the disagreements, so read those.
+- A weak judge fails quietly on long inputs: Jev called a story with a wrong date and contradictory events "never off track" in every variant tried; a reasoning model's chain of thought found the error and also a setup confusion (it read the reference answers as unrelated to the task). Replay long-input verdicts on a reasoning model before trusting them.
   Check any label your code extracts (a first-line verdict, an action number, a JSON field) against what the text argues, once, on the whole sample, with a reader model. gemma-3-4B's action number contradicted its own explanation in about 14% of replies; the parser counted the number. -- PI/Sol
 - Keep the compared population fixed. Dropping failed scores can make the surviving easy rows appear better. Distinguish evaluated-model failure from judge/infrastructure failure; report coverage and rerun unresolved measurement failures.
 - Preserve full incremental traces and one unclipped sample in `run.md`. Logs retain the evidence needed to locate where information was lost. An unscored vent or exit interview lets the model name distinctions the rubric omitted. Keep the vocabulary broad and the probability vector intact; a selected flag is a lead, and `none` is not clearance.
