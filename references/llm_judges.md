@@ -47,7 +47,7 @@ Defaults:
 - Use a coarse scale (0–3, 1–5, or binary). If the judge gives a probability per level (a decision model such as Jev, or token logprobs), keep the vector and its expected level $\sum_k k\,p_k$, not only the top label. A judge that writes one label gives no distribution; repeat it to get one. Databricks: "Scales like 0-10 are difficult to come up with distinguishing criteria between all scores".[^databricks] Do not put an example score in the prompt: few-shot judges are "unstable when changing the label, example order, and number of examples".[^yan]
 - Ask for evidence and reasons before the verdict. This changes the judgment, because it directs attention, and it gives you something to read.
 - Earn each rubric line: cut lines that never change a verdict. Short domain notes per question raised human agreement from ~72–79% to 93–96%.[^gradingnotes] Expect the rubric to change after you grade outputs: "users need criteria to grade outputs, but grading outputs helps users define criteria".[^shankar] Draft, grade a sample by hand, revise, repeat.
-- Score both answer orders, map back to arm identity, and keep the disagreement. Forced-choice items given to the evaluated model need both option orders too, because the evaluated model also has position bias.
+- Score both answer orders, map each verdict back to the model or condition it scored, and keep the disagreement. Forced-choice items given to the evaluated model need both option orders too, because the evaluated model also has position bias.
 - Add an unscored free-text field where the judge can flag a broken rubric, missing context or a confusing setup. Give the evaluated model the same: an unscored exit interview about ambiguity, missing context and broken tools. Say in the field description that it is never scored, or the model treats a complaint as an admission and stays quiet. Emit it after the grade, not during it. [pi-vent](https://github.com/IgorWarzocha/howaboua-pi-stuff/tree/main/packages/pi-vent) is the same idea for agents.
 - Keep judge input under ~30k tokens, with the rubric and the answer at the start or end, not in the middle.[^nolima]
 - Probe what the reasoning budget does on your pinned endpoint: 4 calls that vary `max_tokens`, `reasoning.max_tokens` and effort, then read the reasoning tail of each. Some providers cut reasoning early and still return `finish_reason: "stop"`. Set "high effort" explicitly; harness defaults differ about 6x.[^cais] [Measured example](llm_judge_notes.md#reasoning-budgets-on-a-pinned-endpoint).
@@ -152,7 +152,7 @@ Classify every missing score before you plot or rank:
 - A judge, parser, timeout or infrastructure failure fails the eval and is rerun, never filled.
 - A reply whose label looks unreliable is scored as its own outcome ("unclear"), not excluded. Exclusion drops more rows from the weaker model.
 
-Do not use `nanmean`, `skipna` or independent `dropna`. Report coverage and failure reasons beside the scores. Restricting all arms to their shared complete rows makes the comparison paired, but can still keep only the easy rows and does not support an overall ranking.
+Do not use `nanmean`, `skipna` or independent `dropna`. Report coverage and failure reasons beside the scores. Restricting all compared models to their shared complete rows makes the comparison paired, but can still keep only the easy rows and does not support an overall ranking.
 
 ## Repeats, temperature and paired differences
 
