@@ -65,9 +65,29 @@ Maintained toolkit: [wassname's LLM-as-judge defaults](https://github.com/wassna
 
 Worked code: the repository's [typed questions](https://github.com/wassname/llm-judge/blob/main/src/llm_judge/judge.py) and [paired runner](https://github.com/wassname/llm-judge/blob/main/src/llm_judge/judge.py); wassname's [steering-lite bsbench judge](https://github.com/wassname/steering-lite/blob/main/scripts/bsbench/judge.py). -- PI/OpenAI (repository links); original bsbench pointer: CLAUDE
 
+### A bare judge is weak; a one-off labelling guide lifts it a lot
+
+Do not judge a small labeller on its bare prompt. Give it what a human annotator would get. wassname's usual recipe:
+- N-shot labelled examples, the classic method that has worked since base models;
+- a labelling guide written by Opus 5.5 or a similar model after reading real items and the small model's actual answers: a rubric matching the intended meaning of each label, and the gotchas that the errors show.
+
+Put the guide first in every request so the shared prefix is cached. This is the teacher-writes-a-skill, student-uses-it pattern of Hugging Face's [upskill](https://huggingface.co/blog/upskill) post. Score the guided model on items whose source (here, games) the guide's author never saw; otherwise the gain may be memorised examples.
+
+One measurement (machiavelli_as_ds, 2026-11-03, `slop/research/20261103_labeller_guide/`): 13 MACHIAVELLI act labels (killing, deception, ...), majority of 3 expert votes, 241 scenes split by game; the guide was written from 121 scenes in 52 games and scored on 120 scenes in the other 50. Pooled F1, with a scene-bootstrap 95% interval of the gap to the benchmark's own 2023 labels (OpenAI `text-alpha-002-latest`, few-shot, writes the action before labelling):
+
+| labeller | pooled F1 | gap vs 2023 labels [95%] | tp/fp/fn |
+|:--|--:|:--|:--|
+| 2023 benchmark labels | 0.59 | | 81/100/14 |
+| Jev 1.13, bare | 0.45 | −0.14 [−0.22, −0.06] | 63/123/32 |
+| Jev 1.13 + Opus guide (2,400 words) | 0.62 | +0.03 [−0.05, +0.11] | 60/38/35 |
+| Decider v1.2, bare | 0.54 | −0.05 [−0.13, +0.03] | |
+| Decider v1.2 + same guide | 0.53 | −0.06 [−0.13, +0.01] | |
+
+The guide moved Jev from clearly worse to level with the 2023 labels (the interval includes no difference; better is not shown). It mostly removed false positives (123 to 38): the bare model labelled violence by other characters, and many secondary categories, as the player's acts. Adding only the game summary and the benchmark's 3 few-shot examples, without a guide, did not help Jev (0.43). The same guide did not help Decider v1.2; reason untested. Cost: Jev + guide $0.16 for 241 scenes with both option orders. -- PI/Claude (Opus 5.5), from wassname's recipe
+
 ### Jev 1.13 vs Perplexity Decider v1.1
 
-`perplexity/pplx-decider-v1.1-27b` uses the same decisions API and request (`{model, state, questions}`, Choice criteria as a dict); swap the model id. One small test (tiny-virtues `scripts/scratch/49_labeller_test.py`, 2026-10-16): 10 quoted moral passages × 6 schools = 60 well/badly/neither labels, same questions, three option rotations. Agreement with Opus 5.5 (same instructions as a chat question): Jev 48/60, Decider 48/60. With my blind labels: Jev 42/60, Decider 45/60. Cost: Jev $0.031, Decider $0.014. Chose the Decider there on cost: it ties Jev with Opus, and on the 10 cells where the two labellers differ each matches Opus 5 times; it matches my labels 6 times to Jev's 3, but my labels and the Opus reference are the same model family (Opus 5.5), so they are not independent, and 10 items is noise. Recheck on human hand labels before relying on it. Both missed vin-6264 Buddhist (a nuns' rule breach), which Opus and I labelled "badly". Split cells, generated from the raw jev.json/decider.json/opus.json/my_labels.json (I first misread the compressed table twice; count in code):
+(2026-11-03: `perplexity/pplx-decider-v1.1-27b` now returns 404 on OpenRouter's decisions API; `perplexity/pplx-decider-v1.2` works. -- PI/Claude) `perplexity/pplx-decider-v1.1-27b` uses the same decisions API and request (`{model, state, questions}`, Choice criteria as a dict); swap the model id. One small test (tiny-virtues `scripts/scratch/49_labeller_test.py`, 2026-10-16): 10 quoted moral passages × 6 schools = 60 well/badly/neither labels, same questions, three option rotations. Agreement with Opus 5.5 (same instructions as a chat question): Jev 48/60, Decider 48/60. With my blind labels: Jev 42/60, Decider 45/60. Cost: Jev $0.031, Decider $0.014. Chose the Decider there on cost: it ties Jev with Opus, and on the 10 cells where the two labellers differ each matches Opus 5 times; it matches my labels 6 times to Jev's 3, but my labels and the Opus reference are the same model family (Opus 5.5), so they are not independent, and 10 items is noise. Recheck on human hand labels before relying on it. Both missed vin-6264 Buddhist (a nuns' rule breach), which Opus and I labelled "badly". Split cells, generated from the raw jev.json/decider.json/opus.json/my_labels.json (I first misread the compressed table twice; count in code):
 
 10 split cells. Matches Opus: Jev 5, Decider 5. Matches my labels: Jev 3, Decider 6.
 
