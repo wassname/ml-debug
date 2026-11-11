@@ -64,7 +64,8 @@ control, and the line where that was measured. Not measured: say so and add it t
 **CAUSES**. Three or more explanations of what you see, with a % on each: a bug in the training
 code, a bug in the evaluation or the metric, a confound or shortcut, and some % on unknown. For
 each, the strongest evidence for and against, quoted. No evidence against means untested. Then
-the cheapest test that separates the top two and what each predicts. Run it.
+the cheapest test that separates the top two and what each predicts. Run it before you reply. If it
+needs a GPU job or paid calls, queue it or state the cost.
 
 **REFERENCE**. A working implementation of the nearest method, compared with yours:
 `feature | theirs (file:line) | mine | same?`. Or "no reference exists" and where you searched.
@@ -137,7 +138,7 @@ PREDICT     <the question>; compared with <run>; then the table, one row for eac
 NULL        <metric> <value>, and <value> at chance | for the base model | shuffled (<file:line>)
 CAUSES      <NN>% <cause>. For: "<quote>" (<file:line>). Against: "<quote>" | untested
               (three or more; one is a bug in your own code or metric; some % on unknown)
-            test of the top two: <command> gave <output> | not run: <reason>
+            test of the top two: <command> gave <output> | queued as <job> | not run: needs <GPU hours or $>
 REFERENCE   <feature>: theirs <file:line> | mine <file:line> | same?   | no reference exists, searched <where>
 FRESH EYES  "<the first finding in its list>"
 ```
