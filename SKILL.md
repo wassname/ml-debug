@@ -50,7 +50,9 @@ Then read one sampled record in full, as the model consumes it (special tokens, 
 and read the log from start to end, not `tail`, generated samples before metrics. For a spike or
 collapse, show the rows before it and which column moved first.
 
-**PREDICT**. The question this run answers, in one sentence, and the run it is compared to. Then:
+**PREDICT**. The question this run answers, in one sentence, and the run it is compared to. What
+you believe now, with a %, and for each possible outcome the % you would move to. If no outcome
+moves it, choose another run. Then:
 
 | risky part | what I expect to see | too weak | too strong | buggy | metric exists? |
 |---|---|---|---|---|---|
@@ -133,7 +135,9 @@ LOOK        <data file>: 5 of <N> records, look.py seed <seed>, lines <a b c d e
               :<line> "<short quote>" did not expect: <one thing>   | nothing unexpected in the five
             <log>: read lines <from-to, from-to> of <N>
               :<line> "<the line that surprised you>" explained: <why> | chasing now
-PREDICT     <the question>; compared with <run>; then the table, one row for each risky part
+PREDICT     <the question>; compared with <run>
+            belief: <claim> <NN>% now; <outcome A> -> <NN>%, <outcome B> -> <NN>%
+            then the table, one row for each risky part
             smoke test: <command> gave <output> | not run: <reason>
 NULL        <metric> <value>, and <value> at chance | for the base model | shuffled (<file:line>)
 CAUSES      <NN>% <cause>. For: "<quote>" (<file:line>). Against: "<quote>" | untested
