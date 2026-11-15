@@ -9,24 +9,26 @@ agents fail, what to keep in the repo (`train.py`, `run.md`, `MENTAL_MODEL.md`),
 ## The toolkit on one page
 
 Each row is one habit and the file that carries it from one agent, or one day, to the next. The
-sections below hold the detail. Nothing here depends on another skill or on a particular job queue.
+sections below hold the detail. Nothing here depends on a skill outside this repository or on a
+particular job queue. It holds only the parts of wassname's logging, queueing and repo-setup habits
+that his projects use every day.
 
 | when | do | carried by | detail |
 |---|---|---|---|
 | before code | use the field's names, from the main reference paper and its code | `docs/JARGON.md` | [Language](#language) |
 | before a run | say what is new and what you expect, with a %, and what the opposite result would look like | `MENTAL_MODEL.md`, the spec | [SKILL.md](../SKILL.md) PREDICT; [Choose experiments](#choose-experiments-that-improve-the-mental-model) |
-| before a run | give every new part a column that would show it failing without an error | the one training script | [What to keep in the repo](#what-to-keep-in-the-repo) |
+| before a run | give every new part a column that would show it failing without an error | the one training script; the mechanical ones come from [scripts/parts.py](../scripts/parts.py): how far each part moved, each loss term's gradient share and cosine at each part, the error with each named input swapped across the batch | [What to keep in the repo](#what-to-keep-in-the-repo) |
 | before queueing | smoke test: tiny random model, 2 batches, 2 updates, every stage, type and shape checks on, in the foreground | one command, e.g. `just smoke` | same section |
 | before queueing | timing pilot: 50 real steps at the real batch size; seconds per step and projected total | the job's label | same section |
 | queueing | the question the run answers and what would resolve it | the job's label and the top of `run.md` | same section |
-| during | each number beside its `TODO validate:` or `SHOULD` statement; the tail repeats the question | `run.md` | same section |
+| during | each number beside its `TODO validate:` or `SHOULD` statement; the tail repeats the question | `run.md` | same section; [diagnostic_statements.md](diagnostic_statements.md) |
 | after | LOOK, NULL, CAUSES, FRESH EYES; which belief moved and why | the journal, `MENTAL_MODEL.md` | [SKILL.md](../SKILL.md); [Turn evidence into a research decision](#turn-evidence-into-a-research-decision) |
 
 > Before you run anything, write down what you expect to happen and why. **Then design the
 > experiment so that the opposite result would also have been visible if it were true.** A clean
 > answer to a question designed only to confirm your initial expectation is worth less than a
 > messy, honest answer to a question you set up fairly.
-> -- CS 2881 AI Safety, Homework Zero, Fall 2026 (Barak et al.), [course page](https://boazbk.github.io/mltheoryseminar/hw0-2026/)
+> -- CS 2881 AI Safety, Homework Zero, Fall 2026 (Barak et al.), [course page](https://boazbk.github.io/mltheoryseminar/hw0-2026/) ([cache](../docs/evidence/cs2881_hw0_2026.md))
 
 <!-- CLAUDE (PI, Fable), with wassname 2026-11-15: an index of what this file already held, plus
 the timing pilot and the question in run.md. Written after a session where the faults of a run were
@@ -95,11 +97,11 @@ automatic training gates. Keep the full checks below; use them to choose what to
 
 > The challenge lies in the fact that you can make these mistakes, train a model without it ever crashing, and still get a decent performance... -- Sanh
 
-Use `token-efficient-logging` for inline diagnostic expectations in `run.md`, beside the metrics
-and examples they interpret. State expectations before the run; quote important expected-versus-
-observed divergences afterward and say which belief they change. Use its diagnostic-statements
-reference to distinguish supported `SHOULD:` predictions from `TODO validate:` hypotheses.
-<!-- PI/OpenAI: route inline predictions to their canonical logging definition. -->
+Write inline diagnostic expectations in `run.md`, beside the metrics and examples they interpret.
+State expectations before the run; quote important expected-versus-observed divergences afterward
+and say which belief they change. [diagnostic_statements.md](diagnostic_statements.md) distinguishes
+supported `SHOULD:` predictions from `TODO validate:` hypotheses.
+<!-- PI/OpenAI: route inline predictions to their canonical definition; CLAUDE 2026-11-15: that definition now lives in this repository. -->
 
 ### Expensive runs
 
@@ -160,7 +162,8 @@ the first sanity check (wassname 2026-10-04: "the most important part"). Keep st
 result block: headline metric, full copyable result table, output path, and run identity.
 
 Keep `TODO validate:`, `FIXME:`, or `SHOULD:` beside the evidence it interprets. `SHOULD:` needs a
-mechanism, derivation, paper, or validated prior run; otherwise use `TODO validate:`. It carries a
+mechanism, derivation, paper, or validated prior run; otherwise use `TODO validate:`
+([diagnostic_statements.md](diagnostic_statements.md) has the forms and examples). It carries a
 number only after the scale exercise (ex H) has been done.
 
 For a comparative result table: first column is an index linked to source, then short metadata,

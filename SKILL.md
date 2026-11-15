@@ -68,7 +68,8 @@ numbers that answer it ([references/research_loop.md](references/research_loop.m
 in the repo").
 <!-- CLAUDE: from a session with wassname, 2026-11-15. The run's faults were found in a minute because each new part already had its knockout column, chosen before the run in a shared brainstorm; other agents had the columns and no expectation beside them, or picked none. -->
 
-Add every metric whose last column says no to the run script. Then smoke test: the real pipeline
+Add every metric whose last column says no to the run script; `scripts/parts.py` gives the
+mechanical ones (movement of each part, each loss term's gradient share, each input swapped). Then smoke test: the real pipeline
 end to end on a tiny model and a small slice of every stage. It checks code paths, not validity.
 Then time 50 real steps and put the seconds per step and the projected total in the job's label.
 
@@ -134,6 +135,11 @@ log with no diagnosis attached. Ask for the top bugs and misconceptions. Quote i
   [references/checklist.md](references/checklist.md).
 - [rl/SKILL.md](rl/SKILL.md), [pinn/SKILL.md](pinn/SKILL.md): domain specifics, also loadable as
   `ml-debug-rl` and `ml-debug-pinn`.
+- [references/diagnostic_statements.md](references/diagnostic_statements.md): how to write the
+  `TODO validate:`, `SHOULD [basis]: ... ELSE ...` and `FIXME:` lines that sit beside a number in
+  `run.md`, with good and harmful examples.
+- `./install.sh <skills directory>` links every skill in this repository into an agent's skills
+  directory.
 
 ## Your reply
 
