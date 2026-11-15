@@ -14,11 +14,14 @@ Or paste `SKILL.md` into your system prompt / context when debugging.
 
 - **This README** -- the folklore, for humans: verbatim sourced quotes from practitioners, general lessons first, modern transformers and LLM fine-tuning in their own section.
 
-- **[SKILL.md](SKILL.md)** -- what an agent loads: the folklore turned into instructions, each with a trigger, a form to fill, and output to show the user. "Assume you have a bug" becomes "send a subagent to find one and report what it found". This is a bet that a form gets filled where a principle gets skipped, and it is untested. The bet is worth making because the folklore version measured no gain (below), and because forms have their own failure mode: they get filled with plausible content that nobody checked.
+- **[SKILL.md](SKILL.md)** -- what an agent loads: the folklore turned into instructions. A table goes from the situation (a run finished, about to queue a run, about to write "works") to named steps, a bundled script picks the records the agent reads, and the agent shows each step in a short block in its reply. "Assume you have a bug" becomes "send a subagent to find one and quote what it found". The longer exercises and the full audit form are in [references/exercises.md](references/exercises.md). This is a bet that a step shown to the user gets done where a principle gets skipped. The bet is worth making because the folklore version measured no gain (below), and one small test of agent behaviour supports it ([Do agents do the steps?](#do-agents-do-the-steps)). The block has its own failure mode: it gets filled with plausible content that nobody checked.
+<!-- CLAUDE 2026-11-10: rewrote this entry for the shorter SKILL.md; the last sentence and "the bet is worth making" are kept from the earlier text. -->
+
 
 - **[PLAYBOOK.md](PLAYBOOK.md)** -- the synthesized long-form: mental models, practitioner priors, step catalogs, symptom tables, the agent debugging loop, triage, and anti-patterns. Menus of hypotheses distilled from the same sources, not quotes. Deeper one-off tricks (loss-surface analysis, stuck-metric diagnosis, sweep reliability) live in [references/](references/).
 
-- **[docs/evidence/](docs/evidence/)** -- frozen local copies of source material (blog posts, talks, papers, reddit threads). Claims here link back to exact quotes.
+- **[Evidence reading guide](docs/evidence/README.md)** -- source copies grouped by topic, with suggested starting points and notes on excerpts, transcripts, and reports. Claims here link back to exact quotes.
+<!-- PI/OpenAI: evidence-guide entry. -->
 
 ## Folklore
 
@@ -345,7 +348,7 @@ Their training-stability page adds the masking check ("inspect tokenized samples
 ## The eight common mistakes
 
 On 2026-08-25 I named the eight failure modes I see most often, from AI agents and from myself, and
-SKILL.md turns each one into an exercise. The quotes below were mined from the evidence cache in
+the skill turns each one into an exercise ([references/exercises.md](references/exercises.md)). The quotes below were mined from the evidence cache in
 [docs/evidence/](docs/evidence/) to back them. Coverage is uneven and worth knowing about: mode 6
 has only three quotes and none of them says "read the log" in those words, and no source here
 argues against similarity probes by name, so the mode 7 quotes attack the general substitution
@@ -386,7 +389,7 @@ weaker provenance than his published posts:
 
 ### 2. Quitting after one change, calling the negative real
 
-Steinhardt gives the error a number, and SKILL.md builds an exercise on this one:
+Steinhardt gives the error a number, and the skill builds an exercise on this one:
 
 > **Trying an experiment and seeing it fail gives little information by itself.** When an experiment fails, it is tempting to conclude "I tried X and it didn't work". However, if X is a high-level conceptual approach, then a more correct conclusion is "I tried an implementation comprising 0.1% of the possible implementations of X, and observed that that particular implementation did not work".[^steinhardt]
 
@@ -396,7 +399,7 @@ The textbook states the confusion as the default condition, not an edge case:
 
 > When a machine learning system performs poorly, it is usually difficult to tell whether the poor performance is intrinsic to the algorithm itself or whether there is a bug in the implementation of the algorithm. Machine learning systems are difficult to debug for various reasons.[^goodfellow]
 
-Irpan, reproducing a paper with its first author sitting nearby, another quote SKILL.md turns into
+Irpan, reproducing a paper with its first author sitting nearby, another quote the skill turns into
 an exercise:
 
 > It ended up taking me 6 weeks to reproduce results, thanks to several software
@@ -580,13 +583,13 @@ When the metric will not move, run the real objective on known inputs:
 
 ### 8. An arbitrary threshold set before you know what is fair
 
-The textbook killing the invented threshold from first principles, and another quote SKILL.md builds
+The textbook killing the invented threshold from first principles, and another quote the skill builds
 an exercise on:
 
 > In most cases, we do not know a priori what the intended behavior of the algorithm is. In fact, the entire point of using machine learning is that it will discover useful behavior that we were not able to specify ourselves. If we train a neural network on a new classification task and it achieves 5 percent test error, we have no straightforward way of knowing if this is the expected behavior or suboptimal behavior.[^goodfellow]
 
 Nanda states the default and names the fix as a baseline rather than a chosen cutoff. This is from an
-unpublished draft, the passage never made the published post, and SKILL.md uses it too:
+unpublished draft, the passage never made the published post, and the skill uses it too:
 
 > A valuable intuition to have in mind is that, by default, all numbers are meaningless because we lack any scale to compare them. E.g. if a probe gets 95% classification accuracy on some task, is this good? Is this bad? Hard to say without knowing more! Baselines are one way to get context to compare against.[^nanda-draft]
 
@@ -751,6 +754,38 @@ The line at the top of SKILL.md telling you to be diligent and show your work is
 the first row of this table. Adding it, and naming the exercises, moved the current document from
 0.096 below bare to 0.115 above it, standard error 0.059, and it gained on all three questions.
 That is the difference of two arm means over 12 answers each, not a paired difference.
+
+### Do agents do the steps?
+<!-- CLAUDE 2026-11-10: drafted this subsection; numbers are from slop/tests/20261110_short_skill_behaviour/observations.md. -->
+
+ml-bench gives the model text and grades text, so it cannot see whether an agent opened the data.
+A second test reads the agent's tool calls. A fresh agent with tools gets a finished LLM-judge run
+and the question "is the headline result of this run real, and what should we do next?". The known
+problem in that run is that the system prompt under test is the judge's rubric sentence almost
+word for word.
+
+| SKILL.md | runs | reply shows the form or block | agent read data records picked at random |
+| --- | ---: | ---: | ---: |
+| 448 lines, 15-row form, exercises inline ([`2e2185c`](https://github.com/wassname/ml-debug/blob/2e2185c/SKILL.md)) | 3 | 0 | 0 |
+| 140 lines, table from situation to steps | 3 | 1 | 0 |
+| the same, with the reply block as the last section | 1 | 1 | 0 |
+| the same, with one bundled command that picks the records (current) | 5 | 5 | 5 |
+
+<sub>Table: one row is one version of SKILL.md, counts are runs. Claude models only (sonnet, opus,
+haiku), one task, two wordings of the prompt. The notes and the scoring script are local, in
+`slop/tests/20261110_short_skill_behaviour/`.</sub>
+
+Every run found the main problem, with every version. What changed is what the reply lets the
+reader check: which records were read and how they were picked, how much of the log was read, which
+other causes were considered and with what evidence against. This is a test of whether the steps
+get done and shown. It is not a test of research results, and no model outside the Claude family
+was run. It also could not show whether agents run the test that separates their top two causes,
+because in that task the test needed paid model calls.
+
+In real use the block gets thinner with time. One agent loaded the skill once and worked for 19
+hours through 12 context compactions. It wrote the block four times. The first had records picked
+by the script and a separating test that was run. The fourth had neither.
+<!-- CLAUDE 2026-11-11: added this paragraph from one Claude Code session in another repo; notes in the same slop directory. -->
 
 
 ## Other skills
