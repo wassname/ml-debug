@@ -24,12 +24,13 @@ Not the goal (what agents drift into):
 
 ## Names
 
-<!-- The ten names used most, taken from the latest one or two reference papers and their code.
-Full list in docs/JARGON.md. Long enough to signpost. -->
+<!-- The names in daily use, about twenty at most, taken from the latest one or two reference
+papers and their code. They are here because this file is read every session; a separate
+JARGON.md is not opened before an agent coins a word. Long enough to signpost. -->
 
-| say | not | from |
-|---|---|---|
-| <token-edit pair> | <twin> | <paper or user, date> |
+| say | not | what it is | from |
+|---|---|---|---|
+| <token-edit pair> | <twin> | <one line> | <paper or user, date> |
 
 ## Key concepts
 
@@ -53,6 +54,7 @@ facts about the baseline that agents keep getting wrong, each checked against th
 - Smoke test (under 3 minutes, foreground): `<command>`
 - A run and its evaluation (under 30 minutes): `<command>`
 - Queue, GPU and disk rules; files that must not be edited.
+- Outlets for throwaway work, all ignored by git, so that it does not land in maintained paths: agent drafts, reviews and audits in `slop/`; one-off scripts in `scripts/scratch/`; one-off tests in `tests/tdd/`. Promote a file out of them only when a maintained entry point needs it.
 
 ## Read first
 
