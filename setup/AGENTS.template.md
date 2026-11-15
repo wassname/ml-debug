@@ -32,6 +32,15 @@ JARGON.md is not opened before an agent coins a word. Long enough to signpost. -
 |---|---|---|---|
 | <token-edit pair> | <twin> | <one line> | <paper or user, date> |
 
+## Mental model (updated <date>)
+
+<!-- Under 20 lines. The current explanation as claims, each with a credence, the evidence for and
+against, and the test that would change it. Then the dated observations that it does not explain.
+Update it after every run that changes a belief. -->
+
+- <claim>: <likely (65%)>. For: <evidence, with the run>. Against: <evidence>. Test: <job or check>.
+- Unexplained: <observation, date, run>.
+
 ## Key concepts
 
 <!-- Quoted from the reference papers and code as generous blocks, with file and line. Include the

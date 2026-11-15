@@ -59,9 +59,11 @@ changed first.
 
 Write these before the run.
 
-1. Mode. Exploring: no variant has shown the target effect; use several changes per run, a run
-   under 30 minutes, the stored baseline and one seed. Confirming: a variant shows the effect; use
-   one change per run, a matched baseline and several seeds.
+1. Mode. Exploring: no variant has shown the target effect on an evaluation that you have checked.
+   Do not run 3 seeds. Do not run an ablation. Do not rerun the baseline. Change several things per
+   run, with effects that the logged metrics can distinguish; keep the run under 30 minutes.
+   Confirming: a variant shows the effect. Now run the matched baseline, then seeds and ablations,
+   one change per run.
 2. Question. The question this run answers, in one sentence, and the run it is compared with. Put
    the sentence in the job label and in `run.md`.
 3. Belief. Your credence in the claim now, as a %. For each possible outcome, the credence you
@@ -86,7 +88,9 @@ Write these before the run.
    initialisation; ablating it leaves the metric unchanged; its output has low effective rank or
    variance; it reduces to a trivial function, such as a copy of one input.
 7. Add every metric whose last column is "no" to the run script. Write each expectation beside its
-   metric as a diagnostic statement.
+   metric as a diagnostic statement. `scripts/parts.py` computes three metrics for any component:
+   parameter movement, each loss term's gradient-norm share and cosine, and the metric with each
+   named input permuted across the batch.
 8. Run the smoke test, then the timing pilot.
 <!-- CLAUDE (PI, Fable) with wassname, 2026-11-15. Item 4 is construct validity without the term:
 in one session three inferences had this fault (keyword frequency taken as behaviour change; the
@@ -134,22 +138,30 @@ the tested mechanism. Add a logged metric for each point you accept.
 
 ## The toolkit
 
-Each practice has one artifact, so that a later session can read it. Detail:
-[references/research_loop.md](references/research_loop.md).
+Three skills in this repository, for three different times. `./install.sh <skills directory>`
+links all of them.
 
-| practice | artifact | rule |
+| when | skill | what it holds |
 |---|---|---|
-| one training script | `train.py` | All metrics and demos are inline. No separate probe script. |
-| smoke test | one command, e.g. `just smoke` | The real pipeline on a tiny random model: 2 batches, 2 updates, every stage, `jaxtyping` shapes checked by `beartype`. Foreground, under 3 minutes. It tests code paths, shapes and dtypes, not validity. |
-| timing pilot | the job label | 50 real steps on the real data path: seconds per step and projected total. |
-| job queue | the job label | `pueue add -l "why: <uncertainty>; resolve: <result that settles it>" -- <command>`. `pueue` is recommended; any queue with labels and persistent logs is sufficient. |
-| run log | `run.md`, written by `train.py` | Valid Markdown. The question at the top and in the final lines; the resolved config; one heading per stage; a decimated metric table; one full demo per LLM-facing stage, special tokens visible. |
-| diagnostic statements | beside each metric in `run.md` | `SHOULD [basis]: <relation>. ELSE <what a violation indicates>`, where the basis is a mechanism, derivation, paper or validated run. Without a basis: `TODO validate:`. For an observed fault: `FIXME:`. [Examples](references/diagnostic_statements.md). |
-| component diagnostics | `scripts/parts.py` | Parameter movement; gradient-norm share and cosine per loss term; the metric with each named input permuted across the batch. |
-| mental model | `MENTAL_MODEL.md`, one page | The current explanation with credences; dated observations it does not explain. After each run: which belief changed, and the evidence. |
-| names | `AGENTS.md` ([template](templates/AGENTS.md)), `docs/JARGON.md` | From the latest one or two reference papers and their code. A coined name is unique and long enough to signpost. A lint enforces banned terms. |
-| lab notes | the research journal | Append-only, dated. Observation separate from inference. |
-| throwaway work | `slop/`, `scripts/scratch/`, `tests/tdd/` | Ignored by git. Promote a file only when a maintained entry point needs it. |
+| you set up or audit a repository | [setup/SKILL.md](setup/SKILL.md) (`ml-debug-setup`) | Smoke test on a tiny random model with `jaxtyping` and `beartype`; one training script that reads like pseudocode; `AGENTS.md` with the goal, the names and the mental model; `docs/papers/` and `docs/vendor/`; folders for throwaway work. |
+| you write logging code | [logging/SKILL.md](logging/SKILL.md) (`ml-debug-logging`) | The layout of `run.md` with a full example; result tables; `SHOULD`, `TODO validate` and `FIXME` statements. |
+| you queue, run and report | this skill, with [references/running.md](references/running.md) | Order of work, timing pilot, job label, lab report. |
+
+The run-time practices, each with one example:
+
+- Timing pilot, in the job label: `50 steps in 5.5 s = 0.11 s/step; 5,000 steps = 9.2 min`.
+- Job label: `why: unsure whether the answer-only loss mask raises exact match vs job 37; resolve:
+  adopt the mask if exact match is higher and replies are complete`. `pueue` is recommended:
+  `pueue add -l "<label>" -- <command>`.
+- Diagnostic statement, beside its metric in `run.md`. With a basis:
+  `SHOULD [mechanism: LoRA B is zero at initialisation]: step-0 score equals the base model's. ELSE the adapter path is not an identity.`
+  Without one, which is the usual case:
+  `TODO validate (60%): exact match is higher with the answer-only mask`. Your stated expectations are wrong more often than you estimate, so
+  do not write `SHOULD` without a basis and do not predict a number without a derivation.
+- Lab report: one journal entry per run that changes a belief. It holds the prediction written
+  before the run, the evidence copied from `run.md` with its path, the interpretation in the first
+  person with a credence, and one alternative explanation with the test that separates it.
+  [Example](examples/toolkit/lab_report.md).
 
 ## Rules
 
@@ -167,14 +179,14 @@ Each practice has one artifact, so that a later session can read it. Detail:
 | read | when |
 |---|---|
 | [references/exercises.md](references/exercises.md) | A step gives a result you cannot explain, or the user asks for a complete audit. PREDICT is ex A and B, NULL is G and H, CAUSES is C, I and J, REFERENCE is E, FRESH EYES is F. |
-| [references/research_loop.md](references/research_loop.md) | Runs of an hour or more, a novel method, or an overnight agent: the two modes, choosing experiments, turning evidence into a decision, each toolkit row in detail. |
+| [references/research_loop.md](references/research_loop.md) | Runs of an hour or more, a novel method, or an overnight agent: the two modes, choosing experiments, turning evidence into a decision, `MENTAL_MODEL.md`. |
 | [PLAYBOOK.md](PLAYBOOK.md) | Mental models, component isolation, baseline ladder, what to log, symptom tables. |
 | [references/diagnostics.md](references/diagnostics.md), [references/static_analysis.md](references/static_analysis.md) | Initial loss, overfit one batch, gradient flow, NaN hooks, leakage tracer; grep patterns for silent bugs. |
 | [references/engineering_lit_review.md](references/engineering_lit_review.md) | Before you copy a method from a paper, or when it works for the authors and not for you: papers as markdown, vendored code, `jargon.md`, and the implementation details that papers omit. |
 | [references/sweeps.md](references/sweeps.md) | Confirming mode: paired comparison and cross-seed reliability. |
 | [references/llm_judges.md](references/llm_judges.md) | Before you report any LLM-judged number. Papers: [llm_judge_litreview.md](references/llm_judge_litreview.md). Choosing or configuring a judge: [llm_judge_notes.md](references/llm_judge_notes.md), including [many cheap questions plus one larger-model review](references/llm_judge_notes.md#combining-jev-questions-with-one-larger-model-review). |
 | [metric_stuck.md](references/metric_stuck.md), [loss_surface.md](references/loss_surface.md), [time_series.md](references/time_series.md), [transformers.md](references/transformers.md), [research_taste.md](references/research_taste.md), [checklist.md](references/checklist.md) | By symptom or domain. `transformers.md` lists known-good LoRA and fine-tune configs (Axolotl, Unsloth, Tinker). |
-| [rl/SKILL.md](rl/SKILL.md), [pinn/SKILL.md](pinn/SKILL.md) | Domain skills `ml-debug-rl` and `ml-debug-pinn`. `./install.sh <skills directory>` links every skill in this repository. |
+| [rl/SKILL.md](rl/SKILL.md), [pinn/SKILL.md](pinn/SKILL.md) | Domain skills `ml-debug-rl` and `ml-debug-pinn`. |
 
 ## Your reply
 

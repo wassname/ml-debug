@@ -6,25 +6,12 @@ Read for runs of an hour or more, a novel method, or an agent working overnight.
 Contents: choosing experiments, turning evidence into a decision, how ML debugging differs and how
 agents fail, what to keep in the repo (`train.py`, `run.md`, `MENTAL_MODEL.md`), language.
 
-## The toolkit on one page
+## The toolkit
 
-Each row is one practice and the artifact that records it, so that a later session can read it.
-The sections below give the detail. Nothing here depends on a skill outside this repository or on
-a particular job queue. It contains the subset of wassname's logging, queueing and
-repository-setup practices that his projects use.
-
-| when | do | recorded in | detail |
-|---|---|---|---|
-| once per project | the goal in the user's words, what is not the goal, the names, the key concepts quoted from the papers, the lessons | `AGENTS.md` ([template](../templates/AGENTS.md), under 150 lines) | the template's comments |
-| before code | take names from the latest one or two reference papers and their code; where you must coin one, make it unique, informative and long enough to signpost | `docs/JARGON.md` | [Language](#language) |
-| before a run | state the mode: exploring (no variant has shown the target effect) or confirming (a variant shows it) | the job's label | [Two modes](#two-modes-exploring-and-confirming) |
-| before a run | state which components are new, the expected result with a %, and the observation that the opposite result would produce | `MENTAL_MODEL.md`, the spec | [SKILL.md](../SKILL.md) PREDICT; [Choose experiments](#choose-experiments-that-improve-the-mental-model) |
-| before a run | for every new component, log one metric per silent failure mode (a failure that raises no error) | the one training script; [scripts/parts.py](../scripts/parts.py) computes three that need no design choice: parameter movement from initialisation, each loss term's gradient-norm share and cosine per component, and the metric with each named input permuted across the batch | [What to keep in the repo](#what-to-keep-in-the-repo) |
-| before queueing | smoke test: tiny random model, 2 batches, 2 updates, every stage, type and shape checks on, in the foreground | one command, e.g. `just smoke` | same section |
-| before queueing | timing pilot: 50 real steps at the real batch size; seconds per step and projected total | the job's label | same section |
-| queueing | the question the run answers and what would resolve it | the job's label and the top of `run.md` | same section |
-| during | each metric beside its `TODO validate:` or `SHOULD` statement; the final lines repeat the question | `run.md` | same section; [diagnostic_statements.md](diagnostic_statements.md) |
-| after | LOOK, NULL, CAUSES, FRESH EYES; which belief changed and the evidence for the change | the journal, `MENTAL_MODEL.md` | [SKILL.md](../SKILL.md); [Turn evidence into a research decision](#turn-evidence-into-a-research-decision) |
+The practices that this file assumes are in three places: repository setup in
+[../setup/SKILL.md](../setup/SKILL.md), the run log in [../logging/SKILL.md](../logging/SKILL.md),
+and the run-time practices (order of work, timing pilot, job label, lab report) in
+[running.md](running.md).
 
 > Before you run anything, write down what you expect to happen and why. **Then design the
 > experiment so that the opposite result would also have been visible if it were true.** A clean
@@ -32,18 +19,16 @@ repository-setup practices that his projects use.
 > messy, honest answer to a question you set up fairly.
 > -- CS 2881 AI Safety, Homework Zero, Fall 2026 (Barak et al.), [course page](https://boazbk.github.io/mltheoryseminar/hw0-2026/) ([cache](../docs/evidence/cs2881_hw0_2026.md))
 
-<!-- CLAUDE (PI, Fable), with wassname 2026-11-15: an index of what this file already held, plus
-the timing pilot and the question in run.md. Written after a session where the faults of a run were
-found in about one minute because each new component already had its ablation metric, and where
-three setup faults and a 1-second training step were found late because the two rows "before
-queueing" were not done. -->
-
 ## Two modes: exploring and confirming
 
 > Don't just run more seeds. In blue-sky research we need to try multiple things at once, and only
 > go back and do the baseline or multiple seeds once it's working and our setup is clear. And we
 > need fast iterations (smoke test under 3 minutes, run under 30 minutes) even if this means a
 > small noisy dev eval. - wassname, 2026-11-15 (spelling corrected)
+
+In exploring mode: do not run 3 seeds, do not run an ablation, and do not rerun the baseline,
+until the method works on an evaluation that you have checked. The order of work is in
+[running.md](running.md#order-of-work-in-exploring-mode).
 
 | | exploring: no variant has shown the target effect | confirming: a variant shows it and the setup is fixed |
 |---|---|---|
@@ -127,7 +112,7 @@ automatic training gates. Keep the full checks below; use them to choose what to
 
 Write inline diagnostic expectations in `run.md`, beside the metrics and examples they interpret.
 State expectations before the run; quote important expected-versus-observed divergences afterward
-and say which belief they change. [diagnostic_statements.md](diagnostic_statements.md) distinguishes
+and say which belief they change. [diagnostic_statements.md](../logging/diagnostic_statements.md) distinguishes
 supported `SHOULD:` predictions from `TODO validate:` hypotheses.
 <!-- PI/OpenAI: route inline predictions to their canonical definition; CLAUDE 2026-11-15: that definition now lives in this repository. -->
 
@@ -191,7 +176,7 @@ result block: headline metric, full copyable result table, output path, and run 
 
 Keep `TODO validate:`, `FIXME:`, or `SHOULD:` beside the evidence it interprets. `SHOULD:` needs a
 mechanism, derivation, paper, or validated prior run; otherwise use `TODO validate:`
-([diagnostic_statements.md](diagnostic_statements.md) has the forms and examples). It carries a
+([diagnostic_statements.md](../logging/diagnostic_statements.md) has the forms and examples). It carries a
 number only after the scale exercise (ex H) has been done.
 
 For a comparative result table: first column is an index linked to source, then short metadata,
@@ -213,17 +198,7 @@ an all-`-100` mask, or a bad metric can pass it.
 <!-- CLAUDE: direct compact integration of token-efficient-logging, markdown-tables, setup-repo,
 and jaxtyping. -->
 
-A timing pilot before every long job: 50 real steps at the real batch size on the real data path.
-Put the measured seconds per step and the projected total in the job's label. This detects a
-data-loading bottleneck in about one minute.
-
-Record the run's question in the job label and in `run.md`. With any job queue, label the job with
-the reason for the run and the result that would resolve it (`why: unsure whether X improves Y against baseline; resolve: switch
-the default only if both improve`). Give the same text to the run, so `run.md` opens with it and
-its final lines repeat it above the relevant metrics. The script does not print a conclusion that
-it cannot compute.
-<!-- CLAUDE (PI, Fable): from wassname's queue-label habit, 2026-11-15; agents forgot the point of
-a job between queueing it and reading it. -->
+The timing pilot and the job label: [running.md](running.md).
 
 `MENTAL_MODEL.md`, under one page, with two sections:
 

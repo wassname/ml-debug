@@ -64,4 +64,4 @@ Do not collect a wall of statements far from their evidence. Do not repeat them 
 
 Describe what an observation discriminates before prescribing a fix. Include a diagnosis or repair only when the causal link has been validated repeatedly or the user has explicitly recorded it as institutional knowledge.
 
-When designing a training diagnostic that you cannot justify mechanistically, do the PREDICT and CAUSES steps of [SKILL.md](../SKILL.md). If it still lacks support, leave it as `TODO validate:` instead of filling the gap with a plausible threshold.
+When designing a training diagnostic that you cannot justify mechanistically, do the PREDICT and CAUSES steps of the `ml-debug` skill. If it still lacks support, leave it as `TODO validate:` instead of filling the gap with a plausible threshold.
