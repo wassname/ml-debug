@@ -54,8 +54,18 @@ collapse, show the rows before it and which column moved first.
 you believe now, with a %, and for each possible outcome the % you would move to. If no outcome
 moves it, choose another run. Then:
 
-| risky part | what I expect to see | too weak | too strong | buggy | metric exists? |
-|---|---|---|---|---|---|
+| risky part | origin | what I expect to see | too weak | too strong | buggy | metric exists? |
+|---|---|---|---|---|---|---|
+
+Origin is one of: copied (`file:line` of working code, or the paper's section), changed from that
+reference (say what differs), or new and untested. Suspicion follows novelty: a copied part gets one
+row; a new part gets a row for each way it can fail without an error (it does not learn, the result
+is the same without it, nothing passes through it, it degrades to something trivial), each with its
+own column. What you expect to see goes into the run report beside its number as a `SHOULD` line
+only when the origin gives it a basis, otherwise as `TODO validate:` (`token-efficient-logging`
+owns that rule). The question in the first sentence goes into the job label and into `run.md`, so
+the finished log shows it next to the numbers that answer it.
+<!-- CLAUDE: from a session with wassname, 2026-11-15. The run's faults were found in a minute because each new part already had its knockout column, chosen before the run in a shared brainstorm; other agents had the columns and no expectation beside them, or picked none. -->
 
 Add every metric whose last column says no to the run script. Then smoke test: the real pipeline
 end to end on a tiny model and a small slice of every stage. It checks code paths, not validity.
@@ -137,7 +147,8 @@ LOOK        <data file>: 5 of <N> records, look.py seed <seed>, lines <a b c d e
               :<line> "<the line that surprised you>" explained: <why> | chasing now
 PREDICT     <the question>; compared with <run>
             belief: <claim> <NN>% now; <outcome A> -> <NN>%, <outcome B> -> <NN>%
-            then the table, one row for each risky part
+            then the table, one row for each risky part; new parts: <n> rows, columns <names>
+            the question is in the job label and in run.md: "<the line>" | not yet: <reason>
             smoke test: <command> gave <output> | not run: <reason>
 NULL        <metric> <value>, and <value> at chance | for the base model | shuffled (<file:line>)
 CAUSES      <NN>% <cause>. For: "<quote>" (<file:line>). Against: "<quote>" | untested
