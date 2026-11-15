@@ -15,7 +15,8 @@ that his projects use every day.
 
 | when | do | carried by | detail |
 |---|---|---|---|
-| before code | use the field's names, from the main reference paper and its code | `docs/JARGON.md` | [Language](#language) |
+| before code | take names from the latest one or two reference papers and their code; where you must coin one, make it unique, informative and long enough to signpost | `docs/JARGON.md` | [Language](#language) |
+| before a run | say which mode you are in: exploring (nothing works yet) or confirming (it works) | the job's label | [Two modes](#two-modes-exploring-and-confirming) |
 | before a run | say what is new and what you expect, with a %, and what the opposite result would look like | `MENTAL_MODEL.md`, the spec | [SKILL.md](../SKILL.md) PREDICT; [Choose experiments](#choose-experiments-that-improve-the-mental-model) |
 | before a run | give every new part a column that would show it failing without an error | the one training script; the mechanical ones come from [scripts/parts.py](../scripts/parts.py): how far each part moved, each loss term's gradient share and cosine at each part, the error with each named input swapped across the batch | [What to keep in the repo](#what-to-keep-in-the-repo) |
 | before queueing | smoke test: tiny random model, 2 batches, 2 updates, every stage, type and shape checks on, in the foreground | one command, e.g. `just smoke` | same section |
@@ -34,6 +35,30 @@ that his projects use every day.
 the timing pilot and the question in run.md. Written after a session where the faults of a run were
 found in a minute because each new part already had its knockout column, and where three setup
 faults and a 1-second step were found late for want of the two rows "before queueing". -->
+
+## Two modes: exploring and confirming
+
+> Don't just run more seeds. In blue-sky research we need to try multiple things at once, and only
+> go back and do the baseline or multiple seeds once it's working and our setup is clear. And we
+> need fast iterations (smoke test under 3 minutes, run under 30 minutes) even if this means a
+> small noisy dev eval. - wassname, 2026-11-15 (spelling corrected)
+
+| | exploring: nothing works yet | confirming: it works and the setup is clear |
+|---|---|---|
+| what a run is | the full idea with several changes at once, every part instrumented | one change against a matched baseline |
+| size | smoke test under 3 minutes; run and its evaluation under 30 minutes; a small noisy evaluation is accepted | as large as the claim needs |
+| baseline | the stored one; rerun it only if a shared reference row (a null, the standard method) no longer matches | rerun beside the candidate |
+| seeds, sweeps, ablations | none | yes ([sweeps.md](sweeps.md)) |
+| what you read | the parts' diagnostics and the samples first; the score is a hint | the score with its interval |
+| what ends it | a result worth confirming, or a diagnosis of why not | a claim with its uncertainty |
+
+Most agents default to the right-hand column everywhere: matched baselines, more seeds and a larger
+evaluation before anything has worked. That spends the compute on measuring failures precisely.
+The opposite error is to drop an idea because of one noisy score; in the exploring mode the
+protection against that is the diagnostics and the samples, not more seeds.
+<!-- CLAUDE (PI, Fable): from a session where I reran a known baseline and asked for a larger
+evaluation before the first model had trained. The table is my wording of wassname's rule above
+and of "Choose experiments" below; the last paragraph is my reading. -->
 
 ## Choose experiments that improve the mental model
 
@@ -240,3 +265,13 @@ can't see, while "the grad norm of the kl loss in the 2nd part of training" is p
 reminding the user of lots of relevant context in their own language. - wassname
 
 Keep the list in `docs/JARGON.md` when working in a long loop.
+
+Take the names from the latest one or two papers the work builds on, and from their code, before
+any name of your own. A name you must coin is unique in the project, says what the thing is, and
+is long enough to signpost: "token-edit pair", not "twin"; "latent classes", not "classes"; "the
+state-dependent part of the slope", not "the gates" on first use. A short private word saves the
+writer a second and costs every later reader a lookup. A list in `JARGON.md` does not stop a
+writer who never opens it: put the banned words in a lint that runs on what agents write.
+<!-- CLAUDE (PI, Fable), 2026-11-15: wassname had to correct "code", "slot" and "twin" in one
+session although the project's JARGON.md existed; a regex hook on written files did catch a
+banned word the same day. -->

@@ -50,7 +50,9 @@ Then read one sampled record in full, as the model consumes it (special tokens, 
 and read the log from start to end, not `tail`, generated samples before metrics. For a spike or
 collapse, show the rows before it and which column moved first.
 
-**PREDICT**. The question this run answers, in one sentence, and the run it is compared to. What
+**PREDICT**. The mode: exploring (nothing works yet: several changes at once, run under 30 minutes,
+stored baseline, no seeds) or confirming (it works: one change, matched baseline, seeds). The
+question this run answers, in one sentence, and the run it is compared to. What
 you believe now, with a %, and for each possible outcome the % you would move to. If no outcome
 moves it, choose another run. Then:
 
@@ -154,7 +156,7 @@ LOOK        <data file>: 5 of <N> records, look.py seed <seed>, lines <a b c d e
               :<line> "<short quote>" did not expect: <one thing>   | nothing unexpected in the five
             <log>: read lines <from-to, from-to> of <N>
               :<line> "<the line that surprised you>" explained: <why> | chasing now
-PREDICT     <the question>; compared with <run>
+PREDICT     mode: exploring | confirming; <the question>; compared with <run>
             belief: <claim> <NN>% now; <outcome A> -> <NN>%, <outcome B> -> <NN>%
             then the table, one row for each risky part; new parts: <n> rows, columns <names>
             the question is in the job label and in run.md: "<the line>" | not yet: <reason>
