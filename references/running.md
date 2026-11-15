@@ -48,10 +48,31 @@ pueue add -l "why: unsure whether the answer-only loss mask raises exact match v
 | `why: test the mask` | States an action, not the uncertainty or what each outcome changes. |
 | `why: mask should fix it; resolve: confirm` | Only one outcome is considered. |
 
-`pueue` is recommended: one GPU job at a time, a label and a persistent log per job
-(`pueue status`, `pueue log <id>`, `pueue follow <id>`). `pueue clean` deletes the labels of
-finished jobs; copy them into the journal first. Any queue with labels and persistent logs is
-sufficient.
+`pueue` is recommended; any queue with labels and persistent logs is sufficient.
+
+- One GPU lane with one job at a time. Two GPU jobs that start together compete for memory.
+  API-only jobs go in a separate group. A smoke test does not go in the queue.
+- Run `pueue add -w "$PWD"` from the worktree that holds the code you mean to run.
+- A command with a redirect or a pipe goes after `--` as one quoted string.
+- `pueue clean` and `pueue reset` delete the labels of finished jobs. Copy the labels into the
+  journal first.
+
+## Follow the job
+
+> - agents are lazy and don't read the log
+> - agents forget to monitor long jobs and need some way to be woken up. sleep is token
+>   inefficient. wait is ok but doesn't show log. follow does all
+> -- wassname
+
+Start one background follower per job at the moment you queue it, so that its end wakes you:
+
+```sh
+pueue follow <id> | tail -n 40      # for a job that is still queued: pueue wait <id> first
+```
+
+The wake-up means that the job ended, not that it succeeded: the pipe returns the exit status of
+`tail`. Read the 40 lines, and check the result with `pueue status`. Do not poll with `sleep`.
+Then read the whole of `run.md`, not its tail, before you report (the LOOK step).
 
 ## Lab report
 
@@ -71,7 +92,11 @@ Alternative: a second explanation, and the test that separates the two.
 Next: the queued job, with its label.
 ```
 
-- Evidence is copied from the log with its `path:line` or section, not retyped from memory.
+- Evidence is copied from the log with its `path:line` or section, not retyped from memory. For
+  an aggregate (a mean, a ratio), quote the rows it was computed from.
+- The entry grows with its evidence. A reading note is one paragraph. Do not add a table or
+  headings to make a short note look like a report.
+- Define each metric and each coined term at its first use in the entry.
 - Interpretation is in the first person and is labelled. Use one calibrated word or a %.
 - Do not set a numeric pass threshold in advance without a derivation. State the prediction and
   the credence you would move to for each outcome.

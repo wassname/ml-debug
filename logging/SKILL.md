@@ -31,6 +31,43 @@ Markdown. Full example: [example_run.md](example_run.md).
 | *base model (floor)* | *0.215* | 2.41 |
 ```
 
+## Sinks, progress and failure
+
+- One message, written once. INFO goes to stdout and to `run.md`; DEBUG goes to `run.md` only.
+  Keep stdout sparse: an agent reads it through `tail`.
+- Plain Markdown in both: no emojis, level icons, ANSI colours or timestamp prefixes. Do not
+  strip Unicode from model outputs or data.
+- Open `run.md` before the work starts, and keep it when the run fails. On failure, print the
+  failed stage and the error, link the full traceback, and exit with a nonzero status.
+- Progress bars go to stderr, outside both sinks: ASCII `tqdm` with `mininterval=120` and
+  `maxinterval=120`. Do not print one line per step.
+- Close each stage with its elapsed time, and its peak GPU memory when relevant.
+- Compose one section as one f-string. Build tables with `tabulate(rows, headers, tablefmt="pipe")`.
+  Show a symmetric uncertainty as `value ±half-width`.
+
+```python
+import shlex
+import sys
+from loguru import logger
+
+logger.remove()
+logger.add(sys.stdout, level="INFO", format="{message}\n", colorize=False)
+logger.add(run_dir / "run.md", level="DEBUG", format="{message}\n", colorize=False)
+
+logger.info(f"# train: {name}\n\nQuestion: {question}\n\nargv: `{shlex.join(sys.argv)}`")
+logger.debug(f"\n\n## train -> step {step}\n\n{table}\n\n{statement}")   # run.md only
+```
+
+## The raw records are the source of truth
+
+- Write every prompt, reply, special token, judge input and error verbatim to an append-only
+  JSONL file (or an Inspect `.eval` log). `run.md` is a compressed view of it.
+- Every view links to its source with a path relative to the project root, with a line number
+  where possible. A summary without a link removes the reader's means to check the data.
+- Do not paraphrase an output in a way that changes its meaning. Do not omit a failed, truncated,
+  incoherent, refusing or saturated output from a summary.
+- When the user says "show me", reproduce the text. Do not describe it.
+
 ## Diagnostic statements
 
 A diagnostic statement is a prediction, written before the observation, placed beside the metric

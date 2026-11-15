@@ -30,6 +30,13 @@ smoke:
     BEARTYPE=1 uv run python train.py --model wassname/qwen3-5lyr-tiny-random --batches 2 --steps 2 --eval-items 2
 ```
 
+If the smoke test does not execute a code path, treat that path as untested: extend the smoke
+test. Do not use a real model to find a syntax error.
+
+A second size is useful: a small development run on a small real model (for example
+`Qwen/Qwen3-0.6B`) and a small evaluation, under 30 minutes. Its scores are real and have high
+variance; use it in exploring mode.
+
 ```python
 # mypackage/__init__.py: runtime shape and dtype checks, enabled by the smoke test only
 import os
@@ -59,6 +66,24 @@ for step, batch in enumerate(loader):
         log_metrics(step, loss, exact_match(model, heldout))   # one row of the table in run.md
         log_demo(model, heldout[0])                            # the same prompt at every evaluation
 ```
+
+## One directory per run
+
+Each run writes `outputs/<date>_<name>_<seed>/`. A reader must be able to reconstruct and check
+the run from that directory alone.
+
+```text
+outputs/20260301T1140_answer_mask_s0/
+  metadata.json          # commit, argv, resolved config, start and end time, host
+  run.md                 # the run log and result page (the ml-debug-logging skill)
+  metrics_train.csv      # rectangular metrics, one row per step
+  records.jsonl          # every prompt and reply, verbatim
+  ckpt_0600.safetensors  # zero-padded step, so that files sort in order
+```
+
+Name files so that the path states the purpose: `docs/specs/20260301_answer_mask.md`, not
+`SPEC_4.md`; `scripts/data/01_fetch.py`, not `get_data_monday.py`. Agents do not edit a path that
+contains `human`.
 
 ## Mental model and names in AGENTS.md
 
