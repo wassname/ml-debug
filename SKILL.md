@@ -25,6 +25,7 @@ So do not decide whether you need this. Find your situation and do its steps.
 |---|---|
 | data you have not read yourself | LOOK |
 | about to queue a run | PREDICT |
+| about to queue the first run of a new design | PREDICT, FRESH EYES |
 | a run finished or crashed | LOOK, NULL, CAUSES |
 | two runs without progress | LOOK, NULL, CAUSES, REFERENCE, FRESH EYES |
 | about to write "works", "A beats B", "no effect" or "found the bug", or to stop a job or drop an idea | NULL, CAUSES, FRESH EYES |
@@ -54,7 +55,23 @@ collapse, show the rows before it and which column moved first.
 stored baseline, no seeds) or confirming (it works: one change, matched baseline, seeds). The
 question this run answers, in one sentence, and the run it is compared to. What
 you believe now, with a %, and for each possible outcome the % you would move to. If no outcome
-moves it, choose another run. Then:
+moves it, choose another run.
+
+Two lines before the table, both written before the run:
+
+- What the number stands for. Name the thing you care about (the plan changes, the model is more
+  honest) and the number you will read for it (a judge's score, an error, a share of variance).
+  Then one cheaper way that number could move without the thing you care about, and the row or
+  control that tells the two apart. A judge's score for "the reply is about the topic" also rises
+  when the reply only repeats the word; reading ten replies tells them apart.
+- What you will do with each result: which result makes you keep the idea, which makes you drop
+  it, which makes you look closer. Say it as what you would see, not as a threshold you made up.
+<!-- CLAUDE (PI, Fable) with wassname, 2026-11-15: the first line is "construct validity" in
+plain words. In one session three readings failed this way (a word count read as behaviour, a
+stated goal read as a plan, a share of variance read as "will not steer"), and a small noisy
+evaluation was run with no rule for what its result would mean. -->
+
+Then:
 
 | risky part | origin | what I expect to see | too weak | too strong | buggy | metric exists? |
 |---|---|---|---|---|---|---|
@@ -89,7 +106,9 @@ needs a GPU job or paid calls, queue it or state the cost.
 
 **FRESH EYES**. Give a fresh subagent, from another model family if you can, the entry point and the
 log with no diagnosis attached. Ask for the top bugs and misconceptions. Quote its list, including
-"found nothing".
+"found nothing". Before the first run of a new design there is no log: give it the design and
+ask what would make the run tell you nothing, or succeed or fail for a reason that is not the idea.
+Add a column for each point you accept.
 
 ## Rules
 
@@ -158,6 +177,8 @@ LOOK        <data file>: 5 of <N> records, look.py seed <seed>, lines <a b c d e
               :<line> "<the line that surprised you>" explained: <why> | chasing now
 PREDICT     mode: exploring | confirming; <the question>; compared with <run>
             belief: <claim> <NN>% now; <outcome A> -> <NN>%, <outcome B> -> <NN>%
+            the number: <metric> stands for <what you care about>; it also moves if <cheaper cause>; told apart by <row or control>
+            decision: keep if <what you would see>; drop if <...>; look closer if <...>
             then the table, one row for each risky part; new parts: <n> rows, columns <names>
             the question is in the job label and in run.md: "<the line>" | not yet: <reason>
             smoke test: <command> gave <output> | not run: <reason>
