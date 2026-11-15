@@ -15,6 +15,7 @@ that his projects use every day.
 
 | when | do | carried by | detail |
 |---|---|---|---|
+| once per project | the goal in the user's words, what is not the goal, the names, the key concepts quoted from the papers, the lessons | `AGENTS.md` ([template](../templates/AGENTS.md), under 150 lines) | the template's comments |
 | before code | take names from the latest one or two reference papers and their code; where you must coin one, make it unique, informative and long enough to signpost | `docs/JARGON.md` | [Language](#language) |
 | before a run | say which mode you are in: exploring (nothing works yet) or confirming (it works) | the job's label | [Two modes](#two-modes-exploring-and-confirming) |
 | before a run | say what is new and what you expect, with a %, and what the opposite result would look like | `MENTAL_MODEL.md`, the spec | [SKILL.md](../SKILL.md) PREDICT; [Choose experiments](#choose-experiments-that-improve-the-mental-model) |
