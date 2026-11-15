@@ -8,23 +8,23 @@ agents fail, what to keep in the repo (`train.py`, `run.md`, `MENTAL_MODEL.md`),
 
 ## The toolkit on one page
 
-Each row is one habit and the file that carries it from one agent, or one day, to the next. The
-sections below hold the detail. Nothing here depends on a skill outside this repository or on a
-particular job queue. It holds only the parts of wassname's logging, queueing and repo-setup habits
-that his projects use every day.
+Each row is one practice and the artifact that records it, so that a later session can read it.
+The sections below give the detail. Nothing here depends on a skill outside this repository or on
+a particular job queue. It contains the subset of wassname's logging, queueing and
+repository-setup practices that his projects use.
 
-| when | do | carried by | detail |
+| when | do | recorded in | detail |
 |---|---|---|---|
 | once per project | the goal in the user's words, what is not the goal, the names, the key concepts quoted from the papers, the lessons | `AGENTS.md` ([template](../templates/AGENTS.md), under 150 lines) | the template's comments |
 | before code | take names from the latest one or two reference papers and their code; where you must coin one, make it unique, informative and long enough to signpost | `docs/JARGON.md` | [Language](#language) |
-| before a run | say which mode you are in: exploring (nothing works yet) or confirming (it works) | the job's label | [Two modes](#two-modes-exploring-and-confirming) |
-| before a run | say what is new and what you expect, with a %, and what the opposite result would look like | `MENTAL_MODEL.md`, the spec | [SKILL.md](../SKILL.md) PREDICT; [Choose experiments](#choose-experiments-that-improve-the-mental-model) |
-| before a run | give every new part a column that would show it failing without an error | the one training script; the mechanical ones come from [scripts/parts.py](../scripts/parts.py): how far each part moved, each loss term's gradient share and cosine at each part, the error with each named input swapped across the batch | [What to keep in the repo](#what-to-keep-in-the-repo) |
+| before a run | state the mode: exploring (no variant has shown the target effect) or confirming (a variant shows it) | the job's label | [Two modes](#two-modes-exploring-and-confirming) |
+| before a run | state which components are new, the expected result with a %, and the observation that the opposite result would produce | `MENTAL_MODEL.md`, the spec | [SKILL.md](../SKILL.md) PREDICT; [Choose experiments](#choose-experiments-that-improve-the-mental-model) |
+| before a run | for every new component, log one metric per silent failure mode (a failure that raises no error) | the one training script; [scripts/parts.py](../scripts/parts.py) computes three that need no design choice: parameter movement from initialisation, each loss term's gradient-norm share and cosine per component, and the metric with each named input permuted across the batch | [What to keep in the repo](#what-to-keep-in-the-repo) |
 | before queueing | smoke test: tiny random model, 2 batches, 2 updates, every stage, type and shape checks on, in the foreground | one command, e.g. `just smoke` | same section |
 | before queueing | timing pilot: 50 real steps at the real batch size; seconds per step and projected total | the job's label | same section |
 | queueing | the question the run answers and what would resolve it | the job's label and the top of `run.md` | same section |
-| during | each number beside its `TODO validate:` or `SHOULD` statement; the tail repeats the question | `run.md` | same section; [diagnostic_statements.md](diagnostic_statements.md) |
-| after | LOOK, NULL, CAUSES, FRESH EYES; which belief moved and why | the journal, `MENTAL_MODEL.md` | [SKILL.md](../SKILL.md); [Turn evidence into a research decision](#turn-evidence-into-a-research-decision) |
+| during | each metric beside its `TODO validate:` or `SHOULD` statement; the final lines repeat the question | `run.md` | same section; [diagnostic_statements.md](diagnostic_statements.md) |
+| after | LOOK, NULL, CAUSES, FRESH EYES; which belief changed and the evidence for the change | the journal, `MENTAL_MODEL.md` | [SKILL.md](../SKILL.md); [Turn evidence into a research decision](#turn-evidence-into-a-research-decision) |
 
 > Before you run anything, write down what you expect to happen and why. **Then design the
 > experiment so that the opposite result would also have been visible if it were true.** A clean
@@ -34,8 +34,9 @@ that his projects use every day.
 
 <!-- CLAUDE (PI, Fable), with wassname 2026-11-15: an index of what this file already held, plus
 the timing pilot and the question in run.md. Written after a session where the faults of a run were
-found in a minute because each new part already had its knockout column, and where three setup
-faults and a 1-second step were found late for want of the two rows "before queueing". -->
+found in about one minute because each new component already had its ablation metric, and where
+three setup faults and a 1-second training step were found late because the two rows "before
+queueing" were not done. -->
 
 ## Two modes: exploring and confirming
 
@@ -44,19 +45,20 @@ faults and a 1-second step were found late for want of the two rows "before queu
 > need fast iterations (smoke test under 3 minutes, run under 30 minutes) even if this means a
 > small noisy dev eval. - wassname, 2026-11-15 (spelling corrected)
 
-| | exploring: nothing works yet | confirming: it works and the setup is clear |
+| | exploring: no variant has shown the target effect | confirming: a variant shows it and the setup is fixed |
 |---|---|---|
-| what a run is | the full idea with several changes at once, every part instrumented | one change against a matched baseline |
-| size | smoke test under 3 minutes; run and its evaluation under 30 minutes; a small noisy evaluation is accepted | as large as the claim needs |
+| one run | the complete candidate method, several changes together, each new component instrumented | one change against a matched baseline |
+| size | smoke test under 3 minutes; run with its evaluation under 30 minutes; a small evaluation with high variance is accepted | the sample size that the claim requires |
 | baseline | the stored one; rerun it only if a shared reference row (a null, the standard method) no longer matches | rerun beside the candidate |
 | seeds, sweeps, ablations | none | yes ([sweeps.md](sweeps.md)) |
-| what you read | the parts' diagnostics and the samples first; the score is a hint | the score with its interval |
-| what ends it | a result worth confirming, or a diagnosis of why not | a claim with its uncertainty |
+| evidence read | per-component diagnostics and sampled outputs first; the headline metric is weak evidence at this sample size | the headline metric with its interval |
+| ends with | a variant that shows the target effect, or an identified cause of failure | a claim with its uncertainty |
 
-Most agents default to the right-hand column everywhere: matched baselines, more seeds and a larger
-evaluation before anything has worked. That spends the compute on measuring failures precisely.
-The opposite error is to drop an idea because of one noisy score; in the exploring mode the
-protection against that is the diagnostics and the samples, not more seeds.
+Agents tend to apply the confirming column in both modes: matched baselines, additional seeds and a
+larger evaluation before any variant has shown the effect. The compute then measures non-working
+variants with high precision. In the exploring mode, the safeguard against discarding a method on
+one high-variance metric is the per-component diagnostics and the sampled outputs, not additional
+seeds.
 <!-- CLAUDE (PI, Fable): from a session where I reran a known baseline and asked for a larger
 evaluation before the first model had trained. The table is my wording of wassname's rule above
 and of "Choose experiments" below; the last paragraph is my reading. -->
@@ -212,14 +214,14 @@ an all-`-100` mask, or a bad metric can pass it.
 and jaxtyping. -->
 
 A timing pilot before every long job: 50 real steps at the real batch size on the real data path.
-Put the measured seconds per step and the projected total in the job's label. A step that is slow
-because of data reading, not the model, shows here in a minute, not after the job's time limit.
+Put the measured seconds per step and the projected total in the job's label. This detects a
+data-loading bottleneck in about one minute.
 
-The question travels with the run. Whatever queue you use, label the job with why it exists and
-what result would resolve it (`why: unsure whether X improves Y against baseline; resolve: switch
+Record the run's question in the job label and in `run.md`. With any job queue, label the job with
+the reason for the run and the result that would resolve it (`why: unsure whether X improves Y against baseline; resolve: switch
 the default only if both improve`). Give the same text to the run, so `run.md` opens with it and
-its final lines repeat it above the numbers that bear on it. The script prints no conclusion it
-cannot check; the reader answers the question from those numbers.
+its final lines repeat it above the relevant metrics. The script does not print a conclusion that
+it cannot compute.
 <!-- CLAUDE (PI, Fable): from wassname's queue-label habit, 2026-11-15; agents forgot the point of
 a job between queueing it and reading it. -->
 
@@ -270,9 +272,9 @@ Keep the list in `docs/JARGON.md` when working in a long loop.
 Take the names from the latest one or two papers the work builds on, and from their code, before
 any name of your own. A name you must coin is unique in the project, says what the thing is, and
 is long enough to signpost: "token-edit pair", not "twin"; "latent classes", not "classes"; "the
-state-dependent part of the slope", not "the gates" on first use. A short private word saves the
-writer a second and costs every later reader a lookup. A list in `JARGON.md` does not stop a
-writer who never opens it: put the banned words in a lint that runs on what agents write.
+state-dependent part of the slope", not "the gates" on first use. A coined short term requires every
+later reader to look up its definition. Agents do not open `JARGON.md` before they coin a term, so
+enforce the banned terms with a lint on the files that agents write.
 <!-- CLAUDE (PI, Fable), 2026-11-15: wassname had to correct "code", "slot" and "twin" in one
 session although the project's JARGON.md existed; a regex hook on written files did catch a
 banned word the same day. -->

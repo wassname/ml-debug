@@ -1,18 +1,18 @@
 # AGENTS.md
 
 <!-- Template from ml-debug. Budget: under 150 lines. This file is read at the start of every
-session, so each line must earn its place: it contradicts what an agent would do by default, or
-its absence already cost a day. Date every entry. Delete an entry when it stops being true;
+session. Include a line only if it contradicts default agent behaviour or records a failure that
+occurred in this project. Date every entry. Delete an entry when it stops being true;
 history goes in the journal. Agents may add entries, signed; the user's quotes stay verbatim. -->
 
 ## Goal
 
-<!-- The user's own words, from an interview: ask until you can say what they will be shown when
-it works. Quote, fix spelling only, date. No paraphrase by an agent in this section. -->
+<!-- The user's own words, from an interview: continue until you can state the observable result
+that would satisfy the user. Quote, correct spelling only, date. No agent paraphrase in this section. -->
 
 > "<what the user wants, in their words>" -- <user>, <date>
 
-Not the goal (what agents drift into):
+Out of scope (work that agents start by default and the user does not want):
 
 > "<e.g. we are not trying to X; X is only a baseline>" -- <user>, <date>
 
@@ -41,7 +41,7 @@ facts about the baseline that agents keep getting wrong, each checked against th
 
 ## Gotchas and lessons
 
-<!-- One line each: what went wrong, what to do, date, who said it. Only what would bite again. -->
+<!-- One line each: the failure, the required action, the date, the source. Include only failures that can recur. -->
 
 - <e.g. each method is read at its own dose, never at the same dose number> -- <user>, <date>
 

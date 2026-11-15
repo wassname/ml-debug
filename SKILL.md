@@ -51,25 +51,28 @@ Then read one sampled record in full, as the model consumes it (special tokens, 
 and read the log from start to end, not `tail`, generated samples before metrics. For a spike or
 collapse, show the rows before it and which column moved first.
 
-**PREDICT**. The mode: exploring (nothing works yet: several changes at once, run under 30 minutes,
-stored baseline, no seeds) or confirming (it works: one change, matched baseline, seeds). The
+**PREDICT**. The mode: exploring (no variant has shown the target effect: several changes per run,
+run under 30 minutes, stored baseline, one seed) or confirming (a variant shows the effect: one
+change per run, matched baseline, several seeds). The
 question this run answers, in one sentence, and the run it is compared to. What
 you believe now, with a %, and for each possible outcome the % you would move to. If no outcome
 moves it, choose another run.
 
 Two lines before the table, both written before the run:
 
-- What the number stands for. Name the thing you care about (the plan changes, the model is more
-  honest) and the number you will read for it (a judge's score, an error, a share of variance).
-  Then one cheaper way that number could move without the thing you care about, and the row or
-  control that tells the two apart. A judge's score for "the reply is about the topic" also rises
-  when the reply only repeats the word; reading ten replies tells them apart.
-- What you will do with each result: which result makes you keep the idea, which makes you drop
-  it, which makes you look closer. Say it as what you would see, not as a threshold you made up.
-<!-- CLAUDE (PI, Fable) with wassname, 2026-11-15: the first line is "construct validity" in
-plain words. In one session three readings failed this way (a word count read as behaviour, a
-stated goal read as a plan, a share of variance read as "will not steer"), and a small noisy
-evaluation was run with no rule for what its result would mean. -->
+- Target and proxy. State the target quantity (for example: fraction of replayed plans that reach
+  the edited goal) and the metric used as its proxy (LLM-judge score, relative error, fraction of
+  variance explained). State one confound: a mechanism that changes the metric without changing
+  the target. State the control or table row that separates the two. Example: an LLM-judge score
+  for topic relevance increases when the reply repeats the topic word; the control is a judge
+  question about the behaviour, or a manual read of 10 sampled generations.
+- Decision rule. For each possible outcome, state the action: continue with the method, discard
+  it, or run a specified diagnostic. Define each outcome as an observation in the run report. Do
+  not use a numeric threshold that has no derivation.
+<!-- CLAUDE (PI, Fable) with wassname, 2026-11-15: the first item is construct validity, written
+without the term. In one session three inferences had this fault (keyword frequency taken as
+behaviour change; the goal stated in a reply taken as the executed plan; fraction of variance
+explained taken as steering efficacy), and a small evaluation was run with no decision rule. -->
 
 Then:
 
@@ -77,10 +80,11 @@ Then:
 |---|---|---|---|---|---|---|
 
 Origin is one of: copied (`file:line` of working code, or the paper's section), changed from that
-reference (say what differs), or new and untested. Suspicion follows novelty: a copied part gets one
-row; a new part gets a row for each way it can fail without an error (it does not learn, the result
-is the same without it, nothing passes through it, it degrades to something trivial), each with its
-own column. What you expect to see goes into the run report beside its number as a `SHOULD` line
+reference (say what differs), or new and untested. Instrument in proportion to novelty: a copied
+part gets one row; a new part gets one row for each silent failure mode (a failure that raises no
+error), each with its own logged metric: its parameters do not move from initialisation; ablating
+it leaves the metric unchanged; its output has low effective rank or low variance; it reduces to a
+trivial function, such as a copy of one input. What you expect to see goes into the run report beside its number as a `SHOULD` line
 only when the origin gives it a basis, otherwise as `TODO validate:`. The question in the first
 sentence goes into the job label and into `run.md`, so the finished log shows it next to the
 numbers that answer it ([references/research_loop.md](references/research_loop.md), "What to keep
@@ -106,9 +110,10 @@ needs a GPU job or paid calls, queue it or state the cost.
 
 **FRESH EYES**. Give a fresh subagent, from another model family if you can, the entry point and the
 log with no diagnosis attached. Ask for the top bugs and misconceptions. Quote its list, including
-"found nothing". Before the first run of a new design there is no log: give it the design and
-ask what would make the run tell you nothing, or succeed or fail for a reason that is not the idea.
-Add a column for each point you accept.
+"found nothing". Before the first run of a new design there is no log: give it the design document.
+Ask for the conditions under which the run is uninformative (no outcome changes the belief) and
+for confounds that could produce a positive or negative result independent of the tested
+mechanism. Add a logged metric for each point you accept.
 
 ## Rules
 
@@ -177,8 +182,8 @@ LOOK        <data file>: 5 of <N> records, look.py seed <seed>, lines <a b c d e
               :<line> "<the line that surprised you>" explained: <why> | chasing now
 PREDICT     mode: exploring | confirming; <the question>; compared with <run>
             belief: <claim> <NN>% now; <outcome A> -> <NN>%, <outcome B> -> <NN>%
-            the number: <metric> stands for <what you care about>; it also moves if <cheaper cause>; told apart by <row or control>
-            decision: keep if <what you would see>; drop if <...>; look closer if <...>
+            target/proxy: <metric> is a proxy for <target quantity>; confound: <mechanism>; control: <row or control>
+            decision: continue if <observation>; discard if <observation>; run <diagnostic> if <observation>
             then the table, one row for each risky part; new parts: <n> rows, columns <names>
             the question is in the job label and in run.md: "<the line>" | not yet: <reason>
             smoke test: <command> gave <output> | not run: <reason>

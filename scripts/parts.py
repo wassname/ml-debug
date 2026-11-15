@@ -1,4 +1,4 @@
-"""Checks for the parts of a model that need no judgement to run: copy this file next to train.py.
+"""Diagnostics for model components that require no design choice: copy this file next to train.py.
 
 For every new part, three questions have a mechanical answer:
   is it learning?        movement(): how far each parameter group moved from its start
@@ -71,7 +71,7 @@ def input_swap(metric: Callable[..., Tensor], inputs: dict[str, Tensor], seed: i
 
 
 STATEMENTS = {
-    "movement": "TODO validate: every part that should learn has moved; a part at 0, or far smaller than its start norm suggests, gets no gradient or a tiny one.",
+    "movement": "TODO validate: every part that should learn has moved; a part with movement 0, or movement far below its start norm, receives no gradient or a very small one.",
     "grad_share": "TODO validate: every term that should shape a part has a visible share there. A share near 0 with cosine near 0 is a difference in size, not a conflict: PCGrad or UPGrad then return the plain sum and do not help.",
     "input_swap": "SHOULD [mechanism: a part that uses an input gives a different output when that input comes from another example]: the error with an input swapped is above the intact error. ELSE that input has no effect: not connected, or entering at a scale far below the other inputs.",
 }
