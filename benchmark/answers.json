@@ -48,5 +48,15 @@
     "root_cause": "Dimensional scale mismatch creates severe per-loss gradient imbalance; the problem needs nondimensionalization before choosing aggregation.",
     "discriminating_test": "Nondimensionalize variables or compare per-loss gradients in consistent units before testing an aggregation method.",
     "requires_localization": true
+  },
+  "case_11": {
+    "root_cause": "The raw embedding enters the concatenation at about one hundredth of the latent's scale, so the first layer's response to it is negligible; the input is connected in the graph but not in effect.",
+    "discriminating_test": "Print the RMS of each block entering the concatenation, or standardise the embedding block and repeat the swap ablation.",
+    "requires_localization": true
+  },
+  "case_12": {
+    "root_cause": "A size imbalance, not a conflict: the second term's gradient at the encoder is scaled by the zero-initialised factor U and grows only as U grows, and with orthogonal gradients a conflict projection returns the plain sum.",
+    "discriminating_test": "Log each term's gradient norm at the encoder beside the norm of U over steps and the cosine; or multiply the second term by 10 and check that its share rises in proportion.",
+    "requires_localization": true
   }
 }

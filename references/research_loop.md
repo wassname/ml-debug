@@ -6,6 +6,33 @@ Read for runs of an hour or more, a novel method, or an agent working overnight.
 Contents: choosing experiments, turning evidence into a decision, how ML debugging differs and how
 agents fail, what to keep in the repo (`train.py`, `run.md`, `MENTAL_MODEL.md`), language.
 
+## The toolkit on one page
+
+Each row is one habit and the file that carries it from one agent, or one day, to the next. The
+sections below hold the detail. Nothing here depends on another skill or on a particular job queue.
+
+| when | do | carried by | detail |
+|---|---|---|---|
+| before code | use the field's names, from the main reference paper and its code | `docs/JARGON.md` | [Language](#language) |
+| before a run | say what is new and what you expect, with a %, and what the opposite result would look like | `MENTAL_MODEL.md`, the spec | [SKILL.md](../SKILL.md) PREDICT; [Choose experiments](#choose-experiments-that-improve-the-mental-model) |
+| before a run | give every new part a column that would show it failing without an error | the one training script | [What to keep in the repo](#what-to-keep-in-the-repo) |
+| before queueing | smoke test: tiny random model, 2 batches, 2 updates, every stage, type and shape checks on, in the foreground | one command, e.g. `just smoke` | same section |
+| before queueing | timing pilot: 50 real steps at the real batch size; seconds per step and projected total | the job's label | same section |
+| queueing | the question the run answers and what would resolve it | the job's label and the top of `run.md` | same section |
+| during | each number beside its `TODO validate:` or `SHOULD` statement; the tail repeats the question | `run.md` | same section |
+| after | LOOK, NULL, CAUSES, FRESH EYES; which belief moved and why | the journal, `MENTAL_MODEL.md` | [SKILL.md](../SKILL.md); [Turn evidence into a research decision](#turn-evidence-into-a-research-decision) |
+
+> Before you run anything, write down what you expect to happen and why. **Then design the
+> experiment so that the opposite result would also have been visible if it were true.** A clean
+> answer to a question designed only to confirm your initial expectation is worth less than a
+> messy, honest answer to a question you set up fairly.
+> -- CS 2881 AI Safety, Homework Zero, Fall 2026 (Barak et al.), [course page](https://boazbk.github.io/mltheoryseminar/hw0-2026/)
+
+<!-- CLAUDE (PI, Fable), with wassname 2026-11-15: an index of what this file already held, plus
+the timing pilot and the question in run.md. Written after a session where the faults of a run were
+found in a minute because each new part already had its knockout column, and where three setup
+faults and a 1-second step were found late for want of the two rows "before queueing". -->
+
 ## Choose experiments that improve the mental model
 
 Use this skill before choosing research runs, architecture changes, sweeps, ablations, or probes,
@@ -146,13 +173,26 @@ The raw event trace is the source of truth. Keep JSONL or Inspect records verbat
 truncated, incoherent, refusing, saturated, or confounded output.
 
 A smoke test before every costly run: execute the real pipeline end to end on a tiny random model
-and small slice of every train, extract, and evaluation stage. Use real loaders, I/O, LLM calls,
+and small slice of every train, extract, and evaluation stage (2 batches, 2 updates). It is one
+command, takes a minute or two, and runs in the foreground; do not queue it behind real jobs. Use real loaders, I/O, LLM calls,
 and evaluation; reduce scale only. Annotate function inputs and outputs with `jaxtyping`, and
 activate `beartype` only for this smoke run (for example, `BEARTYPE=1`). Garbage scores are fine:
 it checks code paths, shapes, and dtypes, not scientific validity. A flipped sign, label leakage,
 an all-`-100` mask, or a bad metric can pass it.
 <!-- CLAUDE: direct compact integration of token-efficient-logging, markdown-tables, setup-repo,
 and jaxtyping. -->
+
+A timing pilot before every long job: 50 real steps at the real batch size on the real data path.
+Put the measured seconds per step and the projected total in the job's label. A step that is slow
+because of data reading, not the model, shows here in a minute, not after the job's time limit.
+
+The question travels with the run. Whatever queue you use, label the job with why it exists and
+what result would resolve it (`why: unsure whether X improves Y against baseline; resolve: switch
+the default only if both improve`). Give the same text to the run, so `run.md` opens with it and
+its final lines repeat it above the numbers that bear on it. The script prints no conclusion it
+cannot check; the reader answers the question from those numbers.
+<!-- CLAUDE (PI, Fable): from wassname's queue-label habit, 2026-11-15; agents forgot the point of
+a job between queueing it and reading it. -->
 
 `MENTAL_MODEL.md`, under one page, with two sections:
 

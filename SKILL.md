@@ -62,13 +62,15 @@ reference (say what differs), or new and untested. Suspicion follows novelty: a 
 row; a new part gets a row for each way it can fail without an error (it does not learn, the result
 is the same without it, nothing passes through it, it degrades to something trivial), each with its
 own column. What you expect to see goes into the run report beside its number as a `SHOULD` line
-only when the origin gives it a basis, otherwise as `TODO validate:` (`token-efficient-logging`
-owns that rule). The question in the first sentence goes into the job label and into `run.md`, so
-the finished log shows it next to the numbers that answer it.
+only when the origin gives it a basis, otherwise as `TODO validate:`. The question in the first
+sentence goes into the job label and into `run.md`, so the finished log shows it next to the
+numbers that answer it ([references/research_loop.md](references/research_loop.md), "What to keep
+in the repo").
 <!-- CLAUDE: from a session with wassname, 2026-11-15. The run's faults were found in a minute because each new part already had its knockout column, chosen before the run in a shared brainstorm; other agents had the columns and no expectation beside them, or picked none. -->
 
 Add every metric whose last column says no to the run script. Then smoke test: the real pipeline
 end to end on a tiny model and a small slice of every stage. It checks code paths, not validity.
+Then time 50 real steps and put the seconds per step and the projected total in the job's label.
 
 **NULL**. For each number you cite: its value at chance, for the base model, or for a shuffled
 control, and the line where that was measured. Not measured: say so and add it to the run script.
@@ -102,8 +104,9 @@ log with no diagnosis attached. Ask for the top bugs and misconceptions. Quote i
   a complete audit: [references/exercises.md](references/exercises.md). PREDICT is ex A and B,
   NULL is ex G and H, CAUSES is ex C, I and J, REFERENCE is ex E, FRESH EYES is ex F; it also
   holds the full audit form.
-- For a long research loop (runs of an hour or more, a novel method, an agent working overnight),
-  read [references/research_loop.md](references/research_loop.md): choosing experiments,
+- The toolkit on one page, and for a long research loop (runs of an hour or more, a novel method,
+  an agent working overnight), read [references/research_loop.md](references/research_loop.md):
+  smoke test, timing pilot, the question in the label and in `run.md`, choosing experiments,
   `MENTAL_MODEL.md`, one `train.py`, the `run.md` layout, and field-standard language.
 - [PLAYBOOK.md](PLAYBOOK.md): mental models, component isolation, baseline ladder, what to log,
   symptom tables (candidate routes, not prescriptions).
@@ -150,6 +153,7 @@ PREDICT     <the question>; compared with <run>
             then the table, one row for each risky part; new parts: <n> rows, columns <names>
             the question is in the job label and in run.md: "<the line>" | not yet: <reason>
             smoke test: <command> gave <output> | not run: <reason>
+            timing: 50 steps gave <s per step>, projected <total> | not run: <reason>
 NULL        <metric> <value>, and <value> at chance | for the base model | shuffled (<file:line>)
 CAUSES      <NN>% <cause>. For: "<quote>" (<file:line>). Against: "<quote>" | untested
               (three or more; one is a bug in your own code or metric; some % on unknown)
