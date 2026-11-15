@@ -771,7 +771,8 @@ word for word.
 | 448 lines, 15-row form, exercises inline ([`2e2185c`](https://github.com/wassname/ml-debug/blob/2e2185c/SKILL.md)) | 3 | 0 | 0 |
 | 140 lines, table from situation to steps | 3 | 1 | 0 |
 | the same, with the reply block as the last section | 1 | 1 | 0 |
-| the same, with one bundled command that picks the records (current) | 5 | 5 | 5 |
+| the same, with one bundled command that picks the records | 5 | 5 | 5 |
+| rewritten on 2026-11-15: 235 lines, steps headed by source quotes, a toolkit section, two sub-skills (current) | not run | not run | not run |
 
 <sub>Table: one row is one version of SKILL.md, counts are runs. Claude models only (sonnet, opus,
 haiku), one task, two wordings of the prompt. The notes and the scoring script are local, in
