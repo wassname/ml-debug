@@ -4,6 +4,9 @@ default:
 audit:
   python3 scripts/audit.py --self-test .
 
+parts-selftest:
+  CUDA_VISIBLE_DEVICES= python3 scripts/parts.py
+
 benchmark-validate:
   python3 benchmark/validate.py
 
