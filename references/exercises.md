@@ -111,8 +111,8 @@ exploratory run, name the behaviour or unknown you will inspect and how it could
 change; do not invent a precise hypothesis merely to fill the table. Then:
 <!-- PI/OpenAI: distinguish exploration from testing an established explanation. -->
 
-| risky part | what I expect to see | too weak | too strong | buggy | metric exists? |
-|---|---|---|---|---|---|
+| component | origin | expected if it works | if too weak | if too strong | if it has a bug | metric logged? |
+|---|---|---|---|---|---|---|
 
 Add to `train.py` every metric whose last column says no. The controls: the base model on the same
 inputs; a random direction or shuffled labels through the same pipeline; the method with the novel

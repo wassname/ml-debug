@@ -26,10 +26,12 @@ Or paste `SKILL.md` into your system prompt / context when debugging.
 ## Folklore
 
 
-### The rules, before the rules (Agans)
+### Nine general debugging rules (Agans)
 
-Most of this folklore's lineage goes back to a 2002 debugging book for general
-electronics and software. Its nine rules, in full, from chapter 2:[^agans]
+A 2002 book on debugging electronics and software states nine rules for any system. The ML
+sources below were written independently of it; several of them arrive at the same rules. In
+full, from chapter 2:[^agans]
+<!-- CLAUDE (PI, Fable) 2026-11-15: replaces an agent-written sentence that claimed most of this folklore descends from the book; wassname: "no it doesn't". -->
 
 > UNDERSTAND THE SYSTEM
 > MAKE IT FAIL
