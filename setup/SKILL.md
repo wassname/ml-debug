@@ -18,8 +18,13 @@ detects runtime errors, shape errors and dtype errors.
 - Model: a tiny random model of the same architecture, for example
   [wassname/qwen3-5lyr-tiny-random](https://huggingface.co/wassname/qwen3-5lyr-tiny-random).
 - Size: 2 batches and 2 updates for every stage (train, extract, evaluate).
-- Device: the CPU if the pipeline supports it. Otherwise the GPU in the foreground: a tiny model
-  needs under 1 GB, so it can run beside a queued job. Do not put it in the queue.
+- Device: the GPU, in the foreground, so that the real dtype (for example bf16) is tested. A tiny
+  model uses a small fraction of the GPU, so it can run beside a queued job. Do not put it in
+  the queue.
+- Harness: the same entry point and the same code as the real run, with a smaller config (a
+  `--fast-dev-run` flag or preset on the dataclass config). Do not write a second, "lite" harness.
+- Coverage: enough steps to trigger each periodic action (checkpoint save, scheduler step,
+  evaluation). If the pipeline has a disk cache, run it twice, so that the cache-read path executes.
 - Time: under 3 minutes. Read its last 40 lines.
 - Shape checks: [jaxtyping](https://docs.kidger.site/jaxtyping/) annotations on function inputs
   and outputs, checked by [beartype](https://beartype.readthedocs.io/) in this run only.
@@ -67,6 +72,23 @@ for step, batch in enumerate(loader):
         log_demo(model, heldout[0])                            # the same prompt at every evaluation
 ```
 
+## Config and command line
+
+One dataclass holds the config; the command line is generated from it (`tyro.cli(Cfg)`). The
+`argv` then describes a variant completely, so log it and put it in every result row. Defaults
+are the current best settings, so that a run with no flags is the current best method.
+
+```python
+@dataclass
+class Cfg:
+    model: str = "wassname/qwen3-5lyr-tiny-random"   # the smoke default; the real model by flag
+    steps: int = 5000
+    fast_dev_run: bool = False                       # 2 batches, 2 updates, same code path
+
+if __name__ == "__main__":
+    main(tyro.cli(Cfg))
+```
+
 ## One directory per run
 
 Each run writes `outputs/<date>_<name>_<seed>/`. A reader must be able to reconstruct and check
@@ -84,6 +106,33 @@ outputs/20260301T1140_answer_mask_s0/
 Name files so that the path states the purpose: `docs/specs/20260301_answer_mask.md`, not
 `SPEC_4.md`; `scripts/data/01_fetch.py`, not `get_data_monday.py`. Agents do not edit a path that
 contains `human`.
+
+## Results across runs
+
+`docs/results.md` is organised by question, not by date; the journal is the record by date. Each
+section has the question as its heading, one table, and one line that starts with `Answer:`. The
+provenance (logs, commit, job ids) goes in an HTML comment, so that any row can be regenerated.
+
+The evaluation is the measuring instrument. Keep one constant beside the evaluation code and
+store it with every result. Increase it when the judge, the prompt, the metric, the pass rule or
+the evaluation data changes. Compare numbers only within one version; to compare across a change,
+rerun the older method under the current version.
+
+```python
+EVAL_VERSION = "v3"   # v3: new judge model, held-out split added
+```
+
+```markdown
+## Q1. Does the answer-only loss mask raise exact match?
+<!-- runs: outputs/20260301T1140_answer_mask_s0, outputs/20260301T1010_full_seq_s0; commit 3f2a91c; jobs 37, 41 -->
+
+| run | exact match ↑ | n | argv |
+|:---|---:|---:|:---|
+| answer-only mask | **0.470** | 200 | `train.py --mask answer` |
+| *full-sequence loss* | *0.445* | 200 | `train.py --mask none` |
+
+Answer: higher by 5 problems of 200 on one seed; not yet separable from seed variance.
+```
 
 ## Mental model and names in AGENTS.md
 

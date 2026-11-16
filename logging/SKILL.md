@@ -31,6 +31,22 @@ Markdown. Full example: [example_run.md](example_run.md).
 | *base model (floor)* | *0.215* | 2.41 |
 ```
 
+## Result tables
+
+A result table answers one question. Its first columns hold the answer.
+
+- Column order: the row's name, then the main score, then the inputs of that score, then
+  configuration and counts, then `notes`. The name and the main score must be visible together.
+- Sort rows by the main score, best first. One table per group of comparable rows.
+- An arrow on every metric header, joined to its last word: `exact match↑`, `damage↓`.
+- Bold the best cell of a column, unless more than half of the column ties. Italics for
+  baselines, controls and floors.
+- Always include the floor and the baseline. A number with nothing to compare it with has no
+  meaning.
+- One number per cell. A symmetric uncertainty as `0.47 ±0.03`. Right-align numbers.
+- Short headers in plain words. Define each unfamiliar term in one caption line under the table.
+- A caveat that changes how to read a score goes in the visible `notes` column, not in a comment.
+
 ## Sinks, progress and failure
 
 - One message, written once. INFO goes to stdout and to `run.md`; DEBUG goes to `run.md` only.
