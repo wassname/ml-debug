@@ -772,7 +772,10 @@ word for word.
 | 140 lines, table from situation to steps | 3 | 1 | 0 |
 | the same, with the reply block as the last section | 1 | 1 | 0 |
 | the same, with one bundled command that picks the records | 5 | 5 | 5 |
-| rewritten on 2026-11-15: 235 lines, steps headed by source quotes, a toolkit section, two sub-skills (current) | not run | not run | not run |
+| rewritten on 2026-11-15: 235 lines, steps headed by source quotes, a toolkit section, two sub-skills (current); pi subagents, 2026-11-16 | 5 | 5 | 5 |
+| the 164-line version again, same pi protocol, 2026-11-16 | 5 | 5 | 5 |
+
+<sub>The two rows of 2026-11-16 use another protocol: pi subagents told to read the skill file from a path, two Sonnet 5.5, two Haiku 5.5 and one gpt-6.1-sol run per version, on the same task. No agent could start a subagent, so the fresh-eyes step was recorded as skipped in all ten. Scoring script and notes are local.</sub>
 
 <sub>Table: one row is one version of SKILL.md, counts are runs. Claude models only (sonnet, opus,
 haiku), one task, two wordings of the prompt. The notes and the scoring script are local, in
