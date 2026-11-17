@@ -76,28 +76,7 @@ Then read the whole of `run.md`, not its tail, before you report (the LOOK step)
 
 ## Lab report
 
-One entry in `RESEARCH_JOURNAL.md` per run that changes a belief, written as a lab report: a
-reader with no memory of the session must be able to evaluate it. Append at the end; never edit
-an earlier entry; a correction is a new entry. Full example:
+One entry in `RESEARCH_JOURNAL.md` per run that changes a belief, appended at the end; a
+correction is a new entry. The format, with the competing explanations and the prediction
+written before the run, is the [ml-debug-journal](../journal/SKILL.md) skill. Full example:
 [examples/toolkit/lab_report.md](../examples/toolkit/lab_report.md).
-
-```markdown
-### 2026-03-01 12:05 -- answer-only loss mask: small gain, not separable from seed variance
-
-Context. Commit, job id, command, model, evaluation size, mode.
-Prediction, written before the run: "<claim>: 60%. If higher, 75%; if not, 35%."
-Evidence: the table copied from the run log. Source: `outputs/<run>/run.md`, section "Result".
-Interpretation (mine): what I conclude, with a credence, and the credence I move to.
-Alternative: a second explanation, and the test that separates the two.
-Next: the queued job, with its label.
-```
-
-- Evidence is copied from the log with its `path:line` or section, not retyped from memory. For
-  an aggregate (a mean, a ratio), quote the rows it was computed from.
-- The entry grows with its evidence. A reading note is one paragraph. Do not add a table or
-  headings to make a short note look like a report.
-- Define each metric and each coined term at its first use in the entry.
-- Interpretation is in the first person and is labelled. Use one calibrated word or a %.
-- Do not set a numeric pass threshold in advance without a derivation. State the prediction and
-  the credence you would move to for each outcome.
-- No words that claim a quality: "striking", "promising", "interesting".

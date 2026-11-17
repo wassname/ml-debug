@@ -134,6 +134,8 @@ EVAL_VERSION = "v3"   # v3: new judge model, held-out split added
 Answer: higher by 5 problems of 200 on one seed; not yet separable from seed variance.
 ```
 
+The long example and the script that builds the page: [results_page.md](results_page.md).
+
 ## Mental model and names in AGENTS.md
 
 `AGENTS.md` is read at the start of every session; other files are not. Put in it the names in
@@ -169,3 +171,9 @@ and their code. A coined name is unique and long enough to signpost: "token-edit
 `slop/` for agent drafts, reviews and audits; `scripts/scratch/` for one-off scripts;
 `tests/tdd/` for one-off tests. All are ignored by git. Promote a file only when a maintained
 entry point needs it.
+
+## Read when needed
+
+- [justfile.md](justfile.md): a `justfile` with the smoke recipe, sweep recipes and `just results`.
+- [runbook.md](runbook.md): one page with `run.py`, the `justfile`, a marimo report and the order of work.
+- [results_page.md](results_page.md): `docs/results.md` by question, the evaluation version, and the script that builds it.

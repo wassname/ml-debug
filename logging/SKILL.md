@@ -39,6 +39,7 @@ Markdown. Full example: [example_run.md](example_run.md).
 ## Result tables
 
 A result table answers one question. Its first columns hold the answer.
+The rules below are the short form; the `markdown-tables` skill has the full rules and their reasons.
 
 - Column order: the row's name, then the main score, then the inputs of that score, then
   configuration and counts, then `notes`. The name and the main score must be visible together.

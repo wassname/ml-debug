@@ -138,7 +138,7 @@ the tested mechanism. Add a logged metric for each point you accept.
 
 ## The toolkit
 
-Three skills in this repository, for three different times. `./install.sh <skills directory>`
+Four skills in this repository, for four different times. `./install.sh <skills directory>`
 links all of them.
 
 | when | skill | what it holds |
@@ -146,6 +146,7 @@ links all of them.
 | you set up or audit a repository | [setup/SKILL.md](setup/SKILL.md) (`ml-debug-setup`) | Smoke test on a tiny random model with `jaxtyping` and `beartype`; one training script that reads like pseudocode; `AGENTS.md` with the goal, the names and the mental model; `docs/papers/` and `docs/vendor/`; folders for throwaway work. |
 | you write logging code | [logging/SKILL.md](logging/SKILL.md) (`ml-debug-logging`) | The layout of `run.md` with a full example; result tables; `SHOULD`, `TODO validate` and `FIXME` statements. |
 | you queue, run and report | this skill, with [references/running.md](references/running.md) | Order of work, timing pilot, job label, lab report. |
+| a run or an analysis changes a belief | [journal/SKILL.md](journal/SKILL.md) (`ml-debug-journal`) | The journal entry: evidence with its source, nulls, competing explanations with a credence each, the prediction from before the run. |
 
 The run-time practices, each with one example:
 
@@ -158,10 +159,8 @@ The run-time practices, each with one example:
   Without one, which is the usual case:
   `TODO validate (60%): exact match is higher with the answer-only mask`. Your stated expectations are wrong more often than you estimate, so
   do not write `SHOULD` without a basis and do not predict a number without a derivation.
-- Lab report: one journal entry per run that changes a belief. It holds the prediction written
-  before the run, the evidence copied from `run.md` with its path, the interpretation in the first
-  person with a credence, and one alternative explanation with the test that separates it.
-  [Example](examples/toolkit/lab_report.md).
+- Lab report: one journal entry per run that changes a belief, in the format of
+  [journal/SKILL.md](journal/SKILL.md) (`ml-debug-journal`). [Example](examples/toolkit/lab_report.md).
 
 ## Rules
 
