@@ -1,6 +1,6 @@
 ---
 name: ml-debug-logging
-description: "Write the run log of an ML training or evaluation script: one Markdown file, run.md, that states the question, shows each metric beside the expectation written for it, and ends with the result table. Use when you write or change logging code, when a log cannot be understood from its last 40 lines, when a table does not render, or when you write SHOULD, TODO validate or FIXME statements. Sub-skill of ml-debug."
+description: "Write the run log of an ML training or evaluation script: one Markdown file, run.md, that states the question, shows each metric beside the expectation written for it, and ends with the result table. Use when you write or change logging code, when a log cannot be understood from its last 40 lines, when a table does not render, or when you write SHOULD, TODO validate or FIXME statements, when you set up loguru or tqdm, or when you log LLM prompts and generations. Replaces token-efficient-logging. Sub-skill of ml-debug."
 ---
 
 # The run log
@@ -22,6 +22,11 @@ Markdown. Full example: [example_run.md](example_run.md).
   truncated. Use the same prompt at each evaluation, so that a change in behaviour is visible.
 - Final 40 lines: status, the question again, the complete result table, a link to the raw
   records, and the path of `run.md` as the last line. Nothing prints after it.
+- Print the numbers that bear on the question. Do not print a conclusion that the script cannot
+  check ("the method works"); the reader decides that from the numbers. Interpretation goes in
+  the journal.
+- Start the result with behaviour on the task. Leave out counts of work done (tests passed, rows
+  processed) unless the count is the result.
 
 ```markdown
 | run | exact match ↑ | answer loss ↓ |
@@ -84,6 +89,16 @@ logger.debug(f"\n\n## train -> step {step}\n\n{table}\n\n{statement}")   # run.m
   incoherent, refusing or saturated output from a summary.
 - When the user says "show me", reproduce the text. Do not describe it.
 
+How much to show depends on the reader:
+
+| where | reader | what to show |
+|:--|:--|:--|
+| `run.md` and stdout | someone who scans for what ran and what the result is | one full demo for each LLM stage; the result table in full; summaries elsewhere |
+| chat | the user, who wants to look at the data | the full text when they say "show", "paste" or "let me see"; every variant, not one; reorder and highlight, but do not cut with "..." or reword |
+| paper or post | a sceptical reader outside the project | a real excerpt, word for word, with the difference highlighted; cite the record |
+
+When blocks are identical across variants, show the block once and say so.
+
 ## Diagnostic statements
 
 A diagnostic statement is a prediction, written before the observation, placed beside the metric
@@ -105,3 +120,10 @@ debugs around a wrong `SHOULD`. So the default is `TODO validate:`.
   the violation distinguishes.
 - After the run, mark each statement as held or violated in the lab report (the journal entry for the run), and state which
   belief changed.
+
+## Read when needed
+
+- [python_recipes.md](python_recipes.md): the resolved config table, stage headings, `tqdm`,
+  failure handling, and a table that streams one row per step.
+- [llm_traces.md](llm_traces.md): logging prompts, chosen and rejected examples, calibration and
+  generations with their special tokens; red-team text; cropping many long generations for a page.
