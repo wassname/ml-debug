@@ -138,7 +138,7 @@ the tested mechanism. Add a logged metric for each point you accept.
 
 ## The toolkit
 
-Four skills in this repository, for four different times. `./install.sh <skills directory>`
+Five skills in this repository, for five different times. `./install.sh <skills directory>`
 links all of them.
 
 | when | skill | what it holds |
@@ -146,6 +146,7 @@ links all of them.
 | you set up or audit a repository | [setup/SKILL.md](setup/SKILL.md) (`ml-debug-setup`) | Smoke test on a tiny random model with `jaxtyping` and `beartype`; one training script that reads like pseudocode; `AGENTS.md` with the goal, the names and the mental model; `docs/papers/` and `docs/vendor/`; folders for throwaway work. |
 | you write logging code | [logging/SKILL.md](logging/SKILL.md) (`ml-debug-logging`) | The layout of `run.md` with a full example; result tables; `SHOULD`, `TODO validate` and `FIXME` statements. |
 | you queue, run and report | this skill, with [references/running.md](references/running.md) | Order of work, timing pilot, job label, lab report. |
+| a run ended and its result matters | [audit/SKILL.md](audit/SKILL.md) (`ml-debug-audit`) | Read the data behind the result: the whole log, sampled records, the records behind the headline number, recomputed by hand. |
 | a run or an analysis changes a belief | [journal/SKILL.md](journal/SKILL.md) (`ml-debug-journal`) | The journal entry: evidence with its source, nulls, competing explanations with a credence each, the prediction from before the run. |
 
 The run-time practices, each with one example:
@@ -177,7 +178,7 @@ The run-time practices, each with one example:
 
 | read | when |
 |---|---|
-| [references/exercises.md](references/exercises.md) | A step gives a result you cannot explain, or the user asks for a complete audit. PREDICT is ex A and B, NULL is G and H, CAUSES is C, I and J, REFERENCE is E, FRESH EYES is F. |
+| [references/exercises.md](references/exercises.md) | A step gives a result you cannot explain. For a complete audit, use [audit/SKILL.md](audit/SKILL.md). PREDICT is ex A and B, NULL is G and H, CAUSES is C, I and J, REFERENCE is E, FRESH EYES is F. |
 | [references/research_loop.md](references/research_loop.md) | Runs of an hour or more, a novel method, or an overnight agent: the two modes, choosing experiments, turning evidence into a decision, `MENTAL_MODEL.md`. |
 | [PLAYBOOK.md](PLAYBOOK.md) | Mental models, component isolation, baseline ladder, what to log, symptom tables. |
 | [references/diagnostics.md](references/diagnostics.md), [references/static_analysis.md](references/static_analysis.md) | Initial loss, overfit one batch, gradient flow, NaN hooks, leakage tracer; grep patterns for silent bugs. |

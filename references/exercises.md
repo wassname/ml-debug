@@ -1,44 +1,8 @@
-# The full audit form and exercises A to J
+# Exercises A to J
 
 The steps in [SKILL.md](../SKILL.md) are what you do every time. This file is the same work at
-depth: the full form for a complete audit of a run, the routing that says which exercise applies,
-and the exercises.
-
-## The ml-debug form
-
-Read the whole log first. Save the complete form in the run's audit. Show the decision and
-supporting evidence in the reply as described in
-[research_loop.md](research_loop.md#turn-evidence-into-a-research-decision); when the user requests the full form
-in chat, include all rows there too. Do not substitute "audit complete" or a file path for
-the findings.
-
-Ground each answer in quoted log evidence. If evidence is missing, write "unknown"
-and say what would fill the gap.
-
-> Read your data. Often, the quality of the data is a crucial driver of the results of your experiments. Often, it is quite bad. -- Nanda
-
-> How would a random predictor perform (especially in classification problems)? [...] What would the loss look like for a random predictor? [...] What are the limits of this metric? If it's perfect, what can I conclude? What can't I conclude? -- Sanh
-
-| row | answer |
-|---|---|
-| log length; the config as it appears in the log | |
-| each `SHOULD:` line, then the observed line, quoted | |
-| for every number you cite: its value under a null (chance, ln C, the base model, a random predictor) and where that expectation came from | |
-| at init, before any update: what did the demo show, and how does it compare to the base model or to chance? | |
-| against a dummy (persistence, class prior, null model, simple heuristic) at each stage: which wins, by how much? | |
-| against the baseline model at each stage, on val and on held-out: which wins? | |
-| if the schedule ramps (warmup, OneCycle): at what lr did learning start, at what lr did it stop? | |
-| one full sample, viewed: input as consumed, output, trace. Link or quote it | |
-| at the worst-looking step: loss per term, grad norm per module. Which module does it point to? | |
-| lines in the log that surprised you, quoted, with why. Each ends "explained: ..." or "chasing now" | |
-| what is not in this log that you would need in order to trust it | |
-| three or more diagnoses with a % on each: one bug in the training code, one bug in the eval, one confound or shortcut, some % on unknown. For each, the strongest evidence for and against, from the log. No evidence against means untested | |
-| a fresh subagent, given the training entry point and `run.md` with no diagnosis attached, asked for the top bugs and misconceptions. Its list, quoted, including "found nothing" | |
-| the cheapest test separating the top two diagnoses, and what each predicts | |
-| wall-clock and GPU memory per stage; what would shorten the loop | |
-
-Some rows are an exercise below at less depth. The form is for a complete audit; the exercise is
-done at depth when the routing says so.
+depth: the routing that says which exercise applies, and the exercises. A complete audit of a run
+is the [ml-debug-audit](../audit/SKILL.md) skill.
 
 ## Routing
 
@@ -51,7 +15,7 @@ Before a run:
   review (ex F, small; the review is delegated)
 
 After a run (finished or crashed):
-- for a complete audit: the form
+- for a complete audit: the [ml-debug-audit](../audit/SKILL.md) skill
 - always: second cause for the same number (ex C, small)
 - if it failed: reproduce it, same seed then a different seed, before diagnosing. A failure
   that does not reproduce is a different problem; write that down
@@ -72,7 +36,7 @@ improvement you cannot explain means something else is compensating.
 <!-- CLAUDE: Agans (docs/evidence/agans_debugging_9_rules.md); the compensation reading is mine,
 via Goodfellow's "other parts can adapt" above. -->
 
-Reference search (ex E), external review (ex F), and the blind reads in the form and ex I are
+Reference search (ex E), external review (ex F), and the blind reads in ex I are
 subagent jobs, for the same reason each time: the subagent has no diagnosis to defend. The
 diagnosis stays in the main context.
 <!-- CLAUDE: wassname's point that exploring, searching and reviewing suit subagents. -->
@@ -81,7 +45,7 @@ In an autoresearch loop, where the human has left and expects the loop to keep r
 
 > **NEVER STOP**: Once the experiment loop has begun (after the initial setup), do NOT pause to ask the human if you should continue. Do NOT ask 'should I keep going?' or 'is this a good stopping point?'. The human might be asleep, or gone from a computer and expects you to continue working *indefinitely* until you are manually stopped. You are autonomous. If you run out of ideas, think harder — read papers referenced in the code, re-read the in-scope files for new angles, try combining previous near-misses, try more radical architectural changes. The loop runs until the human interrupts you, period. -- Karpathy, [autoresearch/program.md](https://github.com/karpathy/autoresearch/blob/master/program.md)
 
-A job is stopped, or an idea dropped, only after the form, ex I, and ex J are written out.
+A job is stopped, or an idea dropped, only after the audit (the ml-debug-audit skill), ex I, and ex J are written out.
 
 ## Exercises
 
