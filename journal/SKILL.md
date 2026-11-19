@@ -82,7 +82,7 @@ An entry grows with its evidence. Do not add parts to make a short note look lik
 
 ## Check before you append
 
-List each project name, abbreviation and metric in the entry. Beside each, copy the sentence from the entry that says in plain words what it is. Where there is no such sentence, add one or remove the name. Keep the list in your working notes, not in the entry.
+List each project name, abbreviation and metric in the entry. Beside each, copy the sentence from the entry that says in plain words what it is. For a metric, that sentence names what it is computed from, what it is an error against, and the axis each mean or sum runs over. Where there is no such sentence, add one or remove the name. Keep the list in your working notes, not in the entry.
 
 ## Write it
 

@@ -31,6 +31,8 @@ with torch\.no_grad             # check this isn't wrapping training code
 \.eval\(\)                      # should pair with .train()
 # Action: verify .eval() before every val loop, .train() before every train loop.
 # Dropout and batchnorm behave differently -- this silently degrades results.
+# Also: any buffer updated in forward() (running mean, EMA) moves during an evaluation run in train mode.
+# Check: hash state_dict() before and after an evaluation-only run; they must be equal.
 ```
 
 **In-place ops on tensors requiring grad**

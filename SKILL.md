@@ -72,7 +72,9 @@ Write these before the run.
    the edited goal). The metric used as its proxy (LLM-judge score, relative error, fraction of
    variance explained). One confound: a mechanism that changes the metric without changing the
    target (an LLM-judge score for topic relevance increases when the reply repeats the topic
-   word). The control or table row that separates the two.
+   word). The control or table row that separates the two. If this proxy and the target have both
+   been measured before in this project, state how often they ordered two models the same way. A
+   proxy with no such record selects what to test on the target; it does not decide.
 5. Decision rule. For each possible outcome, the action: continue with the method, discard it, or
    run a specified diagnostic. Define each outcome as an observation in the run report, not as a
    numeric threshold without a derivation.
@@ -105,6 +107,31 @@ component already had its ablation metric, chosen before the run. -->
 For each number you cite, give its value under a null: chance level, the base model, or a shuffled
 control. Cite the `file:line` where the null was measured. If it was not measured, state that and
 add the measurement to the run script.
+
+For a claim that compares A with B ("beats", "equal to", "worse than"), give three more things.
+Where one is not measured, state that, and do not make the claim.
+
+1. Measured against. For each of the two numbers: the target or label it is an error against, its
+   denominator, and the evaluation rows. Two numbers are comparable only when all three are the
+   same. Example: model A is trained to predict a label, and model B to predict a smoothed copy
+   of it. B's error is lower because its target is easier, not because B is better. Compare such
+   models on a quantity that neither was trained on, such as the task result on the same rows.
+2. Control. B made by the same code, commit, data order and evaluation as A, with only the tested
+   change removed. A stored checkpoint, or a number copied from an earlier run, is a reference: it
+   differs from A in more than the tested change.
+3. Noise, by the cheapest estimate that fits. First the variation between evaluation items: a
+   paired bootstrap over items of A minus B costs no new run. Where repeated runs already exist,
+   also quote the spread you observe between them; it is often smaller than a formal interval,
+   and it is real evidence. What the item-level estimate cannot see is a source that all items
+   share: the training seed, one checkpoint, one random draw used for the whole evaluation. Rerun
+   B with that seed changed only when the claim depends on it. Then say what the estimate
+   excludes and what it does not; do not turn it into "significant" or "noise".
+<!-- CLAUDE (PI, Fable), 2026-11-19, from a review of two days of use with wassname. Each of the
+three was a wrong claim that later runs reversed: errors against different labels read as a ranking;
+a gap to a stored model, half of which was between two trainings of one recipe; a count from one
+sampled reply per item that a second sampler seed did not repeat. Item 3 follows wassname: "can't
+we often estimate by looking at intra sample var"; "most uncertainty measures are conservative and
+operationally we find a lower between-result measure". -->
 
 ### CAUSES
 
@@ -190,7 +217,10 @@ The run-time practices, each with one example:
 
 ## Your reply
 
-State the answer first, in a few sentences. Then report the work in the block below, one part per
+State the answer first, in a few sentences. Before the first number of a quantity, define the
+quantity: its name, what it is computed from, and the axis that each mean or sum runs over (batch,
+token, layer, item, seed). "The averaged label" can mean six things; "the mean of the labels of
+this token and the 31 tokens before it" means one. Then report the work in the block below, one part per
 step of your row. The user uses the block to decide how much to trust the answer. A reply without
 the block is treated as unchecked.
 <!-- CLAUDE: the block is the old 15-row form cut to the steps; "treated as unchecked" is my reading of wassname's "unless they are asked to do a form/ritual and show user they almost always skip it". -->
@@ -210,6 +240,10 @@ PREDICT     mode: exploring | confirming; <the question>; compared with <run>
             smoke test: <command> gave <output> | not run: <reason>
             timing: 50 steps gave <s per step>, projected <total> | not run: <reason>
 NULL        <metric> <value>, and <value> at chance | for the base model | shuffled (<file:line>)
+            (for "A beats B", "equal", "worse":)
+            measured against: A and B both <target>, <denominator>, <rows> | not comparable: <what differs>
+            control: <run of B, same commit and code as A> | reference only: <stored run>, differs in <what>
+            noise: A - B = <value>, over <n> items [<low>, <high>]; spread between repeated runs <value> | none exist; excludes <what>, does not exclude <what>
 CAUSES      <NN>% <cause>. For: "<quote>" (<file:line>). Against: "<quote>" | untested
               (three or more; one is a bug in your own code or metric; a % on unknown)
             test of the top two: <command> gave <output> | queued as <job> | not run: needs <GPU hours or $>
