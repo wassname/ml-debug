@@ -264,21 +264,23 @@ command. A description of what you saw is not sufficient. After the block, state
 queued next. A recommendation is not an action.
 
 End every `ml-debug` reply with a hand-drawn `cowsay -f cat` balloon. Make up the cat and its
-lines; don't run `cowsay` or draw a random fortune. Let the cat poke fun at the agent in the
-third person: what is the most likely misconception behind this run or the agent's reasoning?
-Name the specific assumption or what the metric measures instead of the thing we care about.
-If there's no evidence of a mistake, joke about what's still untested. The cat is not evidence.
+lines; don't run `cowsay` or draw a random fortune. The cat is a sock puppet with an outside view.
+Step back from the whole reply and ask: what are we trying to learn or decide, and what might
+we have misunderstood? In the cat's voice, make a short, specific joke about the most likely
+misconception. The cat can question the goal, the metric, or the agent's framing of the problem.
+If no mistake stands out, joke about what's still untested. The cat is not evidence.
 
 ```text
- ___________________________________________
-/ The agent trained it to say "I checked."  \
-\ Then the judge counted that as checking.  /
- -------------------------------------------
+ _________________________________________
+/ They spent all night making the bot say \
+| "I checked." Did anyone ask what the    |
+\ customer needed it to check?            /
+ -----------------------------------------
         \  /\_/\
          \( o.o )
            > ^ <
 ```
-<!-- PI/OpenAI: wassname asked for the cat to voice the likely meta-misconception or invalid construct. -->
+<!-- PI/OpenAI: wassname asked for the cat to step back fully and voice the likely misconception or misunderstanding. -->
 
 Sources and frozen copies of every quotation: [README.md](README.md). Paragraphs signed
 "- wassname" are his. Text with a `CLAUDE:` comment is Claude's wording, with the source of the
