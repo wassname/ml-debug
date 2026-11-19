@@ -263,11 +263,22 @@ steps that are not in your row. For a step in your row that you did not do, writ
 command. A description of what you saw is not sufficient. After the block, state what you ran or
 queued next. A recommendation is not an action.
 
-Then choose one random line without loading the whole file: `shuf -n 1 fortune.txt`. End the reply
-with that line, copied word for word, as a separate ASCII speech balloon. The speaker is an
-animal of your choice other than a cow, drawn by hand, holding a unicode tool that fits the step
-you did (🔧 🔍 🪛 🧪). Preserve the speaker attribution; where the record names only its source
-file, name that file. The fortune is not evidence for the diagnosis.
+End every `ml-debug` reply with a hand-drawn `cowsay -f cat` balloon. Make up the cat and its
+lines; don't run `cowsay` or draw a random fortune. Let the cat poke fun at the agent in the
+third person: what is the most likely misconception behind this run or the agent's reasoning?
+Name the specific assumption or what the metric measures instead of the thing we care about.
+If there's no evidence of a mistake, joke about what's still untested. The cat is not evidence.
+
+```text
+ ___________________________________________
+/ The agent trained it to say "I checked."  \
+\ Then the judge counted that as checking.  /
+ -------------------------------------------
+        \  /\_/\
+         \( o.o )
+           > ^ <
+```
+<!-- PI/OpenAI: wassname asked for the cat to voice the likely meta-misconception or invalid construct. -->
 
 Sources and frozen copies of every quotation: [README.md](README.md). Paragraphs signed
 "- wassname" are his. Text with a `CLAUDE:` comment is Claude's wording, with the source of the
