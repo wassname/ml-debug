@@ -67,7 +67,8 @@ Write these before the run.
 2. Question. The question this run answers, in one sentence, and the run it is compared with. Put
    the sentence in the job label and in `run.md`.
 3. Belief. Your credence in the claim now, as a %. For each possible outcome, the credence you
-   would move to. If no outcome changes the credence, choose a different run.
+   would move to. If no outcome changes the credence, choose a different run. A small or noisy
+   evaluation still moves it: a few points is a valid update, and many such updates decide.
 4. Target and proxy. The target quantity (for example: the fraction of replayed plans that reach
    the edited goal). The metric used as its proxy (LLM-judge score, relative error, fraction of
    variance explained). One confound: a mechanism that changes the metric without changing the
@@ -108,30 +109,26 @@ For each number you cite, give its value under a null: chance level, the base mo
 control. Cite the `file:line` where the null was measured. If it was not measured, state that and
 add the measurement to the run script.
 
-For a claim that compares A with B ("beats", "equal to", "worse than"), give three more things.
-Where one is not measured, state that, and do not make the claim.
+For a claim that compares A with B ("beats", "equal to", "worse than"), also state:
 
 1. Measured against. For each of the two numbers: the target or label it is an error against, its
    denominator, and the evaluation rows. Two numbers are comparable only when all three are the
    same. Example: model A is trained to predict a label, and model B to predict a smoothed copy
    of it. B's error is lower because its target is easier, not because B is better. Compare such
    models on a quantity that neither was trained on, such as the task result on the same rows.
-2. Control. B made by the same code, commit, data order and evaluation as A, with only the tested
-   change removed. A stored checkpoint, or a number copied from an earlier run, is a reference: it
-   differs from A in more than the tested change.
-3. Noise, by the cheapest estimate that fits. First the variation between evaluation items: a
-   paired bootstrap over items of A minus B costs no new run. Where repeated runs already exist,
-   also quote the spread you observe between them; it is often smaller than a formal interval,
-   and it is real evidence. What the item-level estimate cannot see is a source that all items
-   share: the training seed, one checkpoint, one random draw used for the whole evaluation. Rerun
-   B with that seed changed only when the claim depends on it. Then say what the estimate
-   excludes and what it does not; do not turn it into "significant" or "noise".
-<!-- CLAUDE (PI, Fable), 2026-11-19, from a review of two days of use with wassname. Each of the
-three was a wrong claim that later runs reversed: errors against different labels read as a ranking;
-a gap to a stored model, half of which was between two trainings of one recipe; a count from one
-sampled reply per item that a second sampler seed did not repeat. Item 3 follows wassname: "can't
-we often estimate by looking at intra sample var"; "most uncertainty measures are conservative and
-operationally we find a lower between-result measure". -->
+2. Noise, as far as the mode needs it. Exploring: do not build a larger evaluation to measure
+   it. A noisy evaluation is weak evidence: move your credence a little, say by how much, and
+   continue. The variation between the evaluation's own items (a paired bootstrap of A minus B)
+   costs no run and is usually enough. Confirming: also quote the spread between repeated runs
+   where they exist; it is often smaller than a formal interval. Rerun with another seed only
+   for a source that all items share (training seed, one checkpoint, one evaluation-wide random
+   draw) and only when the claim depends on it. In both modes, say what the evidence excludes
+   and what it does not, not "significant" or "noise".
+<!-- CLAUDE (PI, Fable), 2026-11-19, from a review of two days of use with wassname. Item 1: errors
+against different labels were read as a ranking. Item 2 is wassname's: "can't we often estimate by
+looking at intra sample var"; "when you measure noise you end up over engineering a quick dev test
+to take 3h or not thinking bayesian and not updating your model on weak evidence ... we can use
+noisy eval to get weak evidence to update". -->
 
 ### CAUSES
 
@@ -242,8 +239,8 @@ PREDICT     mode: exploring | confirming; <the question>; compared with <run>
 NULL        <metric> <value>, and <value> at chance | for the base model | shuffled (<file:line>)
             (for "A beats B", "equal", "worse":)
             measured against: A and B both <target>, <denominator>, <rows> | not comparable: <what differs>
-            control: <run of B, same commit and code as A> | reference only: <stored run>, differs in <what>
-            noise: A - B = <value>, over <n> items [<low>, <high>]; spread between repeated runs <value> | none exist; excludes <what>, does not exclude <what>
+            B is: <run, same code and commit as A> | a stored run that differs in <what>
+            noise: A - B = <value> over <n> items [<low>, <high>]; credence <NN>% -> <NN>%; excludes <what>, does not exclude <what>
 CAUSES      <NN>% <cause>. For: "<quote>" (<file:line>). Against: "<quote>" | untested
               (three or more; one is a bug in your own code or metric; a % on unknown)
             test of the top two: <command> gave <output> | queued as <job> | not run: needs <GPU hours or $>

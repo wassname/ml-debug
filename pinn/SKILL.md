@@ -1,6 +1,6 @@
 ---
 name: ml-debug-pinn
-description: "PINN (Physics-Informed Neural Network) training best practices and debugging. Use when building, debugging, or optimizing PINNs for PDEs, ODEs, or physics-constrained learning problems. Sub-skill of the ml-debug skill."
+description: "PINN (Physics-Informed Neural Network) training and debugging, and any loss placed on a model's own derivative: a PDE or ODE residual, Sobolev training, matching a teacher's gradient or Jacobian. Use when building or debugging such a model, when one loss term does not fall, when the loss falls and the solution is wrong, or before the first run of a derivative loss. Find your situation in the table, do its steps, and show each one in your reply. Sub-skill of the ml-debug skill."
 ---
 
 
@@ -9,6 +9,92 @@ description: "PINN (Physics-Informed Neural Network) training best practices and
 Consolidated from: NeuralPDE.jl tests/docs, ConFIG repo, Wang et al. 2021, Rathore et al. 2024 (ICML), ml_debug folklore, and practical experience. Heat-exchanger-specific notes in [references/heat_exchanger.md](references/heat_exchanger.md).
 
 Epistemic status: Patterns confirmed across multiple sources. Where sources disagree, noted. Paper claims marked with credence estimates.
+
+---
+
+## What to do now
+
+A loss on a derivative fails silently more often than a loss on a value: the derivative can be wrong,
+unreachable for the architecture, or untrained, while the total loss still falls. So do the steps of
+your row and show them in the block under [Your reply](#your-reply). These are added to the steps of
+the main `ml-debug` skill (LOOK, PREDICT, NULL, CAUSES), not a replacement for them.
+
+| when | steps |
+|---|---|
+| about to build the model, or to queue its first run | Section 0 (baselines), Section 1 (scales), DERIVATIVE |
+| a run finished | TERMS |
+| one loss term does not fall, or the loss falls and the solution is wrong | DERIVATIVE, TERMS, then Section 4 |
+| the derivative is fitted to labels (a teacher's gradient or Jacobian), not to an equation | DERIVATIVE, TERMS, [Section 11](#11-derivative-labels-sobolev-training) |
+| about to write that the method works, or that it fails | TERMS item 1 and item 6, then NULL and CAUSES of `ml-debug` |
+
+### DERIVATIVE
+
+Do this on a small copy of the model in float64, before the first real run. It takes minutes.
+
+1. Correct. Compare the derivative that the loss uses with a finite difference at a few random
+   points (`torch.autograd.gradcheck`, or by hand). Where the derivative is written in closed form,
+   compare it with autograd as well. Report the largest relative difference.
+2. Trainable. A loss on a derivative needs the derivative of the derivative. Build the graph with
+   `create_graph=True`. List every operation between the input and the output and check that each
+   has a second derivative: ReLU's is zero, and some fused kernels (fused attention, cuDNN
+   recurrent layers) raise an error or return nothing. Then take one optimizer step on a fixed
+   batch with only the derivative loss, and report that loss before and after, and the gradient
+   norm for each parameter group. A group with zero gradient is not trained by this term.
+3. Reachable. Write the model's derivative in closed form and say what it cannot be. A model with
+   one hidden layer, `f(x) = U act(V'x + b)`, has the derivative `U diag(act'(V'x + b)) V'`: each
+   hidden unit can change its contribution only along the input direction that it also reads. The
+   gradient of a scalar output is always a curl-free field. If the target derivative is outside
+   what the form allows, more training does not help; change the form (more depth, a separate
+   head) and say so.
+4. Units. Write the unit of the value term and of the derivative term. A derivative of a mean
+   and a derivative of a sum differ by the count; a derivative with respect to a standardised
+   input differs by the input's scale. Put both terms in the dimensionless form of Section 1
+   before weighting them.
+5. Same in training and in use. State the variable that the derivative is taken with respect to,
+   and which other inputs are present or held, in the training loss and where the model is used.
+   A derivative trained with inputs that are absent at use time is another function.
+
+### TERMS
+
+Do this after each run. Put the numbers in the run report, not in a side script.
+
+1. Each loss term alone, then all terms, on the same data, targets and steps. One table. It
+   separates two causes that look the same in a combined run: the form cannot fit this term, or
+   the terms compete for the same weights.
+2. For each term, the gradient norm on the weights that the terms share, and the cosine between
+   the terms' gradients, at several steps (`scripts/parts.py`, `grad_share`). A term with under 1%
+   of the gradient has not been tried yet.
+3. Every loss weight that changes during training, logged as a curve. A rule that balances terms
+   by a slow average of their gradient norms gives a wrong weight for as long as the average lags.
+4. Every free scale that multiplies a term's prediction (a learned amplitude, a profile, a gate),
+   logged from start to end. Such a scale can go to zero, and the term then "predicts nothing":
+   its relative error sits at 1.0 and the other terms look healthy.
+5. Held-out error for each term beside its training error. They overfit at different times.
+6. The use. Compare the solution with a classical solver, or run the task that the model is for.
+   A lower residual or derivative error is a proxy; see NULL in `ml-debug` for when two such errors
+   can be compared at all.
+
+### Your reply
+
+```
+ml-debug-pinn: <the row you are in>
+DERIVATIVE  correct: autograd against finite difference, largest relative difference <value> on <n> points | not run: <reason>
+            trainable: operations without a second derivative: <list> | none; derivative loss over one step <before> -> <after>; parameter groups with zero gradient: <list> | none
+            reachable: model derivative = <closed form>; it cannot be <what> | no limit found
+            units: value term <unit>, derivative term <unit>; made comparable by <what>
+            training and use: derivative with respect to <variable>, with <inputs> present; in use: the same | differs: <how>
+TERMS       alone: <term> <error>, <term> <error>; together: <error for each term>; same data, targets, steps
+            gradient norm for each term at steps <a, b, c>: <values>; cosine: <values>
+            weights and free scales: <name> <start> -> <end>
+            held-out against training, for each term: <values>
+            the use: <solver comparison or task result> | not run: <reason>
+```
+
+For a step in your row that you did not do, write `SKIPPED: <reason>`.
+<!-- CLAUDE (PI, Fable), 2026-11-19, at wassname's request after two days of fitting a model's
+derivative to a teacher's. The table and the block follow the main skill: wassname's observation
+is that agents do such checks only when a form asks for them and the result is shown. Each item
+is a failure that cost hours there or is a standard PINN failure in the sections below. -->
 
 ---
 
@@ -358,7 +444,60 @@ For large or geometrically complex domains, split into subdomains each with a lo
 
 ---
 
+## 11. Derivative labels (Sobolev training)
+
+Use this section when the derivative is fitted to data: the gradient or Jacobian of a teacher
+network, a simulator's sensitivities, measured slopes. The equation-residual sections above still
+apply to the optimisation; what differs is that the derivative now has labels, with their own noise,
+units and coverage. Source: Czarnecki et al. 2017, "Sobolev Training for Neural Networks", NeurIPS,
+https://arxiv.org/abs/1706.04859; full text in
+[docs/evidence/czarnecki2017_sobolev_training.md](docs/evidence/czarnecki2017_sobolev_training.md).
+Line-break hyphens of the PDF are removed in the quotations.
+
+**What it is, and the cheap form with random projections** (Section 2):
+
+> This causes the neural network to encode derivatives of the target function in its own derivatives. Such a model can still be trained using backpropagation and off-the-shelf optimisers. A potential concern is that this optimisation might be expensive when either the output dimensionality of f or the order K are high, however one can reduce this cost through stochastic approximations. Specifically, if f is a multivariate function, instead of a vector gradient, one ends up with a full Jacobian matrix which can be large. To avoid adding computational complexity to the training process, one can use an efficient, stochastic version of Sobolev Training: instead of computing a full Jacobian/Hessian, one just computes its projection onto a random vector (a direct application of a known estimation trick [19]).
+
+Count the supervision in projections, not in data points: one random projection is one backward
+pass through the teacher and one row's worth of information about its Jacobian.
+
+**It works in both directions, and each term alone is a known method** (Section 4.3):
+
+> The previous experiments have shown how information about the derivatives can boost approximating function values. However, the core idea of Sobolev Training is broader than that, and can be employed in both directions. Namely, if one ultimately cares about approximating derivatives, then additionally approximating values can help this process too.
+
+> In particular, if we do not provide supervision on the gradient part, we end up with a loss critic. Similarly if we do not provide supervision at the loss level, but only on the gradient component, we end up in a method that resembles VFBN [25].
+
+So the three runs of TERMS item 1 (value only, derivative only, both) are three named methods, and
+the comparison between them is the experiment.
+
+**Value labels and derivative labels must agree** (Section 3, before Theorem 2):
+
+> This suggests that the Sobolev Training objective is achievable, and that we can seek to encode the values and derivatives of the target function in the values and derivatives of a ReLU neural network model. Interestingly, we can show that if we seek to encode an arbitrary function in the derivatives of the model then this is impossible not only for neural networks but also for any arbitrary differentiable predictor on compact sets.
+
+A value label and a derivative label that do not come from one function cannot both be fitted.
+Check that the derivative label is the derivative of the value label: with respect to the same
+input, with the same other inputs held, in the same units (DERIVATIVE items 4 and 5). When they
+are not, use two output heads, or change one label, and do not read the remaining error as a
+failure of the optimiser.
+
+**Field notes** (one project, 2026-11, not replicated; credence about 50% that each holds elsewhere):
+
+- A model fitted to values only has the derivative of a regression, which is not the teacher's
+  derivative. Do not expect a derivative from a value loss; measure it against the labels.
+- A derivative label at one point is noisier than a value label. The mean of the labels over
+  neighbouring points of the same trajectory was an easier target, and its fit served the
+  downstream use better. Errors against the raw and the averaged labels are not comparable
+  (NULL in `ml-debug`, "measured against").
+- An error on the derivative did not order models as the downstream use did. Decide by the use.
+- A model tied to one function (output = value, own derivative = slope) should be compared with
+  a two-head model on the same inputs and the same two targets. The difference is the cost of the
+  tie; see DERIVATIVE item 3 for one cause.
+
 ## References
+
+### Derivative labels
+- Czarnecki et al. 2017. "Sobolev Training for Neural Networks." NeurIPS. https://arxiv.org/abs/1706.04859
+  - Key: fit the model's derivatives to the target's; random projections of the Jacobian; value-only and derivative-only as special cases; value and derivative targets must be consistent
 
 ### Comprehensive guides (start here)
 - Wang et al. 2023. "An Expert's Guide to Training Physics-Informed Neural Networks." arXiv:2308.08468. https://arxiv.org/pdf/2308.08468
