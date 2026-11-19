@@ -112,23 +112,31 @@ add the measurement to the run script.
 For a claim that compares A with B ("beats", "equal to", "worse than"), also state:
 
 1. Measured against. For each of the two numbers: the target or label it is an error against, its
-   denominator, and the evaluation rows. Two numbers are comparable only when all three are the
-   same. Example: model A is trained to predict a label, and model B to predict a smoothed copy
-   of it. B's error is lower because its target is easier, not because B is better. Compare such
-   models on a quantity that neither was trained on, such as the task result on the same rows.
+   denominator, and the evaluation rows. This is the construct-validity question of PREDICT item
+   4, asked of a comparison. When the three differ, the numbers do not rank the two models
+   (an error against an easier target is lower for that reason alone), with one exception: when
+   you know which side the difference favours, a result against that side still holds. Say which
+   side is the conservative one.
 2. Noise, as far as the mode needs it. Exploring: do not build a larger evaluation to measure
    it. A noisy evaluation is weak evidence: move your credence a little, say by how much, and
    continue. The variation between the evaluation's own items (a paired bootstrap of A minus B)
-   costs no run and is usually enough. Confirming: also quote the spread between repeated runs
-   where they exist; it is often smaller than a formal interval. Rerun with another seed only
-   for a source that all items share (training seed, one checkpoint, one evaluation-wide random
-   draw) and only when the claim depends on it. In both modes, say what the evidence excludes
-   and what it does not, not "significant" or "noise".
+   costs no run and is usually enough. For the next run, a small variation of what worked is
+   often worth more than the same thing with another seed: if the variations all work, that is
+   evidence about the whole class, and the differences between them are noisy evidence about
+   each. Spend the repeats on the best one later. Confirming: also quote the spread between
+   repeated runs where they exist; it is often smaller than a formal interval. Rerun with
+   another seed only for a source that all items share (training seed, one checkpoint, one
+   evaluation-wide random draw) and only when the claim depends on it. In both modes, say what
+   the evidence excludes and what it does not, not "significant" or "noise".
 <!-- CLAUDE (PI, Fable), 2026-11-19, from a review of two days of use with wassname. Item 1: errors
 against different labels were read as a ranking. Item 2 is wassname's: "can't we often estimate by
 looking at intra sample var"; "when you measure noise you end up over engineering a quick dev test
 to take 3h or not thinking bayesian and not updating your model on weak evidence ... we can use
-noisy eval to get weak evidence to update". -->
+noisy eval to get weak evidence to update"; "a slight expected change, a variation of one that
+worked well, is often better than another seed. if a whole class works well, that's evidence about
+the class, and within the class you have noisy evidence about the variations. more info same runs.
+and you can always spend more time on the best later"; and on item 1: "sometimes you know one is
+the conservative case and compare in one dir". -->
 
 ### CAUSES
 
@@ -238,7 +246,7 @@ PREDICT     mode: exploring | confirming; <the question>; compared with <run>
             timing: 50 steps gave <s per step>, projected <total> | not run: <reason>
 NULL        <metric> <value>, and <value> at chance | for the base model | shuffled (<file:line>)
             (for "A beats B", "equal", "worse":)
-            measured against: A and B both <target>, <denominator>, <rows> | not comparable: <what differs>
+            measured against: A and B both <target>, <denominator>, <rows> | differs in <what>; conservative side: <A or B> | not comparable
             B is: <run, same code and commit as A> | a stored run that differs in <what>
             noise: A - B = <value> over <n> items [<low>, <high>]; credence <NN>% -> <NN>%; excludes <what>, does not exclude <what>
 CAUSES      <NN>% <cause>. For: "<quote>" (<file:line>). Against: "<quote>" | untested
